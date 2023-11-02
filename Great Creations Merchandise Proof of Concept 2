@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Great Creations Merchandise Proof of Concept 2</title>
+  <script>
+    function printPage() {
+      window.print();
+    }
+    function reviewNext() {
+      // Functionality for reviewing next proof can be added here
+      window.parent.proofFrame.location.href = 'No more to review.jpg';
+      
+    }
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    @media print {
+      .no-print {
+        display: none;
+      }
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0px auto;
+      padding: 0px;
+      border: 2px solid #f3d3ff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background-color: #fafafa;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      background-color: #ffd42a;
+      padding: 10px;
+    }
+    .designer-info {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    .content {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .image {
+      width: 45%;
+      text-align: center;
+      padding: 10px;
+    }
+    .image img {
+      max-width: 100%;
+      border: 1px solid #f3d3ff;
+    }
+    .details {
+      width: 50%;
+      padding: 10px;
+    }
+    .signature, .changes-made, .review-next, .print-button {
+      text-align: center;
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      margin: 5px auto;
+      border: 1px solid #f3d3ff;
+      display: block;
+      max-length: 60;
+    }
+    .review-next button, .print-button button {
+      padding: 10px 20px;
+      background-color: #00e0ed;
+      color: #fff;
+      cursor: pointer;
+    }
+    .changes-made p {
+      text-decoration: underline;
+    }
+    .changes-table {
+      margin: auto;
+      border: 1px solid #f3d3ff;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="color: white; font-size: 20px;">Great Creations Merchandise Proof of Concept</h1>
+      <p class="no-print" style="color: white;">Review the details below and sign to approve.</p>
+    </div>
+    
+    <div class="content" style="display: flex;">
+      <div class="image">
+        <h3>Design Name: <span id="design-name">Sample Design</span></h3>
+        <img width="320" height="320" src="https://greatcreations.ca/cdn/shop/files/ALL_AROUND_e4a4b9cc-b18a-4aa0-9e88-f181bf07076f.png?v=1617000464" alt="Design Image">
+      </div>
+      <div class="details" style="flex: 1;">
+        <h2>Design Details:</h2>
+        <table>
+          <tr>
+            <td>Product:</td>
+            <td><span id="product-type">T-Shirt</span></td>
+          </tr>
+          <tr>
+            <td>Size:</td>
+            <td><span id="size">Medium</span></td>
+          </tr>
+          <tr>
+            <td>Color:</td>
+            <td><span id="color">Black</span></td>
+          </tr>
+          <tr>
+            <td>Quantity:</td>
+            <td><span id="quantity">1</span></td>
+          </tr>
+          <tr>
+            <td>Price per Unit:</td>
+            <td><span id="price">$25</span></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding-top: 3em;">
+              Designer: Andrew Macdonald<br>
+              Position: Lead Designer
+            </td>
+          </tr>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="changes-made">
+      <h2>Changes Made:</h2>
+      <table class="changes-table">
+        <tr>
+          <td><p>Any changes made to the design or other details are noted here:</p></td>
+        </tr>
+      </table>
+    </div>
+    <div class="signature">
+      <label for="signature">Signature:</label>
+      <input type="text" id="signature" name="signature" maxlength="60">
+    </div>
+    <div class="print-button no-print">
+      <button onclick="printPage()">Print to PDF</button>
+      <p>Once signed, print this page and send it back to the designer.</p>
+    </div>
+    <div class="review-next no-print">
+      <button onclick="reviewNext()">Review Next Proof</button>
+      <p>
+      <script>
+        document.write('<a href="' + document.referrer + '">Go Back</a>');
+      </script>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
