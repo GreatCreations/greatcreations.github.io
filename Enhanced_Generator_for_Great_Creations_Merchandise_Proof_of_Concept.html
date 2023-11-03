@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Generator for Great Creations Merchandise Proof of Concept</title>
+    <style>
+        /* Styles for the generator page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 2px solid #f3d3ff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #f3d3ff;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #00e0ed;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+    
+</head>
+
+
+
+
+
+<body>
+    <div class="container">
+        <h1>Enhanced Generator for Great Creations Merchandise Proof of Concept</h1>
+        <form id="generatorForm">
+            <label for="headerText">Header Text:</label>
+            <input type="text" id="headerText">
+
+            <label for="designName">Design Name:</label>
+            <input type="text" id="designName">
+
+            <label for="imgSrc">Image Source URL:</label>
+            <input type="text" id="imgSrc">
+
+            <label for="productType">Product Type:</label>
+            <input type="text" id="productType">
+
+            <label for="size">Size:</label>
+            <input type="text" id="size">
+
+            <label for="color">Color:</label>
+            <input type="text" id="color">
+
+            <label for="quantity">Quantity:</label>
+            <input type="text" id="quantity">
+
+            <label for="price">Price per Unit:</label>
+            <input type="text" id="price">
+
+            <label for="designerName">Designer Name:</label>
+            <input type="text" id="designerName">
+
+            <label for="designerPosition">Designer Position:</label>
+            <input type="text" id="designerPosition">
+
+            <label for="reviewNextLink">"Review Next Proof" button source URL:</label>
+            <input type="text" id="reviewNextLink">
+
+            <label for="changesMade">Changes made:</label>
+            <textarea id="changesMade"></textarea>
+
+            <button type="button" onclick="generateAndDownload()">Generate and Download</button>
+        </form>
+    </div>
+    <script src="generateAndDownload.js"></script>
+</body>
+
+</html>
