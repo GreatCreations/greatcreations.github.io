@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GREAT CREATION STUDIOS DASHBOARD</title>
+<style>
+:root {
+  --primary-color: #ffbb00;
+  --secondary-color: #00ffff;
+  --tertiary-color: #fdd1d8;
+  --bg-color: #FFFFFF;
+  --text-color: #000000;
+  --bg-image: url('https://greatcreations.github.io/Bright.jpeg');
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-attachment: fixed;
+  color: var(--text-color);
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-menu {
+  background-color: var(--primary-color);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.logo:hover {
+  color: var(--secondary-color);
+}
+
+.menu-items {
+  display: flex;
+  gap: 20px;
+}
+
+.menu-item {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.3s, color 0.3s;
+  position: relative;
+}
+
+.menu-item:hover {
+  transform: scale(1.1);
+  color: var(--secondary-color);
+}
+
+.menu-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--secondary-color);
+}
+
+.panels-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.panel {
+  width: calc(33.33% - 10px);
+  min-height: 200px;
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.panel-header {
+  background-color: var(--secondary-color);
+  padding: 5px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-weight: bold;
+}
+
+.panel-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.panel-control {
+  cursor: pointer;
+  user-select: none;
+}
+
+.panel-iframe {
+  flex-grow: 1;
+  border: none;
+}
+
+.panel-footer {
+  background-color: var(--tertiary-color);
+  padding: 2px 5px;
+  font-size: 10px;
+}
+
+.panel-footer a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.large-panel {
+  width: 100%;
+  height: 300px;
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  margin-top: 10px;
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+.large-panel-iframe {
+  width: 100%;
+  height: calc(100% - 20px);
+  border: none;
+}
+
+.large-panel-handle {
+  height: 20px;
+  background-color: var(--secondary-color);
+  cursor: ns-resize;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.large-panel-toggle {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: var(--bg-color);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid var(--secondary-color);
+  width: 80%;
+  max-width: 500px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.theme-selector, .background-selector, .floating-menu-settings, .panel-settings, .menu-settings {
+  margin-top: 20px;
+}
+
+.theme-option {
+  margin-right: 10px;
+}
+
+.floating-menu {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+
+.floating-menu:hover {
+  transform: scale(1.1);
+}
+
+.floating-menu-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.floating-window {
+  display: none;
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  width: 300px;
+  height: 500px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+
+.floating-window-header {
+  background-color: var(--secondary-color);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.floating-window-title {
+  font-weight: bold;
+}
+
+.floating-window-close {
+  cursor: pointer;
+}
+
+.floating-window-iframe {
+  width: 100%;
+  height: calc(100% - 40px);
+  border: none;
+}
+
+.panel-text-area {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 10px;
+}
+
+.panel-textarea {
+  width: 100%;
+  height: calc(100% - 30px);
+  resize: none;
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px;
+  padding: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.panel-textarea-controls {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.panel-textarea-control {
+  background-color: var(--secondary-color);
+  border: none;
+  color: white;
+  padding: 2px 5px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.panel-textarea-control:hover {
+  background-color: var(--primary-color);
+}
+
+.panel-textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-textarea::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+.panel-textarea::-webkit-scrollbar-thumb {
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+}
+
+.panel-textarea::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-color);
+}
+
+.panel-settings, .menu-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.panel-setting, .menu-setting {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.panel-setting input, .menu-setting input {
+  padding: 3px;
+  font-size: 12px;
+  width: 120px;
+}
+
+.remove-menu-item, #addMenuItem {
+  padding: 2px 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.refresh-icon {
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+}
+
+.large-panel-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 5px;
+  padding: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-bottom-right-radius: 5px;
+}
+
+.floating-window-controls {
+  display: flex;
+  gap: 5px;
+  margin-right: 10px;
+}
+</style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="top-menu">
+    <div class="logo" id="logo">GREAT CREATION STUDIOS DASHBOARD</div>
+    <div class="menu-items" id="menuItems">
+      <!-- Menu items will be dynamically added here -->
+    </div>
+  </div>
+  
+  <div class="panels-container" id="panelsContainer">
+    <!-- Panels will be dynamically added here -->
+  </div>
+  
+  <div class="large-panel" id="largePanel">
+    <div class="large-panel-handle" id="largePanelHandle">
+      <span class="large-panel-toggle" id="largePanelToggle">-</span>
+    </div>
+    <div class="large-panel-controls">
+      <svg class="refresh-icon" id="refreshLargePanel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 4v6h-6"></path>
+        <path d="M1 20v-6h6"></path>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    </div>
+    <iframe src="" class="large-panel-iframe" title="Main Resource" id="mainIframe"></iframe>
+  </div>
+</div>
+
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Settings</h2>
+    <div class="theme-selector">
+      <h3>Theme</h3>
+      <label class="theme-option">
+        <input type="radio" name="theme" value="light" checked> Light
+      </label>
+      <label class="theme-option">
+        <input type="radio" name="theme" value="dark"> Dark
+      </label>
+    </div>
+    <div class="background-selector">
+      <h3>Background Image</h3>
+      <input type="text" id="lightBgInput" placeholder="Light mode background URL">
+      <input type="text" id="darkBgInput" placeholder="Dark mode background URL">
+    </div>
+    <div class="floating-menu-settings">
+      <h3>Floating Menu</h3>
+      <select id="menuPosition">
+        <option value="bottomRight">Bottom Right</option>
+        <option value="bottomLeft">Bottom Left</option>
+      </select>
+      <input type="text" id="menuIconInput" placeholder="Menu icon URL">
+    </div>
+    <div class="menu-settings">
+      <h3>Menu Settings</h3>
+      <div id="menuSettingsContainer">
+        <!-- Menu settings will be dynamically added here -->
+      </div>
+      <button id="addMenuItem">Add Menu Item</button>
+    </div>
+    <div class="panel-settings">
+      <h3>Panel Settings</h3>
+      <div id="panelSettingsContainer">
+        <!-- Panel settings will be dynamically added here -->
+      </div>
+    </div>
+    <div>
+      <h3>Import/Export</h3>
+      <button id="exportSetup">Export Setup</button>
+      <button id="importSetup">Import Setup</button>
+      <input type="file" id="importFile" style="display: none;">
+    </div>
+  </div>
+</div>
+
+<div class="floating-menu" id="floatingMenu">
+  <img src="https://greatcreations.github.io/Icon.jpeg" alt="Menu" class="floating-menu-icon" id="floatingMenuIcon">
+</div>
+
+<div class="floating-window" id="floatingWindow">
+  <div class="floating-window-header">
+    <span class="floating-window-title">Quick Access</span>
+    <div class="floating-window-controls">
+      <svg class="refresh-icon" id="refreshFloatingWindow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 4v6h-6"></path>
+        <path d="M1 20v-6h6"></path>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span class="floating-window-close">&times;</span>
+    </div>
+  </div>
+  <iframe src="" class="floating-window-iframe" title="Quick Access" id="floatingWindowIframe"></iframe>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+let panelsData = JSON.parse(localStorage.getItem('panelsData')) || [
+  { title: 'Project Status', url: '/project-status' },
+  { title: 'Calendar', url: '/calendar' },
+  {title: 'Tasks', url: '/tasks' },
+  { title: 'Messages', url: '/messages' },
+  { title: 'Analytics', url: '/analytics' },
+  { title: 'Resources', url: '/resources' }
+];
+
+let menuData = JSON.parse(localStorage.getItem('menuData')) || [
+  { title: 'Item1', url: '/item1' },
+  { title: 'Item2', url: '/item2' },
+  { title: 'Item3', url: '/item3' },
+  { title: 'Item4', url: '/item4' },
+  { title: 'Item5', url: '/item5' },
+  { title: 'Item6', url: '/item6' },
+  { title: 'Item7', url: '/item7' },
+  { title: 'Item8', url: '/item8' }
+];
+
+const panelsContainer = document.getElementById('panelsContainer');
+const logo = document.getElementById('logo');
+const mainIframe = document.getElementById('mainIframe');
+const menuItemsContainer = document.getElementById('menuItems');
+const floatingMenu = document.getElementById('floatingMenu');
+const floatingWindow = document.getElementById('floatingWindow');
+const floatingWindowClose = document.querySelector('.floating-window-close');
+const floatingMenuIcon = document.getElementById('floatingMenuIcon');
+const largePanel = document.getElementById('largePanel');
+const largePanelHandle = document.getElementById('largePanelHandle');
+const largePanelToggle = document.getElementById('largePanelToggle');
+const refreshLargePanel = document.getElementById('refreshLargePanel');
+const refreshFloatingWindow = document.getElementById('refreshFloatingWindow');
+const floatingWindowIframe = document.getElementById('floatingWindowIframe');
+
+function saveToLocalStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function createPanel(title, url) {
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = `
+    <div class="panel-header">
+      <span class="panel-title">${title}</span>
+      <div class="panel-controls">
+        <svg class="refresh-icon panel-control refresh" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 4v6h-6"></path>
+          <path d="M1 20v-6h6"></path>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span class="panel-control collapse-expand">-</span>
+        <span class="panel-control drag-handle">≡</span>
+      </div>
+    </div>
+    <iframe src="${url}" class="panel-iframe" title="${title}"></iframe>
+    <div class="panel-footer">
+      <a href="${url}" target="_blank">${url}</a>
+    </div>
+    <div class="panel-text-area">
+      <textarea class="panel-textarea" placeholder="Enter your text here..."></textarea>
+      <div class="panel-textarea-controls">
+        <button class="panel-textarea-control paste-btn">Paste</button>
+        <button class="panel-textarea-control copy-btn">Copy</button>
+        <button class="panel-textarea-control print-btn">Print</button>
+      </div>
+    </div>
+  `;
+  
+  const collapseExpand = panel.querySelector('.collapse-expand');
+  const iframe = panel.querySelector('iframe');
+  const textArea = panel.querySelector('.panel-text-area');
+  const textarea = panel.querySelector('.panel-textarea');
+  const pasteBtn = panel.querySelector('.paste-btn');
+  const copyBtn = panel.querySelector('.copy-btn');
+  const printBtn = panel.querySelector('.print-btn');
+  const refreshBtn = panel.querySelector('.refresh');
+  
+  collapseExpand.addEventListener('click', () => {
+    if (collapseExpand.textContent === '-') {
+      iframe.style.display = 'none';
+      textArea.style.display = 'block';
+      collapseExpand.textContent = '+';
+    } else {
+      iframe.style.display = 'block';
+      textArea.style.display = 'none';
+      collapseExpand.textContent = '-';
+    }
+    autosave();
+  });
+
+  pasteBtn.addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      textarea.value = text;
+      autosave();
+    } catch (err) {
+      console.error('Failed to read clipboard contents: ', err);
+    }
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(textarea.value);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  });
+
+  printBtn.addEventListener('click', () => {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Print</title></head><body>');
+    printWindow.document.write('<pre>' + textarea.value + '</pre>');
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+  });
+
+  refreshBtn.addEventListener('click', () => {
+    iframe.src = iframe.src;
+  });
+
+  textarea.addEventListener('input', autosave);
+  
+  return panel;
+}
+
+function updatePanels() {
+  panelsContainer.innerHTML = '';
+  panelsData.forEach(panel => {
+    panelsContainer.appendChild(createPanel(panel.title, panel.url));
+  });
+  restorePanelStates();
+  restorePanelTextAreas();
+}
+
+function updateMenuItems() {
+  menuItemsContainer.innerHTML = '';
+  menuData.forEach(item => {
+    const menuItem = document.createElement('a');
+    menuItem.href = item.url;
+    menuItem.className = 'menu-item';
+    menuItem.textContent = item.title;
+    menuItem.addEventListener('click', (e) => {
+      e.preventDefault();
+      mainIframe.src = item.url;
+      menuItemsContainer.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+      menuItem.classList.add('active');
+    });
+    menuItemsContainer.appendChild(menuItem);
+  });
+  const settingsBtn = document.createElement('span');
+  settingsBtn.className = 'menu-item';
+  settingsBtn.id = 'settingsBtn';
+  settingsBtn.textContent = 'Settings';
+  menuItemsContainer.appendChild(settingsBtn);
+  saveToLocalStorage('menuData', menuData);
+}
+
+function savePanelStates() {
+  const panelStates = Array.from(document.querySelectorAll('.panel')).map(panel => ({
+    collapsed: panel.querySelector('.collapse-expand').textContent === '+',
+    position: {
+      left: panel.style.left,
+      top: panel.style.top,
+      width: panel.style.width,
+      height: panel.style.height
+    }
+  }));
+  saveToLocalStorage('panelStates', panelStates);
+}
+
+function savePanelTextAreas() {
+  const panelTextAreas = {};
+  document.querySelectorAll('.panel-textarea').forEach((textarea, index) => {
+    panelTextAreas[`panel${index}`] = textarea.value;
+  });
+  saveToLocalStorage('panelTextAreas', panelTextAreas);
+}
+
+function restorePanelStates() {
+  const panelStates = JSON.parse(localStorage.getItem('panelStates'));
+  if (panelStates) {
+    document.querySelectorAll('.panel').forEach((panel, index) => {
+      const state = panelStates[index];
+      if (state) {
+        const collapseExpand = panel.querySelector('.collapse-expand');
+        const iframe = panel.querySelector('iframe');
+        const textArea = panel.querySelector('.panel-text-area');
+        if (state.collapsed) {
+          iframe.style.display = 'none';
+          textArea.style.display = 'block';
+          collapseExpand.textContent = '+';
+        }
+        Object.assign(panel.style, state.position);
+      }
+    });
+  }
+}
+
+function restorePanelTextAreas() {
+  const panelTextAreas = JSON.parse(localStorage.getItem('panelTextAreas'));
+  if (panelTextAreas) {
+    document.querySelectorAll('.panel-textarea').forEach((textarea, index) => {
+      textarea.value = panelTextAreas[`panel${index}`] || '';
+    });
+  }
+}
+
+function restoreSettingsModal() {
+  const theme = localStorage.getItem('theme') || 'light';
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) {
+    themeInput.checked = true;
+  }
+  document.getElementById('lightBgInput').value = localStorage.getItem('lightBgUrl') || '';
+  document.getElementById('darkBgInput').value = localStorage.getItem('darkBgUrl') || '';
+  document.getElementById('menuPosition').value = localStorage.getItem('menuPosition') || 'bottomRight';
+  document.getElementById('menuIconInput').value = localStorage.getItem('menuIconUrl') || '';
+}
+
+function autosave() {
+  savePanelStates();
+  savePanelTextAreas();
+  saveToLocalStorage('panelsData', panelsData);
+  saveToLocalStorage('menuData', menuData);
+  const activeTheme = document.querySelector('input[name="theme"]:checked');
+  if (activeTheme) {
+    saveToLocalStorage('theme', activeTheme.value);
+  }
+  saveToLocalStorage('lightBgUrl', document.getElementById('lightBgInput').value);
+  saveToLocalStorage('darkBgUrl', document.getElementById('darkBgInput').value);
+  saveToLocalStorage('menuPosition', document.getElementById('menuPosition').value);
+  saveToLocalStorage('menuIconUrl', document.getElementById('menuIconInput').value);
+  saveToLocalStorage('largePanelHeight', largePanel.style.height);
+  saveToLocalStorage('largePanelCollapsed', largePanelToggle.textContent === '+');
+}
+
+updatePanels();
+updateMenuItems();
+
+new Sortable(panelsContainer, {
+  animation: 150,
+  handle: '.drag-handle',
+  ghostClass: 'sortable-ghost',
+  onEnd: () => {
+    panelsData = Array.from(document.querySelectorAll('.panel')).map(panel => ({
+      title: panel.querySelector('.panel-title').textContent,
+      url: panel.querySelector('.panel-footer a').href
+    }));
+    autosave();
+  }
+});
+
+// Logo functionality
+logo.addEventListener('mouseover', () => {
+  logo.textContent = 'This link takes you to greatcreations.art';
+});
+
+logo.addEventListener('mouseout', () => {
+  logo.textContent = 'GREAT CREATION STUDIOS DASHBOARD';
+});
+
+logo.addEventListener('click', () => {
+  window.location.href = 'https://greatcreations.art';
+});
+
+// Settings Modal
+const modal = document.getElementById('settingsModal');
+const settingsBtn = document.getElementById('settingsBtn');
+const closeBtn = document.getElementsByClassName('close')[0];
+
+settingsBtn.onclick = () => {
+  modal.style.display = 'block';
+  restoreSettingsModal();
+};
+closeBtn.onclick = () => modal.style.display = 'none';
+window.onclick = (event) => {
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
+};
+
+// Theme Switcher
+const themeOptions = document.querySelectorAll('input[name="theme"]');
+const lightBgInput = document.getElementById('lightBgInput');
+const darkBgInput = document.getElementById('darkBgInput');
+
+function setTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.style.setProperty('--bg-color', '#FFFFFF');
+    document.documentElement.style.setProperty('--text-color', '#000000');
+    document.documentElement.style.setProperty('--primary-color', '#FF6B00');
+    document.documentElement.style.setProperty('--secondary-color', '#00FFFF');
+    document.documentElement.style.setProperty('--tertiary-color', '#FFB6C1');
+    document.documentElement.style.setProperty('--bg-image', `url('${lightBgInput.value || 'https://greatcreations.github.io/Bright.jpeg'}')`);
+  } else if (theme === 'dark') {
+    document.documentElement.style.setProperty('--bg-color', '#333333');
+    document.documentElement.style.setProperty('--text-color', '#FFFFFF');
+    document.documentElement.style.setProperty('--primary-color', '#CC5500');
+    document.documentElement.style.setProperty('--secondary-color', '#008B8B');
+    document.documentElement.style.setProperty('--tertiary-color', '#DB7093');
+    document.documentElement.style.setProperty('--bg-image', `url('${darkBgInput.value || 'https://greatcreations.github.io/Dark.jpeg'}')`);
+  }
+  autosave();
+}
+
+themeOptions.forEach(option => {
+  option.addEventListener('change', (e) => {
+    setTheme(e.target.value);
+  });
+});
+
+lightBgInput.addEventListener('change', () => setTheme('light'));
+darkBgInput.addEventListener('change', () => setTheme('dark'));
+
+// Floating Menu
+const menuPosition = document.getElementById('menuPosition');
+const menuIconInput = document.getElementById('menuIconInput');
+
+menuPosition.addEventListener('change', (e) => {
+  if (e.target.value === 'bottomLeft') {
+    floatingMenu.style.left = '20px';
+    floatingMenu.style.right = 'auto';
+    floatingWindow.style.left = '20px';
+    floatingWindow.style.right = 'auto';
+  } else {
+    floatingMenu.style.right = '20px';
+    floatingMenu.style.left = 'auto';
+    floatingWindow.style.right = '20px';
+    floatingWindow.style.left = 'auto';
+  }
+  autosave();
+});
+
+menuIconInput.addEventListener('change', (e) => {
+  floatingMenuIcon.src = e.target.value || 'https://greatcreations.github.io/Icon.jpeg';
+  autosave();
+});
+
+floatingMenu.addEventListener('click', () => {
+  floatingWindow.style.display = floatingWindow.style.display === 'none' ? 'block' : 'none';
+});
+
+floatingWindowClose.addEventListener('click', () => {
+  floatingWindow.style.display = 'none';
+});
+
+// Panel Settings
+const panelSettingsContainer = document.getElementById('panelSettingsContainer');
+
+function createPanelSettingsInputs() {
+  panelSettingsContainer.innerHTML = '';
+  panelsData.forEach((panel, index) => {
+    const panelSetting = document.createElement('div');
+    panelSetting.className = 'panel-setting';
+    panelSetting.innerHTML = `
+      <input type="text" id="panelTitle${index}" value="${panel.title}" placeholder="Panel ${index + 1} Title">
+      <input type="text" id="panelUrl${index}" value="${panel.url}" placeholder="Panel ${index + 1} URL">
+    `;
+    panelSettingsContainer.appendChild(panelSetting);
+
+    const titleInput = document.getElementById(`panelTitle${index}`);
+    const urlInput = document.getElementById(`panelUrl${index}`);
+
+    titleInput.addEventListener('change', (e) => {
+      panelsData[index].title = e.target.value;
+      updatePanels();
+      autosave();
+    });
+
+    urlInput.addEventListener('change', (e) => {
+      panelsData[index].url = e.target.value;
+      updatePanels();
+      autosave();
+    });
+  });
+}
+
+createPanelSettingsInputs();
+
+// Menu Settings
+const menuSettingsContainer = document.getElementById('menuSettingsContainer');
+const addMenuItemBtn = document.getElementById('addMenuItem');
+
+function createMenuSettingsInputs() {
+  menuSettingsContainer.innerHTML = '';
+  menuData.forEach((item, index) => {
+    const menuSetting = document.createElement('div');
+    menuSetting.className = 'menu-setting';
+    menuSetting.innerHTML = `
+      <input type="text" id="menuTitle${index}" value="${item.title}" placeholder="Menu Item ${index + 1} Title">
+      <input type="text" id="menuUrl${index}" value="${item.url}" placeholder="Menu Item ${index + 1} URL">
+      <button class="remove-menu-item" data-index="${index}">X</button>
+    `;
+    menuSettingsContainer.appendChild(menuSetting);
+
+    const titleInput = document.getElementById(`menuTitle${index}`);
+    const urlInput = document.getElementById(`menuUrl${index}`);
+    const removeBtn = menuSetting.querySelector('.remove-menu-item');
+
+    titleInput.addEventListener('change', (e) => {
+      menuData[index].title = e.target.value;
+      updateMenuItems();
+      autosave();
+    });
+
+    urlInput.addEventListener('change', (e) => {
+      menuData[index].url = e.target.value;
+      updateMenuItems();
+      autosave();
+    });
+
+    removeBtn.addEventListener('click', () => {
+      menuData.splice(index, 1);
+      createMenuSettingsInputs();
+      updateMenuItems();
+      autosave();
+    });
+  });
+}
+
+addMenuItemBtn.addEventListener('click', () => {
+  menuData.push({ title: 'New Item', url: '/new-item' });
+  createMenuSettingsInputs();
+  updateMenuItems();
+  autosave();
+});
+
+createMenuSettingsInputs();
+
+// Large Panel Resizing
+let isDragging = false;
+let startY;
+let startHeight;
+
+largePanelHandle.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startY = e.clientY;
+  startHeight = parseInt(getComputedStyle(largePanel).height, 10);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+function onMouseMove(e) {
+  if (!isDragging) return;
+  const delta = startY - e.clientY;
+  const newHeight = Math.max(300, Math.min(window.innerHeight * 0.96, startHeight + delta));
+  largePanel.style.height = `${newHeight}px`;
+  document.body.style.cursor = 'ns-resize';
+  autosave();
+}
+
+function onMouseUp() {
+  isDragging = false;
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+  document.body.style.cursor = 'default';
+  autosave();
+}
+
+largePanelToggle.addEventListener('click', () => {
+  if (largePanelToggle.textContent === '-') {
+    largePanel.style.height = '300px';
+    largePanelToggle.textContent = '+';
+  } else {
+    largePanel.style.height = '96vh';
+    largePanelToggle.textContent = '-';
+  }
+  autosave();
+});
+
+// Refresh buttons
+refreshLargePanel.addEventListener('click', () => {
+  mainIframe.src = mainIframe.src;
+});
+
+refreshFloatingWindow.addEventListener('click', () => {
+  floatingWindowIframe.src = floatingWindowIframe.src;
+});
+
+// Prevent scrollbar in other panels area
+panelsContainer.style.overflow = 'hidden';
+
+// Export setup
+document.getElementById('exportSetup').addEventListener('click', () => {
+  const exportData = {
+    panelsData: panelsData,
+    menuData: menuData,
+    theme: localStorage.getItem('theme'),
+    lightBgUrl: localStorage.getItem('lightBgUrl'),
+    darkBgUrl: localStorage.getItem('darkBgUrl'),
+    menuPosition: localStorage.getItem('menuPosition'),
+    menuIconUrl: localStorage.getItem('menuIconUrl'),
+    panelStates: JSON.parse(localStorage.getItem('panelStates')),
+    panelTextAreas: JSON.parse(localStorage.getItem('panelTextAreas')),
+    largePanelHeight: largePanel.style.height,
+    largePanelCollapsed: largePanelToggle.textContent === '+'
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "dashboard_setup.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+});
+
+// Import setup
+document.getElementById('importSetup').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const importedData = JSON.parse(e.target.result);
+      panelsData = importedData.panelsData;
+      menuData = importedData.menuData;
+      localStorage.setItem('theme', importedData.theme);
+      localStorage.setItem('lightBgUrl', importedData.lightBgUrl);
+      localStorage.setItem('darkBgUrl', importedData.darkBgUrl);
+      localStorage.setItem('menuPosition', importedData.menuPosition);
+      localStorage.setItem('menuIconUrl', importedData.menuIconUrl);
+      localStorage.setItem('panelStates', JSON.stringify(importedData.panelStates));
+      localStorage.setItem('panelTextAreas', JSON.stringify(importedData.panelTextAreas));
+      
+      updatePanels();
+      updateMenuItems();
+      setTheme(importedData.theme);
+      restorePanelStates();
+      restorePanelTextAreas();
+      restoreSettingsModal();
+      
+      menuPosition.value = importedData.menuPosition;
+      menuIconInput.value = importedData.menuIconUrl;
+      floatingMenuIcon.src = importedData.menuIconUrl || 'https://greatcreations.github.io/Icon.jpeg';
+      
+      largePanel.style.height = importedData.largePanelHeight;
+      largePanelToggle.textContent = importedData.largePanelCollapsed ? '+' : '-';
+      
+      createPanelSettingsInputs();
+      createMenuSettingsInputs();
+
+      autosave();
+    };
+    reader.readAsText(file);
+  }
+});
+
+// Initialize theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  setTheme(savedTheme);
+  const themeInput = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+  if (themeInput) {
+    themeInput.checked = true;
+  }
+} else {
+  setTheme('light');
+}
+
+// Load saved settings
+lightBgInput.value = localStorage.getItem('lightBgUrl') || '';
+darkBgInput.value = localStorage.getItem('darkBgUrl') || '';
+menuPosition.value = localStorage.getItem('menuPosition') || 'bottomRight';
+menuIconInput.value = localStorage.getItem('menuIconUrl') || '';
+floatingMenuIcon.src = localStorage.getItem('menuIconUrl') || 'https://greatcreations.github.io/Icon.jpeg';
+
+const savedLargePanelHeight = localStorage.getItem('largePanelHeight');
+if (savedLargePanelHeight) {
+  largePanel.style.height = savedLargePanelHeight;
+}
+
+const savedLargePanelCollapsed = localStorage.getItem('largePanelCollapsed');
+if (savedLargePanelCollapsed === 'true') {
+  largePanel.style.height = '300px';
+  largePanelToggle.textContent = '+';
+}
+
+restorePanelStates();
+restorePanelTextAreas();
+restoreSettingsModal();
+
+// Set floating menu position
+const savedMenuPosition = localStorage.getItem('menuPosition');
+if (savedMenuPosition === 'bottomLeft') {
+  floatingMenu.style.left = '20px';
+  floatingMenu.style.right = 'auto';
+  floatingWindow.style.left = '20px';
+  floatingWindow.style.right = 'auto';
+} else {
+  floatingMenu.style.right = '20px';
+  floatingMenu.style.left = 'auto';
+  floatingWindow.style.right = '20px';
+  floatingWindow.style.left = 'auto';
+}
+
+// Error handling for image loading
+window.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG') {
+    console.error('Failed to load image:', e.target.src);
+    e.target.src = 'https://greatcreations.github.io/Icon.jpeg';
+  }
+}, true);
+
+// Autosave on window unload
+window.addEventListener('beforeunload', autosave);
+
+// Function to update iframe src
+function updateIframeSrc(iframe, url) {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    iframe.src = url;
+  } else if (url.startsWith('/')) {
+    iframe.src = window.location.origin + url;
+  } else {
+    iframe.src = 'file:///' + url.replace(/\\/g, '/');
+  }
+}
+
+// Function to update all iframes
+function updateAllIframes() {
+  document.querySelectorAll('.panel-iframe').forEach(iframe => {
+    const url = iframe.closest('.panel').querySelector('.panel-footer a').href;
+    updateIframeSrc(iframe, url);
+  });
+  if (menuData.length > 0) {
+    updateIframeSrc(mainIframe, menuData[0].url);
+  }
+  updateIframeSrc(floatingWindowIframe, '/quick-access');
+}
+
+// Call updateAllIframes initially and when panel or menu settings change
+updateAllIframes();
+panelSettingsContainer.addEventListener('change', updateAllIframes);
+menuSettingsContainer.addEventListener('change', updateAllIframes);
+
+// Initialize main iframe with first menu item
+if (menuData.length > 0) {
+  mainIframe.src = menuData[0].url;
+}
+
+</script>
+</body>
+</html>
