@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Resources Dashboard</title>
+    <style>
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #f0f0f0;
+        --primary-color: #FF9F00; /* Orange */
+        --secondary-color: #00CED1; /* Cyan */
+        --accent-color: #FFB6C1; /* Light Pink */
+        --sidebar-bg: rgba(255, 159, 0, 0.1); /* Light Orange */
+      }
+      
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      
+      .container {
+        display: flex;
+        flex: 1;
+      }
+      
+      .sidebar {
+        width: 250px;
+        background-color: var(--sidebar-bg);
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(255, 159, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      
+      h1, h2, h3 {
+        color: var(--primary-color);
+      }
+      
+      button {
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        margin-bottom: 10px;
+        width: 100%;
+        text-align: left;
+        font-weight: bold;
+      }
+      
+      button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+      }
+      
+      input, select, textarea {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--accent-color);
+        color: var(--text-color);
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--accent-color);
+      }
+      
+      th {
+        background-color: rgba(255, 159, 0, 0.2);
+        color: var(--primary-color);
+      }
+      
+      .resource-card {
+        background-color: rgba(0, 206, 209, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: 1px solid var(--secondary-color);
+        cursor: pointer;
+      }
+      
+      .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+      }
+      
+      .search-bar {
+        display: flex;
+        margin-bottom: 20px;
+      }
+      
+      .search-bar input {
+        flex: 1;
+        margin-right: 10px;
+      }
+
+      .sidebar-section {
+        margin-bottom: 20px;
+      }
+
+      .info-panel {
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      .info-panel h3 {
+        cursor: pointer;
+        margin: 0;
+        padding: 5px;
+        color: #1a1a1a;
+      }
+
+      .info-panel p {
+        font-size: 0.9em;
+        margin: 3px 0;
+        line-height: 1.1;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      .resource-card h3 {
+        color: var(--secondary-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 5px;
+      }
+
+      .resource-card p {
+        margin: 5px 0;
+      }
+
+      .resource-card button {
+        background-color: var(--accent-color);
+        color: var(--bg-color);
+        margin-top: 10px;
+        margin-right: 5px;
+        width: auto;
+        display: inline-block;
+      }
+
+      .resource-card button:hover {
+        background-color: var(--secondary-color);
+      }
+
+      #content-area {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(255, 159, 0, 0.1);
+      }
+
+      form {
+        background-color: rgba(0, 206, 209, 0.1);
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      form input, form select {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      form button {
+        background-color: var(--secondary-color);
+        color: var(--bg-color);
+      }
+
+      form button:hover {
+        background-color: var(--primary-color);
+      }
+
+      #quantity-calculator {
+        margin-top: 5px;
+      }
+
+      #quantity-calculator input {
+        width: 80px;
+        margin-right: 10px;
+        height: 25px;
+      }
+
+      .search-container {
+        display: flex;
+        margin-bottom: 10px;
+      }
+
+      .search-container input {
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+
+      #clear-search {
+        padding: 8px 15px;
+        background-color: var(--accent-color);
+        color: var(--bg-color);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #sort-select {
+        margin-left: 10px;
+        padding: 8px;
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #sort-select option {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+
+      .modal-content {
+        background-color: var(--bg-color);
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid var(--accent-color);
+        width: 860px;
+        max-width: 90%;
+        border-radius: 5px;
+        position: relative;
+      }
+
+      .close {
+        color: var(--accent-color);
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: var(--secondary-color);
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      #csv-preview {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        border: 1px solid var(--accent-color);
+        padding: 10px;
+      }
+
+      #category-filter, #tag-filter {
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+      }
+
+      #category-filter option, #tag-filter option, #edit-category option, #category option {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .category-breakdown {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .toggle-breakdown {
+        cursor: pointer;
+        color: var(--bg-color);
+        font-weight: bold;
+        font-size: 0.8em;
+      }
+
+      .toggle-breakdown:hover {
+        text-decoration: underline;
+      }
+
+      .export-section h3 {
+        margin-bottom: 10px;
+      }
+
+      .import-section h3 {
+        margin-bottom: 10px;
+      }
+
+      #csv-edit-modal {
+        width: 90%;
+        max-width: 860px;
+      }
+
+      #csv-edit-area {
+        width: 100%;
+        height: 200px;
+        font-family: monospace;
+        white-space: pre;
+        overflow: auto;
+      }
+
+      .csv-edit-instructions {
+        background-color: var(--sidebar-bg);
+        font-size: x-small;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      .csv-edit-tools {
+        margin-bottom: 10px;
+      }
+
+      .csv-edit-tools button {
+        margin-right: 10px;
+        padding: 5px 10px;
+      }
+
+      #settings-btn {
+        position: absolute;
+        top: 800px;
+        width: auto;
+        left: 20px;
+        right: 20px;
+        background-color: var(--secondary-color);
+      }
+
+      #settings-section {
+        display: none;
+        background-color: var(--sidebar-bg);
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+
+      #last-save-time {
+        font-size: 0.8em;
+        margin-top: 10px;
+        color: var(--accent-color);
+      }
+
+      #delete-confirm-modal {
+        display: none;
+        position: fixed;
+        z-index: 2;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+
+      #delete-confirm-modal .modal-content {
+        background-color: var(--bg-color);
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid var(--accent-color);
+        width: 300px;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      #delete-confirm-modal button {
+        margin: 10px;
+        width: auto;
+        display: inline-block;
+      }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-section info-panel" id="cost-info-panel">
+        <h3 class="pulse">Dashboard Info</h3>
+        <p><strong><span id="cost-label">Total Cost of Resources</span>:</strong><br>$<span id="total-cost">0.00</span></p>
+        <p><strong>Total number of Resources:</strong> <span id="total-resources">0</span></p>
+        <div id="quantity-calculator" style="display: none;">
+          <p><strong>Quantity:</strong> <input type="number" id="quantity-input" min="1" value="1"></p>
+          <p><strong>Total:</strong><br><span id="calculated-cost"></span></p>
+        </div>
+        <div class="toggle-breakdown" id="toggle-breakdown">▼ Show Category Breakdown</div>
+        <div class="category-breakdown" id="category-breakdown"></div>
+      </div>
+      <div class="sidebar-section">
+        <h3>Navigation</h3>
+        <button id="view-resources">View Resources</button>
+        <button id="add-resource">Add Resource</button>
+        <button id="manage-categories">Manage Categories</button>
+        <button id="manage-tags">Manage Tags</button>
+      </div>
+      <div class="sidebar-section export-section">
+        <h3>Export</h3>
+        <button id="export-csv">Export to CSV</button>
+        <button id="export-pdf">Download as PDF</button>
+      </div>
+      <div class="sidebar-section import-section">
+        <h3>Import</h3>
+        <button id="import-csv">Import from CSV</button>
+        <button id="open-csv">Open CSV File</button>
+      </div>
+      <button id="settings-btn">Settings</button>
+    </div>
+    <div class="main-content">
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search resources...">
+        <button id="clear-search">Clear</button>
+        <button id="search-button">Search</button>
+        <select id="sort-select">
+          <option value="dateAdded">Date Added</option>
+          <option value="name">Name</option>
+          <option value="category">Category</option>
+          <option value="location">Location</option>
+          <option value="costHighToLow">Cost: High to Low</option>
+          <option value="costLowToHigh">Cost: Low to High</option>
+        </select>
+      </div>
+      <div id="content-area"></div>
+      <div id="settings-section">
+        <h2>Settings</h2>
+        <button id="backup-btn">Backup Data</button>
+        <button id="import-backup-btn">Import Backup</button>
+        <button id="clear-data-btn">Clear All Data</button>
+        <p id="last-save-time"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="csv-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>CSV Export Preview</h2>
+      <div id="csv-preview"></div>
+      <button id="confirm-export">Export CSV</button>
+    </div>
+  </div>
+
+  <div id="csv-edit-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Edit CSV</h2>
+      <div class="csv-edit-instructions">
+        <p>Instructions for editing CSV:</p>
+        <ul>
+          <li>Ensure each row represents a single resource.</li>
+          <li>Keep the header row intact.</li>
+          <li>Use commas to separate values within a row.</li>
+          <li>Use double quotes around values containing commas.</li>
+          <li>Maintain the correct number of columns for each row.</li>
+        </ul>
+      </div>
+      <div class="csv-edit-tools">
+        <button id="add-row">Add Row</button>
+        <button id="remove-row">Remove Selected Row</button>
+        <button id="import-csv-to-editor">Import CSV to Editor</button>
+      </div>
+      <textarea id="csv-edit-area"></textarea>
+      <button id="export-csv-from-editor">Export CSV</button>
+      <button id="load-csv">Load Edited CSV to App</button>
+    </div>
+  </div>
+
+  <div id="delete-confirm-modal" class="modal">
+    <div class="modal-content">
+      <h2>Confirm Deletion</h2>
+      <p>Are you sure you want to delete this resource?</p>
+      <button id="confirm-delete">Delete</button>
+      <button id="cancel-delete">Cancel</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    let resources = [];
+    let categories = [];
+    let tags = [];
+
+    const contentArea = document.getElementById('content-area');
+    const viewResourcesBtn = document.getElementById('view-resources');
+    const addResourceBtn = document.getElementById('add-resource');
+    const manageCategoriesBtn = document.getElementById('manage-categories');
+    const manageTagsBtn = document.getElementById('manage-tags');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const exportCsvBtn = document.getElementById('export-csv');
+    const exportPdfBtn = document.getElementById('export-pdf');
+    const importCsvBtn = document.getElementById('import-csv');
+    const openCsvBtn = document.getElementById('open-csv');
+    const totalCostSpan = document.getElementById('total-cost');
+    const totalResourcesSpan = document.getElementById('total-resources');
+    const costLabel = document.getElementById('cost-label');
+    const costInfoPanel = document.getElementById('cost-info-panel');
+    const quantityCalculator = document.getElementById('quantity-calculator');
+    const quantityInput = document.getElementById('quantity-input');
+    const calculatedCost = document.getElementById('calculated-cost');
+    const sortSelect = document.getElementById('sort-select');
+    const csvModal = document.getElementById('csv-modal');
+    const csvEditModal = document.getElementById('csv-edit-modal');
+    const csvPreview = document.getElementById('csv-preview');
+    const csvEditArea = document.getElementById('csv-edit-area');
+    const confirmExportBtn = document.getElementById('confirm-export');
+    const exportCsvFromEditorBtn = document.getElementById('export-csv-from-editor');
+    const loadCsvBtn = document.getElementById('load-csv');
+    const addRowBtn = document.getElementById('add-row');
+    const removeRowBtn = document.getElementById('remove-row');
+    const importCsvToEditorBtn = document.getElementById('import-csv-to-editor');
+    const closeModal = document.getElementsByClassName('close')[0];
+    const closeEditModal = document.getElementsByClassName('close')[1];
+    const toggleBreakdown = document.getElementById('toggle-breakdown');
+    const categoryBreakdown = document.getElementById('category-breakdown');
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsSection = document.getElementById('settings-section');
+    const backupBtn = document.getElementById('backup-btn');
+    const importBackupBtn = document.getElementById('import-backup-btn');
+    const clearDataBtn = document.getElementById('clear-data-btn');
+    const lastSaveTime = document.getElementById('last-save-time');
+    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const cancelDeleteBtn = document.getElementById('cancel-delete');
+
+    let selectedResource = null;
+    let currentSortOption = 'dateAdded';
+    let currentSearchTerm = '';
+    let db;
+    let resourceToDelete = null;
+
+    // Initialize IndexedDB
+    const dbName = 'ResourceManagerDB';
+    const dbVersion = 1;
+    const request = indexedDB.open(dbName, dbVersion);
+
+    request.onerror = function(event) {
+      console.error("IndexedDB error:", event.target.error);
+    };
+
+    request.onsuccess = function(event) {
+      db = event.target.result;
+      loadDataFromIndexedDB();
+    };
+
+    request.onupgradeneeded = function(event) {
+      db = event.target.result;
+      if (!db.objectStoreNames.contains('resources')) {
+        db.createObjectStore('resources', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('categories')) {
+        db.createObjectStore('categories', { keyPath: 'name' });
+      }
+      if (!db.objectStoreNames.contains('tags')) {
+        db.createObjectStore('tags', { keyPath: 'name' });
+      }
+    };
+
+    function saveToIndexedDB(storeName, data) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+
+        const request = store.put(data);
+
+        request.onerror = function(event) {
+          reject("IndexedDB save error: " + event.target.error);
+        };
+
+        request.onsuccess = function(event) {
+          resolve(event.target.result);
+        };
+      });
+    }
+
+    function loadFromIndexedDB(storeName) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+
+        request.onerror = function(event) {
+          reject("IndexedDB load error: " + event.target.error);
+        };
+
+        request.onsuccess = function(event) {
+          resolve(event.target.result);
+        };
+      });
+    }
+
+    async function loadDataFromIndexedDB() {
+      try {
+        resources = await loadFromIndexedDB('resources');
+        categories = (await loadFromIndexedDB('categories')).map(cat => cat.name);
+        tags = (await loadFromIndexedDB('tags')).map(tag => tag.name);
+        sortAndDisplayResources();
+        updateLastSaveTime();
+      } catch (error) {
+        console.error("Error loading data from IndexedDB:", error);
+      }
+    }
+
+    function updateLastSaveTime() {
+      const now = new Date();
+      lastSaveTime.textContent = `Last saved: ${now.toLocaleString()}`;
+    }
+
+    function calculateTotalCost() {
+      const totalCost = resources.reduce((sum, resource) => sum + (resource.costPerUnit * resource.quantity), 0);
+      totalCostSpan.textContent = totalCost.toFixed(2);
+    }
+
+    function calculateTotalResources() {
+      const totalResources = resources.reduce((sum, resource) => sum + resource.quantity, 0);
+      totalResourcesSpan.textContent = totalResources.toLocaleString();
+    }
+
+    function updateCategoryBreakdown() {
+      const breakdown = categories.reduce((acc, category) => {
+        const categoryResources = resources.filter(r => r.category === category);
+        const totalCost = categoryResources.reduce((sum, r) => sum + (r.costPerUnit * r.quantity), 0);
+        const totalQuantity = categoryResources.reduce((sum, r) => sum + r.quantity, 0);
+        acc[category] = { cost: totalCost, quantity: totalQuantity };
+        return acc;
+      }, {});
+
+      categoryBreakdown.innerHTML = Object.entries(breakdown)
+        .map(([category, { cost, quantity }]) => 
+          `<p><strong>${category}:</strong> $${cost.toFixed(2)} (${quantity} items)</p>`
+        )
+        .join('');
+    }
+
+    function displayResources(resourcesArray) {
+      contentArea.innerHTML = '<h2>Company Resources</h2>';
+      const resourceList = document.createElement('div');
+      resourcesArray.forEach(resource => {
+        const card = document.createElement('div');
+        card.className = 'resource-card';
+        card.innerHTML = `
+          <h3>${resource.name}</h3>
+          <p><strong>Category:</strong> ${resource.category}</p>
+          <p><strong>Cost per Unit:</strong> $${resource.costPerUnit.toFixed(2)}</p>
+          <p><strong>Quantity:</strong> ${resource.quantity}</p>
+          <p><strong>Location:</strong> ${resource.location}</p>
+          <p><strong>Tags:</strong> ${resource.tags.join(', ')}</p>
+          <p><strong>Date Added:</strong> ${new Date(resource.dateAdded).toLocaleDateString()}</p>
+          <button onclick="editResource(${resource.id})">Edit</button>
+          <button onclick="confirmDeleteResource(${resource.id})">Delete</button>
+        `;
+        card.addEventListener('click', () => selectResource(resource));
+        resourceList.appendChild(card);
+      });
+      contentArea.appendChild(resourceList);
+      calculateTotalCost();
+      calculateTotalResources();
+      updateCategoryBreakdown();
+    }
+
+    function selectResource(resource) {
+      selectedResource = resource;
+      costLabel.textContent = `${resource.name} Cost`;
+      totalCostSpan.textContent = (resource.costPerUnit * resource.quantity).toFixed(2);
+      quantityCalculator.style.display = 'block';
+      quantityInput.value = resource.quantity;
+      updateCalculatedCost();
+      toggleBreakdown.style.display = 'none';
+      categoryBreakdown.style.display = 'none';
+    }
+
+    function updateCalculatedCost() {
+      if (selectedResource) {
+        const quantity = parseInt(quantityInput.value);
+        const cost = quantity * selectedResource.costPerUnit;
+        calculatedCost.textContent = `$${cost.toFixed(2)}`;
+      }
+    }
+
+    costInfoPanel.querySelector('h3').addEventListener('click', () => {
+      if (selectedResource) {
+        selectedResource = null;
+        costLabel.textContent = 'Total Cost of Resources';
+        calculateTotalCost();
+        calculateTotalResources();
+        quantityCalculator.style.display = 'none';
+        toggleBreakdown.style.display = 'block';
+        updateCategoryBreakdown();
+      }
+    });
+
+    toggleBreakdown.addEventListener('click', () => {
+      if (categoryBreakdown.style.display === 'none') {
+        categoryBreakdown.style.display = 'block';
+        toggleBreakdown.textContent = '▲ Hide Category Breakdown';
+      } else {
+        categoryBreakdown.style.display = 'none';
+        toggleBreakdown.textContent = '▼ Show Category Breakdown';
+      }
+    });
+
+    quantityInput.addEventListener('input', updateCalculatedCost);
+
+    function addResourceForm() {
+      contentArea.innerHTML = `
+        <h2>Add New Resource</h2>
+        <form id="add-resource-form">
+          <input type="text" id="name" placeholder="Resource Name" required>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+          </select>
+          <input type="number" id="costPerUnit" placeholder="Cost per Unit" step="0.01" required>
+          <input type="number" id="quantity" placeholder="Quantity" required>
+          <input type="text" id="location" placeholder="Location" required>
+          <input type="text" id="tags" placeholder="Tags (comma-separated)" required>
+          <input type="date" id="dateAdded" required>
+          <button type="submit">Add Resource</button>
+        </form>
+      `;
+
+      document.getElementById('add-resource-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const newResource = {
+          name: document.getElementById('name').value,
+          category: document.getElementById('category').value,
+          costPerUnit: parseFloat(document.getElementById('costPerUnit').value),
+          quantity: parseInt(document.getElementById('quantity').value),
+          location: document.getElementById('location').value,
+          tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()),
+          dateAdded: new Date(document.getElementById('dateAdded').value)
+        };
+        
+        try {
+          const id = await saveToIndexedDB('resources', newResource);
+          newResource.id = id;
+          resources.push(newResource);
+
+          // Update categories and tags
+          if (!categories.includes(newResource.category)) {
+            categories.push(newResource.category);
+            await saveToIndexedDB('categories', { name: newResource.category });
+          }
+          for (const tag of newResource.tags) {
+            if (!tags.includes(tag)) {
+              tags.push(tag);
+              await saveToIndexedDB('tags', { name: tag });
+            }
+          }
+
+          sortAndDisplayResources();
+          updateLastSaveTime();
+        } catch (error) {
+          console.error("Error saving new resource:", error);
+        }
+      });
+    }
+
+    async function editResource(id) {
+      const resource = resources.find(r => r.id === id);
+      contentArea.innerHTML = `
+        <h2>Edit Resource</h2>
+        <form id="edit-resource-form">
+          <input type="text" id="edit-name" value="${resource.name}" required>
+          <select id="edit-category" required>
+            ${categories.map(cat => `<option value="${cat}" ${resource.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+          </select>
+          <input type="number" id="edit-costPerUnit" value="${resource.costPerUnit.toFixed(2)}" step="0.01" required>
+          <input type="number" id="edit-quantity" value="${resource.quantity}" required>
+          <input type="text" id="edit-location" value="${resource.location}" required>
+          <input type="text" id="edit-tags" value="${resource.tags.join(', ')}" required>
+          <input type="date" id="edit-dateAdded" value="${new Date(resource.dateAdded).toISOString().split('T')[0]}" required>
+          <button type="submit">Update Resource</button>
+        </form>
+      `;
+
+      document.getElementById('edit-resource-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        resource.name = document.getElementById('edit-name').value;
+        resource.category = document.getElementById('edit-category').value;
+        resource.costPerUnit = parseFloat(document.getElementById('edit-costPerUnit').value);
+        resource.quantity = parseInt(document.getElementById('edit-quantity').value);
+        resource.location = document.getElementById('edit-location').value;
+        resource.tags = document.getElementById('edit-tags').value.split(',').map(tag => tag.trim());
+        resource.dateAdded = new Date(document.getElementById('edit-dateAdded').value);
+        
+        try {
+          await saveToIndexedDB('resources', resource);
+
+          // Update categories and tags
+          if (!categories.includes(resource.category)) {
+            categories.push(resource.category);
+            await saveToIndexedDB('categories', { name: resource.category });
+          }
+          for (const tag of resource.tags) {
+            if (!tags.includes(tag)) {
+              tags.push(tag);
+              await saveToIndexedDB('tags', { name: tag });
+            }
+          }
+
+          sortAndDisplayResources();
+          updateLastSaveTime();
+        } catch (error) {
+          console.error("Error updating resource:", error);
+        }
+      });
+    }
+
+    function confirmDeleteResource(id) {
+      resourceToDelete = resources.find(r => r.id === id);
+      deleteConfirmModal.style.display = 'block';
+    }
+
+    async function deleteResource() {
+      if (resourceToDelete) {
+        try {
+          const transaction = db.transaction(['resources'], 'readwrite');
+          const store = transaction.objectStore('resources');
+          await store.delete(resourceToDelete.id);
+          resources = resources.filter(r => r.id !== resourceToDelete.id);
+          sortAndDisplayResources();
+          updateLastSaveTime();
+          deleteConfirmModal.style.display = 'none';
+          resourceToDelete = null;
+        } catch (error) {
+          console.error("Error deleting resource:", error);
+        }
+      }
+    }
+
+    function manageCategories() {
+      contentArea.innerHTML = `
+        <h2>Manage Categories</h2>
+        <select id="category-filter">
+          <option value="asc">A-Z</option>
+          <option value="desc">Z-A</option>
+          ${[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].map(letter => 
+            `<option value="${letter}">${letter}</option>`
+          ).join('')}
+        </select>
+        <ul id="category-list"></ul>
+        <form id="add-category-form">
+          <input type="text" id="new-category" placeholder="New Category" required>
+          <button type="submit">Add Category</button>
+        </form>
+      `;
+
+      const categoryList = document.getElementById('category-list');
+      const categoryFilter = document.getElementById('category-filter');
+
+      function displayCategories() {
+        const filterValue = categoryFilter.value;
+        let filteredCategories = [...categories];
+
+        if (filterValue === 'asc') {
+          filteredCategories.sort();
+        } else if (filterValue === 'desc') {
+          filteredCategories.sort().reverse();
+        } else {
+          filteredCategories = filteredCategories.filter(cat => cat[0].toUpperCase() === filterValue);
+        }
+
+        categoryList.innerHTML = filteredCategories.map(cat => 
+          `<li>${cat} <button onclick="removeCategory('${cat}')">Remove</button></li>`
+        ).join('');
+      }
+
+      categoryFilter.addEventListener('change', displayCategories);
+      displayCategories();
+
+      document.getElementById('add-category-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const newCategory = document.getElementById('new-category').value;
+        if (!categories.includes(newCategory)) {
+          categories.push(newCategory);
+          try {
+            await saveToIndexedDB('categories', { name: newCategory });
+            displayCategories();
+            updateLastSaveTime();
+          } catch (error) {
+            console.error("Error saving new category:", error);
+          }
+        }
+      });
+    }
+
+    async function removeCategory(category) {
+      categories = categories.filter(cat => cat !== category);
+      try {
+        const transaction = db.transaction(['categories'], 'readwrite');
+        const store = transaction.objectStore('categories');
+        await store.delete(category);
+        manageCategories();
+        updateLastSaveTime();
+      } catch (error) {
+        console.error("Error removing category:", error);
+      }
+    }
+
+    function manageTags() {
+      contentArea.innerHTML = `
+        <h2>Manage Tags</h2>
+        <select id="tag-filter">
+          <option value="asc">A-Z</option>
+          <option value="desc">Z-A</option>
+          ${[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].map(letter => 
+            `<option value="${letter}">${letter}</option>`
+          ).join('')}
+        </select>
+        <ul id="tag-list"></ul>
+        <form id="add-tag-form">
+          <input type="text" id="new-tag" placeholder="New Tag" required>
+          <button type="submit">Add Tag</button>
+        </form>
+      `;
+
+      const tagList = document.getElementById('tag-list');
+      const tagFilter = document.getElementById('tag-filter');
+
+      function displayTags() {
+        const filterValue = tagFilter.value;
+        let filteredTags = [...tags];
+
+        if (filterValue === 'asc') {
+          filteredTags.sort();
+        } else if (filterValue === 'desc') {
+          filteredTags.sort().reverse();
+        } else {
+          filteredTags = filteredTags.filter(tag => tag[0].toUpperCase() === filterValue);
+        }
+
+        tagList.innerHTML = filteredTags.map(tag => 
+          `<li>${tag} <button onclick="removeTag('${tag}')">Remove</button></li>`
+        ).join('');
+      }
+
+      tagFilter.addEventListener('change', displayTags);
+      displayTags();
+
+      document.getElementById('add-tag-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const newTag = document.getElementById('new-tag').value;
+        if (!tags.includes(newTag)) {
+          tags.push(newTag);
+          try {
+            await saveToIndexedDB('tags', { name: newTag });
+            displayTags();
+            updateLastSaveTime();
+          } catch (error) {
+            console.error("Error saving new tag:", error);
+          }
+        }
+      });
+    }
+
+    async function removeTag(tag) {
+      tags = tags.filter(t => t !== tag);
+      try {
+        const transaction = db.transaction(['tags'], 'readwrite');
+        const store = transaction.objectStore('tags');
+        await store.delete(tag);
+        manageTags();
+        updateLastSaveTime();
+      } catch (error) {
+        console.error("Error removing tag:", error);
+      }
+    }
+
+    function sortResources(resourcesArray) {
+      switch (currentSortOption) {
+        case 'dateAdded':
+          return resourcesArray.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+        case 'name':
+          return resourcesArray.sort((a, b) => a.name.localeCompare(b.name));
+        case 'category':
+          return resourcesArray.sort((a, b) => a.category.localeCompare(b.category));
+        case 'location':
+          return resourcesArray.sort((a, b) => a.location.localeCompare(b.location));
+        case 'costHighToLow':
+          return resourcesArray.sort((a, b) => b.costPerUnit - a.costPerUnit);
+        case 'costLowToHigh':
+          return resourcesArray.sort((a, b) => a.costPerUnit - b.costPerUnit);
+        default:
+          return resourcesArray;
+      }
+    }
+
+    function filterResources() {
+      if (currentSearchTerm) {
+        return resources.filter(resource => 
+          resource.name.toLowerCase().includes(currentSearchTerm) ||
+          resource.category.toLowerCase().includes(currentSearchTerm) ||
+          resource.location.toLowerCase().includes(currentSearchTerm) ||
+          resource.tags.some(tag => tag.toLowerCase().includes(currentSearchTerm))
+        );
+      }
+      return resources;
+    }
+
+    function sortAndDisplayResources() {
+      const filteredResources = filterResources();
+      const sortedResources = sortResources(filteredResources);
+      displayResources(sortedResources);
+    }
+
+    viewResourcesBtn.addEventListener('click', sortAndDisplayResources);
+    addResourceBtn.addEventListener('click', addResourceForm);
+    manageCategoriesBtn.addEventListener('click', manageCategories);
+    manageTagsBtn.addEventListener('click', manageTags);
+
+    searchButton.addEventListener('click', () => {
+      currentSearchTerm = searchInput.value.toLowerCase();
+      sortAndDisplayResources();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      currentSearchTerm = '';
+      sortAndDisplayResources();
+    });
+
+    sortSelect.addEventListener('change', (e) => {
+      currentSortOption = e.target.value;
+      sortAndDisplayResources();
+    });
+
+    exportCsvBtn.addEventListener('click', () => {
+      const csvContent = Papa.unparse(filterResources());
+      csvPreview.textContent = csvContent;
+      csvModal.style.display = "block";
+    });
+
+    confirmExportBtn.addEventListener('click', () => {
+      const csvContent = csvPreview.textContent;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "resources.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      csvModal.style.display = "none";
+    });
+
+    closeModal.onclick = function() {
+      csvModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == csvModal) {
+        csvModal.style.display = "none";
+      }
+      if (event.target == deleteConfirmModal) {
+        deleteConfirmModal.style.display = "none";
+      }
+    }
+
+    exportPdfBtn.addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Set PDF theme to match app
+      doc.setTextColor(240, 240, 240);  // --text-color
+      doc.setFillColor(26, 26, 26);     // --bg-color
+
+      doc.setFontSize(20);
+      doc.text("Company Resources", 14, 15);
+      
+      const columns = ["Name", "Category", "Cost per Unit", "Quantity", "Location", "Tags", "Date Added"];
+      const filteredResources = filterResources();
+      const data = filteredResources.map(r => [
+        r.name,
+        r.category,
+        `$${r.costPerUnit.toFixed(2)}`,
+        r.quantity,
+        r.location,
+        r.tags.join(', '),
+        new Date(r.dateAdded).toLocaleDateString()
+      ]);
+
+      doc.autoTable({
+        startY: 20,
+        head: [columns],
+        body: data,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 1,
+          fillColor: [26, 26, 26],
+          textColor: [240, 240, 240],
+          lineColor: [255, 159, 0]
+        },
+        headStyles: {
+          fillColor: [255, 159, 0],
+          textColor: [26, 26, 26]
+        },
+        columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 20 }, 2: { cellWidth: 20 }, 3: { cellWidth: 15 }, 4: { cellWidth: 25 }, 5: { cellWidth: 30 }, 6: { cellWidth: 20 } }
+      });
+
+      doc.save("company_resources.pdf");
+    });
+
+    importCsvBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv';
+      input.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const csvData = e.target.result;
+          const parsedData = Papa.parse(csvData, { header: true, dynamicTyping: true });
+          
+          for (const row of parsedData.data) {
+            if (row.name && row.category && row.costPerUnit && row.quantity && row.location && row.tags && row.dateAdded) {
+              const existingResourceIndex = resources.findIndex(r => r.name === row.name);
+              const newResource = {
+                name: row.name,
+                category: row.category,
+                costPerUnit: parseFloat(row.costPerUnit),
+                quantity: parseInt(row.quantity),
+                location: row.location,
+                tags: typeof row.tags === 'string' ? row.tags.split(',').map(tag => tag.trim()) : row.tags,
+                dateAdded: new Date(row.dateAdded)
+              };
+              
+              if (existingResourceIndex !== -1) {
+                newResource.id = resources[existingResourceIndex].id;
+                resources[existingResourceIndex] = newResource;
+              } else {
+                const id = await saveToIndexedDB('resources', newResource);
+                newResource.id = id;
+                resources.push(newResource);
+              }
+              
+              if (!categories.includes(row.category)) {
+                categories.push(row.category);
+                await saveToIndexedDB('categories', { name: row.category });
+              }
+              
+              if (typeof row.tags === 'string') {
+                row.tags.split(',').forEach(async (tag) => {
+                  if (!tags.includes(tag.trim())) {
+                    tags.push(tag.trim());
+                    await saveToIndexedDB('tags', { name: tag.trim() });
+                  }
+                });
+              } else if (Array.isArray(row.tags)) {
+                for (const tag of row.tags) {
+                  if (!tags.includes(tag)) {
+                    tags.push(tag);
+                    await saveToIndexedDB('tags', { name: tag });
+                  }
+                }
+              }
+            }
+          }
+          
+          sortAndDisplayResources();
+          updateLastSaveTime();
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    openCsvBtn.addEventListener('click', () => {
+      csvEditModal.style.display = "block";
+    });
+
+    closeEditModal.onclick = function() {
+      csvEditModal.style.display = "none";
+    }
+
+    exportCsvFromEditorBtn.addEventListener('click', () => {
+      const csvContent = csvEditArea.value;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "edited_resources.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
+
+    loadCsvBtn.addEventListener('click', async () => {
+      const csvContent = csvEditArea.value;
+      const parsedData = Papa.parse(csvContent, { header: true, dynamicTyping: true });
+      
+      for (const row of parsedData.data) {
+        if (row.name && row.category && row.costPerUnit && row.quantity && row.location && row.tags && row.dateAdded) {
+          const existingResourceIndex = resources.findIndex(r => r.name === row.name);
+          const newResource = {
+            name: row.name,
+            category: row.category,
+            costPerUnit: parseFloat(row.costPerUnit),
+            quantity: parseInt(row.quantity),
+            location: row.location,
+            tags: typeof row.tags === 'string' ? row.tags.split(',').map(tag => tag.trim()) : row.tags,
+            dateAdded: new Date(row.dateAdded)
+          };
+          
+          if (existingResourceIndex !== -1) {
+            newResource.id = resources[existingResourceIndex].id;
+            resources[existingResourceIndex] = newResource;
+          } else {
+            const id = await saveToIndexedDB('resources', newResource);
+            newResource.id = id;
+            resources.push(newResource);
+          }
+          
+          if (!categories.includes(row.category)) {
+            categories.push(row.category);
+            await saveToIndexedDB('categories', { name: row.category });
+          }
+          
+          if (typeof row.tags === 'string') {
+            row.tags.split(',').forEach(async (tag) => {
+              if (!tags.includes(tag.trim())) {
+                tags.push(tag.trim());
+                await saveToIndexedDB('tags', { name: tag.trim() });
+              }
+            });
+          } else if (Array.isArray(row.tags)) {
+            for (const tag of row.tags) {
+              if (!tags.includes(tag)) {
+                tags.push(tag);
+                await saveToIndexedDB('tags', { name: tag });
+              }
+            }
+          }
+        }
+      }
+      
+      sortAndDisplayResources();
+      updateLastSaveTime();
+      csvEditModal.style.display = "none";
+    });
+
+    addRowBtn.addEventListener('click', () => {
+      const lines = csvEditArea.value.split('\n');
+      const headers = lines[0];
+      const newRow = headers.split(',').map(() => '').join(',');
+      csvEditArea.value += '\n' + newRow;
+    });
+
+    removeRowBtn.addEventListener('click', () => {
+      const lines = csvEditArea.value.split('\n');
+      const cursorPosition = csvEditArea.selectionStart;
+      let currentLine = 0;
+      let characterCount = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        if (characterCount + lines[i].length >= cursorPosition) {
+          currentLine = i;
+          break;
+        }
+        characterCount += lines[i].length + 1; // +1 for the newline character
+      }
+
+      if (currentLine > 0) { // Don't remove the header row
+        lines.splice(currentLine, 1);
+        csvEditArea.value = lines.join('\n');
+      }
+    });
+
+    importCsvToEditorBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv';
+      input.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          csvEditArea.value = e.target.result;
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    settingsBtn.addEventListener('click', () => {
+      contentArea.innerHTML = '';
+      if (settingsSection.style.display === 'none') {
+        settingsSection.style.display = 'block';
+      } else {
+        settingsSection.style.display = 'none';
+      }
+    });
+
+    backupBtn.addEventListener('click', async () => {
+      try {
+        const backupData = {
+          resources: await loadFromIndexedDB('resources'),
+          categories: await loadFromIndexedDB('categories'),
+          tags: await loadFromIndexedDB('tags')
+        };
+
+        const backupJson = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([backupJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `resource_manager_backup_${new Date().toISOString()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error creating backup:", error);
+        alert("An error occurred while creating the backup. Please try again.");
+      }
+    });
+
+    importBackupBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const backupData = JSON.parse(e.target.result);
+            importBackup(backupData);
+          } catch (error) {
+            console.error("Error parsing backup file:", error);
+            alert("Invalid backup file. Please select a valid JSON backup file.");
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    clearDataBtn.addEventListener('click', clearAllData);
+
+    confirmDeleteBtn.addEventListener('click', deleteResource);
+
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteConfirmModal.style.display = 'none';
+      resourceToDelete = null;
+    });
+
+    // Initial display
+    loadDataFromIndexedDB();
+
+    // Function to automatically save data periodically
+    function autoSave() {
+      saveToIndexedDB('resources', resources)
+        .then(() => {
+          updateLastSaveTime();
+        })
+        .catch(error => {
+          console.error("Error auto-saving resources:", error);
+        });
+    }
+
+    // Set up auto-save every 5 minutes
+    setInterval(autoSave, 5 * 60 * 1000);
+
+    // Helper function to create a debounced version of a function
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Create a debounced version of the autoSave function
+    const debouncedAutoSave = debounce(autoSave, 5000); // 5 seconds delay
+
+    // Attach the debouncedAutoSave function to relevant events
+    addResourceBtn.addEventListener('click', debouncedAutoSave);
+    manageCategoriesBtn.addEventListener('click', debouncedAutoSave);
+    manageTagsBtn.addEventListener('click', debouncedAutoSave);
+    loadCsvBtn.addEventListener('click', debouncedAutoSave);
+
+    // Function to import backup data
+    async function importBackup(backupData) {
+      try {
+        // Clear existing data
+        const transaction = db.transaction(['resources', 'categories', 'tags'], 'readwrite');
+        const resourceStore = transaction.objectStore('resources');
+        const categoryStore = transaction.objectStore('categories');
+        const tagStore = transaction.objectStore('tags');
+
+        await Promise.all([
+          resourceStore.clear(),
+          categoryStore.clear(),
+          tagStore.clear()
+        ]);
+
+        // Import new data
+        for (const resource of backupData.resources) {
+          await saveToIndexedDB('resources', resource);
+        }
+        for (const category of backupData.categories) {
+          await saveToIndexedDB('categories', category);
+        }
+        for (const tag of backupData.tags) {
+          await saveToIndexedDB('tags', tag);
+        }
+
+        // Reload data and update display
+        await loadDataFromIndexedDB();
+        sortAndDisplayResources();
+        updateLastSaveTime();
+
+        alert("Backup imported successfully!");
+      } catch (error) {
+        console.error("Error importing backup:", error);
+        alert("An error occurred while importing the backup. Please try again.");
+      }
+    }
+
+    // Function to clear all data
+    async function clearAllData() {
+      if (confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+        try {
+          const transaction = db.transaction(['resources', 'categories', 'tags'], 'readwrite');
+          const resourceStore = transaction.objectStore('resources');
+          const categoryStore = transaction.objectStore('categories');
+          const tagStore = transaction.objectStore('tags');
+
+          await Promise.all([
+            resourceStore.clear(),
+            categoryStore.clear(),
+            tagStore.clear()
+          ]);
+
+          resources = [];
+          categories = [];
+          tags = [];
+
+          sortAndDisplayResources();
+          updateLastSaveTime();
+
+          alert("All data has been cleared successfully.");
+        } catch (error) {
+          console.error("Error clearing data:", error);
+          alert("An error occurred while clearing the data. Please try again.");
+        }
+      }
+    }
+
+  </script>
+</body>
+</html>
