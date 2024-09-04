@@ -1,0 +1,765 @@
+<html><head><base href="https://websim.ai/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PushChat</title>
+<style>
+:root {
+  --orange: #FFA500;
+  --cyan: #00FFFF;
+  --light-pink: #FFB6C1;
+  --dark-gray: #333;
+  --light-gray: #f0f0f0;
+}
+
+body {
+  background-image: var(--background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--dark-gray);
+  color: var(--dark-gray);
+}
+
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--orange);
+  padding: 10px 20px;
+  color: white;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.settings-btn, .full-screen-btn, .pop-out-btn, .send-btn, .push-btn, .custom-file-upload {
+  background-color: var(--light-pink);
+  border: 2px solid var(--orange);
+  color: var(--dark-gray);
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+}
+
+.settings-btn:hover, .full-screen-btn:hover, .pop-out-btn:hover, .send-btn:hover, .push-btn:hover, .custom-file-upload:hover {
+  background-color: var(--orange);
+}
+
+.main-content {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 0;
+  background-color: var(--cyan);
+  padding: 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.expanded {
+  width: 300px;
+  padding: 20px;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.message-list {
+  background-color: white;
+  border: 1px solid var(--light-gray);
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  flex-grow: 1;
+  word-wrap: break-word;
+  overflow-x: hidden;
+  height: calc(100% - 240px);
+}
+
+.file-list {
+  background-color: white;
+  border: 1px solid var(--light-gray);
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding: 10px;
+  height: 160px;
+}
+
+.message-input, .file-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mini-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--light-gray);
+  padding: 10px;
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--orange);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section h3 {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.settings-section h3::after {
+  content: ' ►';
+  font-size: 0.8em;
+}
+
+.settings-section.expanded h3::after {
+  content: ' ▼';
+}
+
+.settings-list {
+  list-style-type: none;
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.settings-section.expanded .settings-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.settings-list li {
+  cursor: pointer;
+  padding: 5px 0;
+}
+
+.settings-list li:hover {
+  background-color: var(--light-pink);
+}
+
+.file-thumbnail {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
+  font-weight: bold;
+}
+
+.file-link {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.url-link {
+  color: var(--cyan);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--orange);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    padding: 10px;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="header">
+    <div class="logo">PushChat</div>
+    <div>
+      <button class="settings-btn" id="settingsBtn">⚙️</button>
+      <button class="full-screen-btn" id="fullScreenBtn">Full Screen</button>
+      <button class="pop-out-btn" id="popOutBtn">Pop Out</button>
+    </div>
+  </header>
+  
+  <div class="main-content">
+    <aside class="sidebar" id="sidebar">
+      <div class="settings-section" id="devicesSection">
+        <h3>Devices</h3>
+        <ul class="settings-list" id="deviceList"></ul>
+      </div>
+      <div class="settings-section" id="friendsSection">
+        <h3>Friends</h3>
+        <ul class="settings-list" id="friendList"></ul>
+      </div>
+      <div class="settings-section" id="channelsSection">
+        <h3>Following</h3>
+        <ul class="settings-list" id="channelList"></ul>
+      </div>
+      <div class="settings-section" id="apiSection">
+        <h3>API Settings</h3>
+        <div class="settings-list">
+          <label for="apiKey">Pushbullet API Key:</label>
+          <input type="password" id="apiKey" placeholder="Enter your API key">
+          <button id="saveApiKey">Save</button>
+        </div>
+      </div>
+      <div class="settings-section" id="backgroundSection">
+        <h3>Background Image</h3>
+        <div class="settings-list">
+          <label for="backgroundUrl">Background Image URL:</label>
+          <input type="text" id="backgroundUrl" placeholder="Enter image URL">
+          <button id="saveBackgroundUrl">Save</button>
+        </div>
+      </div>
+    </aside>
+    
+    <main class="content">
+      <div class="message-list" id="messageList"></div>
+      <input type="text" class="message-input" id="messageInput" placeholder="Type a message...">
+      <button class="send-btn" id="sendBtn">Send</button>
+      
+      <div class="file-list" id="fileList"></div>
+      <label for="fileInput" class="custom-file-upload">
+        Choose File
+      </label>
+      <input type="file" id="fileInput">
+      <button class="push-btn" id="pushBtn">Push File</button>
+    </main>
+  </div>
+</div>
+
+<div id="fileModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="fileName"></h2>
+    <div id="fileContent"></div>
+  </div>
+</div>
+
+<div class="mini-keyboard" id="miniKeyboard">
+  <button id="gifSearchBtn">GIF Search</button>
+  <button id="emojiBtn">😀</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+const API_BASE_URL = 'https://api.pushbullet.com/v2';
+let apiKey = localStorage.getItem('pushbulletApiKey') || '';
+let currentChatType = 'all';
+let currentChatId = null;
+let latestTimestamp = 0;
+let channelPosts = new Set();
+let friendMessages = new Set();
+
+const settingsBtn = document.getElementById('settingsBtn');
+const sidebar = document.getElementById('sidebar');
+const saveApiKeyBtn = document.getElementById('saveApiKey');
+const apiKeyInput = document.getElementById('apiKey');
+const messageList = document.getElementById('messageList');
+const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const fileList = document.getElementById('fileList');
+const fileInput = document.getElementById('fileInput');
+const pushBtn = document.getElementById('pushBtn');
+const fileModal = document.getElementById('fileModal');
+const closeModal = document.getElementsByClassName('close')[0];
+const fileName = document.getElementById('fileName');
+const fileContent = document.getElementById('fileContent');
+const miniKeyboard = document.getElementById('miniKeyboard');
+const gifSearchBtn = document.getElementById('gifSearchBtn');
+const emojiBtn = document.getElementById('emojiBtn');
+const toast = document.getElementById('toast');
+const deviceList = document.getElementById('deviceList');
+const friendList = document.getElementById('friendList');
+const channelList = document.getElementById('channelList');
+const fullScreenBtn = document.getElementById('fullScreenBtn');
+const popOutBtn = document.getElementById('popOutBtn');
+const backgroundUrlInput = document.getElementById('backgroundUrl');
+const saveBackgroundUrlBtn = document.getElementById('saveBackgroundUrl');
+
+settingsBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('expanded');
+});
+
+saveApiKeyBtn.addEventListener('click', () => {
+  apiKey = apiKeyInput.value;
+  localStorage.setItem('pushbulletApiKey', apiKey);
+  showToast('API Key saved successfully!');
+  fetchEverything();
+});
+
+saveBackgroundUrlBtn.addEventListener('click', () => {
+  const backgroundUrl = backgroundUrlInput.value;
+  localStorage.setItem('backgroundImageUrl', backgroundUrl);
+  updateBackgroundImage();
+  showToast('Background image saved successfully!');
+});
+
+sendBtn.addEventListener('click', sendMessage);
+pushBtn.addEventListener('click', pushFile);
+closeModal.addEventListener('click', () => fileModal.style.display = 'none');
+
+window.addEventListener('click', (event) => {
+  if (event.target == fileModal) {
+    fileModal.style.display = 'none';
+  }
+});
+
+gifSearchBtn.addEventListener('click', searchGif);
+emojiBtn.addEventListener('click', insertEmoji);
+
+fullScreenBtn.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+popOutBtn.addEventListener('click', () => {
+  window.open(window.location.href, 'PushChat', 'width=400,height=600');
+});
+
+document.querySelectorAll('.settings-section h3').forEach(header => {
+  header.addEventListener('click', () => {
+    header.parentElement.classList.toggle('expanded');
+  });
+});
+
+messageInput.addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+function updateBackgroundImage() {
+  const backgroundUrl = localStorage.getItem('backgroundImageUrl');
+  if (backgroundUrl) {
+    document.documentElement.style.setProperty('--background-image', `url(${backgroundUrl})`);
+  } else {
+    document.documentElement.style.removeProperty('--background-image');
+  }
+}
+
+function sendMessage() {
+  const message = messageInput.value;
+  if (!message) return;
+
+  let pushData = {
+    type: 'note',
+    body: message
+  };
+
+  if (currentChatType === 'device') {
+    pushData.device_iden = currentChatId;
+  } else if (currentChatType === 'friend') {
+    pushData.email = currentChatId;
+  } else if (currentChatType === 'channel') {
+    pushData.channel_tag = currentChatId;
+  }
+
+  axios.post(`${API_BASE_URL}/pushes`, pushData, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    showToast('Message sent successfully!');
+    messageInput.value = '';
+    fetchMessages();
+  })
+  .catch(error => {
+    console.error('Error sending message:', error);
+    showToast('Error sending message. Please try again.');
+  });
+}
+
+function pushFile() {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  axios.post(`${API_BASE_URL}/upload-request`, {
+    file_name: file.name,
+    file_type: file.type
+  }, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    const { upload_url, file_url } = response.data;
+    return axios.post(upload_url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(() => file_url);
+  })
+  .then(file_url => {
+    let pushData = {
+      type: 'file',
+      file_name: file.name,
+      file_type: file.type,
+      file_url: file_url
+    };
+
+    if (currentChatType === 'device') {
+      pushData.device_iden = currentChatId;
+    } else if (currentChatType === 'friend') {
+      pushData.email = currentChatId;
+    } else if (currentChatType === 'channel') {
+      pushData.channel_tag = currentChatId;
+    }
+
+    return axios.post(`${API_BASE_URL}/pushes`, pushData, {
+      headers: { 'Access-Token': apiKey }
+    });
+  })
+  .then(() => {
+    showToast('File pushed successfully!');
+    fileInput.value = '';
+    fetchMessages();
+  })
+  .catch(error => {
+    console.error('Error pushing file:', error);
+    showToast(`Error pushing file: ${error.response ? error.response.data.error.message : error.message}`);
+  });
+}
+
+function fetchMessages() {
+  let url = `${API_BASE_URL}/pushes?limit=100`;
+  
+  if (currentChatType === 'device') {
+    url += `&device_iden=${currentChatId}`;
+  } else if (currentChatType === 'friend') {
+    url += `&email=${currentChatId}`;
+  } else if (currentChatType === 'channel') {
+    url += `&channel_tag=${currentChatId}`;
+  }
+
+  if (latestTimestamp) {
+    url += `&modified_after=${latestTimestamp}`;
+  }
+
+  axios.get(url, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    const messages = response.data.pushes;
+    if (messages.length > 0) {
+      latestTimestamp = Math.max(...messages.map(m => m.modified));
+      const newContent = messages.filter(message => {
+        if (currentChatType === 'channel') {
+          if (channelPosts.has(message.iden)) {
+            return false;
+          }
+          channelPosts.add(message.iden);
+        } else if (currentChatType === 'friend') {
+          if (friendMessages.has(message.iden)) {
+            return false;
+          }
+          friendMessages.add(message.iden);
+        }
+        return true;
+      }).map(message => {
+        if (message.type === 'note') {
+          const urlRegex = /(https?:\/\/[^\s]+)/g;
+          const body = message.body.replace(urlRegex, (url) => `<a href="${url}" target="_blank" class="url-link">${url}</a>`);
+          return `
+            <div class="message">
+              <strong>${message.sender_name || 'You'}:</strong> ${body}
+            </div>
+          `;
+        } else if (message.type === 'file') {
+          let fileContent = '';
+          if (message.file_type.startsWith('image/')) {
+            fileContent = `
+              <img src="${message.file_url}" alt="${message.file_name}" class="file-thumbnail">
+              <a href="${message.file_url}" target="_blank" class="file-link">${message.file_name}</a>
+            `;
+          } else {
+            fileContent = `
+              <a href="${message.file_url}" target="_blank" class="file-link">${message.file_name}</a>
+            `;
+          }
+          return `
+            <div class="message">
+              <strong>${message.sender_name || 'You'}:</strong> Sent a file
+              ${fileContent}
+            </div>
+          `;
+        }
+      }).join('');
+      messageList.innerHTML = newContent + messageList.innerHTML;
+      updateFileList(messages);
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching messages:', error);
+    showToast('Error fetching messages. Please try again.');
+  });
+}
+
+function updateFileList(messages) {
+  const files = messages.filter(m => m.type === 'file' || (m.type === 'note' && m.body.match(/(https?:\/\/[^\s]+)/g)));
+  const fileListContent = files.map(file => {
+    if (file.type === 'file') {
+      let thumbnail = '';
+      if (file.file_type.startsWith('image/')) {
+        thumbnail = `<img src="${file.file_url}" alt="${file.file_name}" class="file-thumbnail">`;
+      } else {
+        thumbnail = `<div class="file-thumbnail">📄</div>`;
+      }
+      return `
+        <div class="file-item">
+          ${thumbnail}
+          <div class="file-info">
+            <span class="file-name">${file.file_name}</span>
+            <a href="${file.file_url}" target="_blank" class="file-link">Download</a>
+          </div>
+        </div>
+      `;
+    } else if (file.type === 'note') {
+      const urls = file.body.match(/(https?:\/\/[^\s]+)/g);
+      return urls.map(url => `
+        <div class="file-item">
+          <div class="file-thumbnail">🔗</div>
+          <div class="file-info">
+            <span class="file-name">URL from message</span>
+            <a href="${url}" target="_blank" class="file-link">${url}</a>
+          </div>
+        </div>
+      `).join('');
+    }
+  }).join('');
+  fileList.innerHTML = fileListContent;
+}
+
+function searchGif() {
+  showToast('GIF search not implemented in this demo.');
+}
+
+function insertEmoji() {
+  messageInput.value += '😀';
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 3000);
+}
+
+function fetchEverything() {
+  fetchDevices();
+  fetchFriends();
+  fetchChannels();
+  fetchMessages();
+}
+
+function fetchDevices() {
+  axios.get(`${API_BASE_URL}/devices`, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    const devices = response.data.devices;
+    deviceList.innerHTML = `
+      <li data-id="all">All Devices</li>
+      ${devices.map(device => `
+        <li data-id="${device.iden}">${device.nickname || device.model}</li>
+      `).join('')}
+    `;
+    deviceList.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', () => switchChat('device', li.dataset.id));
+    });
+  })
+  .catch(error => {
+    console.error('Error fetching devices:', error);
+    showToast('Error fetching devices. Please try again.');
+  });
+}
+
+function fetchFriends() {
+  axios.get(`${API_BASE_URL}/chats`, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    const friends = response.data.chats;
+    friendList.innerHTML = friends.map(friend => `
+      <li data-id="${friend.with.email}">${friend.with.name || friend.with.email}</li>
+    `).join('');
+    friendList.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', () => switchChat('friend', li.dataset.id));
+    });
+  })
+  .catch(error => {
+    console.error('Error fetching friends:', error);
+    showToast('Error fetching friends. Please try again.');
+  });
+}
+
+function fetchChannels() {
+  axios.get(`${API_BASE_URL}/subscriptions`, {
+    headers: { 'Access-Token': apiKey }
+  })
+  .then(response => {
+    const channels = response.data.subscriptions;
+    channelList.innerHTML = channels.map(channel => `
+      <li data-id="${channel.channel.tag}">${channel.channel.name}</li>
+    `).join('');
+    channelList.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', () => switchChat('channel', li.dataset.id));
+    });
+  })
+  .catch(error => {
+    console.error('Error fetching channels:', error);
+    showToast('Error fetching channels. Please try again.');
+  });
+}
+
+function switchChat(type, id) {
+  currentChatType = type;
+  currentChatId = id;
+  latestTimestamp = 0;
+  channelPosts.clear();
+  friendMessages.clear();
+  messageList.innerHTML = '';
+  fetchMessages();
+  showToast(`Switched to ${type} chat`);
+}
+
+if (apiKey) {
+  fetchEverything();
+} else {
+  showToast('Please set your Pushbullet API Key in the settings.');
+}
+
+function realTimeUpdate() {
+  fetchMessages();
+  setTimeout(realTimeUpdate, 5000); // Update every 5 seconds
+}
+
+realTimeUpdate();
+updateBackgroundImage();
+
+document.querySelectorAll('.settings-section').forEach(section => {
+  section.classList.remove('expanded');
+});
+</script>
+</body></html>
