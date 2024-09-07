@@ -1,0 +1,1398 @@
+<html><head><base href="https://trello-clone.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Task Management Board</title>
+<style>
+  :root {
+    --orange: #FF9F1C;
+    --cyan: #2EC4B6;
+    --light-pink: #FFCAD4;
+    --dark-gray: #333333;
+    --light-gray: #E0E0E0;
+    --teal: #008080;
+    --sea-foam: #7FFFD4;
+    --peach: #FFDAB9;
+    --white: #FFFFFF;
+    --black: #000000;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-pink);
+    color: var(--dark-gray);
+    display: flex;
+    transition: background-color 0.3s ease;
+  }
+  
+  .left-panel {
+    width: 250px;
+    background-color: var(--cyan);
+    height: 100vh;
+    position: fixed;
+    left: -250px;
+    top: 0;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  .left-panel.open {
+    left: 0;
+  }
+  
+  .panel-toggle {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+    background-color: var(--orange);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: left 0.3s ease, background-color 0.3s ease;
+    opacity: 0.8;
+  }
+  
+  .panel-toggle:hover {
+    opacity: 1;
+  }
+  
+  .left-panel.open + .panel-toggle {
+    left: 250px;
+  }
+  
+  .app-settings {
+    padding: 20px;
+  }
+  
+  .color-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .board-container {
+    margin-left: 60px;
+    flex-grow: 1;
+    overflow-x: auto;
+  }
+  
+  .board {
+    display: flex;
+    padding: 20px;
+    align-items: flex-start;
+  }
+  
+  .list {
+    background-color: var(--cyan);
+    border-radius: 5px;
+    width: 300px;
+    margin-right: 20px;
+    padding: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .list-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .list-controls {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+  }
+  
+  .card:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-controls {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    display: none;
+  }
+  
+  .card:hover .card-controls {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .add-card, .add-list {
+    background-color: var(--orange);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-card:hover, .add-list:hover {
+    background-color: #FF8C00;
+  }
+  
+  .add-list {
+    margin-left: 20px;
+  }
+  
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  .modal-content {
+    background-color: var(--light-pink);
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    width: calc(100% - 80px);
+    max-width: 800px;
+    height: 80vh;
+    border-radius: 5px;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    overflow-y: auto;
+  }
+  
+  .modal-content::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  .modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+  }
+  
+  .modal-content::-webkit-scrollbar-thumb {
+    background: var(--orange);
+    border-radius: 5px;
+  }
+  
+  .modal-content::-webkit-scrollbar-thumb:hover {
+    background: #FF8C00;
+  }
+  
+  .modal-content.flipped .modal-front {
+    display: none;
+  }
+  
+  .modal-content.flipped .modal-back {
+    display: block;
+  }
+  
+  .modal-front, .modal-back {
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .modal-back {
+    display: none;
+    background-color: var(--light-pink);
+    padding: 20px;
+  }
+  
+  .close {
+    color: #fff;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #f0f0f0;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .modal-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .modal-section {
+    margin-bottom: 20px;
+  }
+  
+  .modal-section-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .checklist-item input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .label {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+  
+  .btn {
+    background-color: var(--orange);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #FF8C00;
+  }
+  
+  .control-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    color: var(--dark-gray);
+  }
+  
+  .settings-btn {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background-color: var(--orange);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .settings-btn:hover {
+    background-color: #FF8C00;
+  }
+  
+  .modal-content textarea, .modal-content input[type="text"], .modal-content input[type="date"] {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+    border: 1px solid #fff;
+    width: calc(100% - 20px);
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .attachment-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+    padding: 5px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .attachment-thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+  
+  .attachment-item a {
+    color: #000;
+    background-color: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+  
+  .comment {
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+  }
+
+  .label-manager {
+    background-color: var(--light-gray);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  .label-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .label-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .label-name {
+    flex-grow: 1;
+  }
+
+  .label-controls {
+    display: flex;
+    gap: 5px;
+  }
+
+  .label-edit-window {
+    background-color: var(--white);
+    border: 1px solid var(--dark-gray);
+    border-radius: 3px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .label-cards {
+    margin-top: 5px;
+    padding-left: 30px;
+    font-size: 0.9em;
+  }
+
+  .label-card-title {
+    cursor: pointer;
+    color: var(--dark-gray);
+  }
+
+  .label-card-title:hover {
+    text-decoration: underline;
+  }
+
+  .popup {
+    position: absolute;
+    background-color: var(--white);
+    border: 1px solid var(--dark-gray);
+    border-radius: 3px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  .color-picker-popup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .color-option {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .file-input-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .file-input-wrapper .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="left-panel">
+    <div class="app-settings">
+      <h2>App Settings</h2>
+      <div class="label-manager">
+        <h3>Label Manager</h3>
+        <div id="labelList"></div>
+        <button id="addLabel" class="btn">Add Label</button>
+      </div>
+      <div class="color-picker">
+        <label for="color1">Background Color 1:</label>
+        <select id="color1">
+          <option value="--light-pink">Light Pink</option>
+          <option value="--dark-gray">Dark Gray</option>
+          <option value="--light-gray">Light Gray</option>
+          <option value="--teal">Teal</option>
+          <option value="--sea-foam">Sea Foam</option>
+          <option value="--cyan">Cyan</option>
+          <option value="--peach">Peach</option>
+          <option value="--orange">Orange</option>
+          <option value="--white">White</option>
+          <option value="--black">Black</option>
+        </select>
+        <label for="color2">Background Color 2:</label>
+        <select id="color2">
+          <option value="">None</option>
+          <option value="--light-pink">Light Pink</option>
+          <option value="--dark-gray">Dark Gray</option>
+          <option value="--light-gray">Light Gray</option>
+          <option value="--teal">Teal</option>
+          <option value="--sea-foam">Sea Foam</option>
+          <option value="--cyan">Cyan</option>
+          <option value="--peach">Peach</option>
+          <option value="--orange">Orange</option>
+          <option value="--white">White</option>
+          <option value="--black">Black</option>
+        </select>
+        <button id="applyColors" class="btn">Apply Colors</button>
+      </div>
+      <div class="backup-restore">
+        <h3>Backup and Restore</h3>
+        <button id="backupApp" class="btn">Backup App</button>
+        <button id="restoreApp" class="btn">Restore App</button>
+      </div>
+    </div>
+  </div>
+  <button class="panel-toggle">☰</button>
+  <div class="board-container">
+    <div class="board">
+      <button class="add-list">+ Add List</button>
+    </div>
+  </div>
+
+  <div id="cardModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-front">
+        <span class="close">&times;</span>
+        <h2 class="modal-title" contenteditable="true">Card Title</h2>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Description</div>
+          <textarea id="cardDescription" rows="4"></textarea>
+        </div>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Checklist</div>
+          <div id="checklist"></div>
+          <button class="btn" id="addChecklistItem">Add Item</button>
+        </div>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Labels</div>
+          <div id="labels"></div>
+          <button class="btn" id="addCardLabel">Add Label</button>
+        </div>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Due Date</div>
+          <input type="date" id="dueDate">
+        </div>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Attachments</div>
+          <div class="file-input-wrapper">
+            <button class="btn">Choose File</button>
+            <input type="file" id="attachment">
+          </div>
+          <button class="btn" id="uploadAttachment">Upload</button>
+          <div id="attachmentList"></div>
+        </div>
+        
+        <div class="modal-section">
+          <div class="modal-section-title">Comments</div>
+          <textarea id="newComment" rows="2"></textarea>
+          <button class="btn" id="addComment">Add Comment</button>
+          <div id="commentList"></div>
+        </div>
+        
+        <button class="settings-btn" id="openSettings">Settings</button>
+      </div>
+      <div class="modal-back">
+        <h2>Card Settings</h2>
+        <div class="modal-section">
+          <div class="modal-section-title">Background Image URL</div>
+          <input type="text" id="backgroundImageUrl" style="width: 100%;">
+          <button class="btn" id="updateBackgroundImage">Update Background</button>
+        </div>
+        <button class="settings-btn" id="closeSettings">Close Settings</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.2/dexie.min.js"></script>
+<script>
+// Initialize Dexie
+const db = new Dexie('TrelloCloneDB');
+db.version(1).stores({
+  lists: '++id, title, order',
+  cards: '++id, listId, title, description, order, dueDate, backgroundImageUrl',
+  checklistItems: '++id, cardId, text, completed',
+  labels: '++id, text, color',
+  cardLabels: '++id, cardId, labelId',
+  attachments: '++id, cardId, name, blob',
+  comments: '++id, cardId, text, timestamp'
+});
+
+// Add a new version for the appSettings store
+db.version(2).stores({
+  appSettings: 'key, value'
+}).upgrade(tx => {
+  return tx.appSettings.bulkAdd([
+    { key: 'backgroundColor1', value: '--light-pink' },
+    { key: 'backgroundColor2', value: '' }
+  ]);
+});
+
+// Helper function to generate unique IDs
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+async function checkAndUpgradeDB() {
+  if (db.verno < 2) {
+    await db.open();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async (event) => {
+  await checkAndUpgradeDB();
+
+  const board = document.querySelector('.board');
+  const addListButton = document.querySelector('.add-list');
+  const modal = document.getElementById('cardModal');
+  const closeModal = document.querySelector('.close');
+  const modalContent = document.querySelector('.modal-content');
+  const openSettingsBtn = document.getElementById('openSettings');
+  const closeSettingsBtn = document.getElementById('closeSettings');
+  const updateBackgroundImageBtn = document.getElementById('updateBackgroundImage');
+  const panelToggle = document.querySelector('.panel-toggle');
+  const leftPanel = document.querySelector('.left-panel');
+  const applyColorsBtn = document.getElementById('applyColors');
+  const backupAppBtn = document.getElementById('backupApp');
+  const restoreAppBtn = document.getElementById('restoreApp');
+  const addLabelBtn = document.getElementById('addLabel');
+  let currentCardId = null;
+
+  // Load app data from IndexedDB
+  await loadAppData();
+
+  // Initialize Sortable for lists
+  new Sortable(board, {
+    animation: 150,
+    draggable: '.list',
+    handle: '.list-header',
+    ghostClass: 'blue-background-class',
+    onEnd: updateListOrder
+  });
+
+  // Event listeners
+  board.addEventListener('click', handleBoardClick);
+  addListButton.addEventListener('click', addList);
+  closeModal.addEventListener('click', () => {
+    modal.style.display = 'none';
+    modalContent.classList.remove('flipped');
+  });
+  window.addEventListener('click', (event) => {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+      modalContent.classList.remove('flipped');
+    }
+  });
+
+  document.getElementById('addChecklistItem').addEventListener('click', addChecklistItem);
+  document.getElementById('addCardLabel').addEventListener('click', addCardLabel);
+  document.getElementById('uploadAttachment').addEventListener('click', uploadAttachment);
+  document.getElementById('addComment').addEventListener('click', addComment);
+
+  openSettingsBtn.addEventListener('click', () => {
+    modalContent.classList.add('flipped');
+  });
+
+  closeSettingsBtn.addEventListener('click', () => {
+    modalContent.classList.remove('flipped');
+  });
+
+  updateBackgroundImageBtn.addEventListener('click', updateBackgroundImage);
+
+  panelToggle.addEventListener('click', () => {
+    leftPanel.classList.toggle('open');
+    if (leftPanel.classList.contains('open')) {
+      panelToggle.style.left = '250px';
+    } else {
+      panelToggle.style.left = '0';
+    }
+  });
+
+  applyColorsBtn.addEventListener('click', applyBackgroundColors);
+  backupAppBtn.addEventListener('click', backupApp);
+  restoreAppBtn.addEventListener('click', restoreApp);
+  addLabelBtn.addEventListener('click', addGlobalLabel);
+
+  // Function to load app data from IndexedDB
+  async function loadAppData() {
+    await loadAppSettings();
+    await loadBoardData();
+    await loadLabelManager();
+  }
+
+  // Function to load app settings
+  async function loadAppSettings() {
+    try {
+      const settings = await db.appSettings.toArray();
+      settings.forEach(setting => {
+        if (setting.key === 'backgroundColor1') {
+          document.getElementById('color1').value = setting.value;
+        } else if (setting.key === 'backgroundColor2') {
+          document.getElementById('color2').value = setting.value;
+        }
+      });
+      applyBackgroundColors();
+    } catch (error) {
+      console.error('Error loading app settings:', error);
+      // Use default values if settings couldn't be loaded
+      document.getElementById('color1').value = '--light-pink';
+      document.getElementById('color2').value = '';
+      applyBackgroundColors();
+    }
+  }
+
+  // Function to load board data from IndexedDB
+  async function loadBoardData() {
+    // Clear existing lists and cards
+    const existingLists = board.querySelectorAll('.list');
+    existingLists.forEach(list => list.remove());
+
+    const lists = await db.lists.orderBy('order').toArray();
+    for (const list of lists) {
+      const listElement = createListElement(list);
+      board.insertBefore(listElement, addListButton);
+      
+      const cards = await db.cards.where('listId').equals(list.id).sortBy('order');
+      for (const card of cards) {
+        const cardElement = createCardElement(card);
+        listElement.insertBefore(cardElement, listElement.querySelector('.add-card'));
+      }
+
+      // Initialize Sortable for cards within each list
+      new Sortable(listElement, {
+        group: 'shared',
+        animation: 150,
+        draggable: '.card',
+        ghostClass: 'blue-background-class',
+        onEnd: updateCardOrder
+      });
+    }
+  }
+
+  // Function to load label manager
+  async function loadLabelManager() {
+    const labelList = document.getElementById('labelList');
+    labelList.innerHTML = '';
+    const labels = await db.labels.toArray();
+    for (const label of labels) {
+      const labelElement = createLabelManagerElement(label);
+      labelList.appendChild(labelElement);
+    }
+  }
+
+  // Function to create a list element
+  function createListElement(list) {
+    const listElement = document.createElement('div');
+    listElement.className = 'list';
+    listElement.dataset.listId = list.id;
+    listElement.innerHTML = `
+      <div class="list-header">
+        <div class="list-title" contenteditable="true">${list.title}</div>
+        <div class="list-controls">
+          <button class="control-btn move-left">&#8592;</button>
+          <button class="control-btn move-right">&#8594;</button>
+          <button class="control-btn delete-list">&#10005;</button>
+        </div>
+      </div>
+      <button class="add-card">+ Add Card</button>
+    `;
+    return listElement;
+  }
+
+  // Function to create a card element
+  function createCardElement(card) {
+    const cardElement = document.createElement('div');
+    cardElement.className = 'card';
+    cardElement.dataset.cardId = card.id;
+    cardElement.innerHTML = `
+      <div class="card-title" contenteditable="true">${card.title}</div>
+      <div class="card-controls">
+        <button class="control-btn move-up">&#8593;</button>
+        <button class="control-btn move-down">&#8595;</button>
+        <button class="control-btn delete-card">&#10005;</button>
+      </div>
+    `;
+    return cardElement;
+  }
+
+  // Function to create a label manager element
+  function createLabelManagerElement(label) {
+    const labelElement = document.createElement('div');
+    labelElement.className = 'label-item';
+    labelElement.dataset.labelId = label.id;
+    labelElement.innerHTML = `
+      <span class="label" style="background-color: ${label.color};">${label.text}</span>
+      <div class="label-controls">
+        <button class="control-btn edit-label">&#9998;</button>
+        <button class="control-btn delete-label">&#10005;</button>
+      </div>
+    `;
+
+    labelElement.querySelector('.edit-label').addEventListener('click', () => editLabel(label, labelElement));
+    labelElement.querySelector('.delete-label').addEventListener('click', () => deleteLabel(label.id));
+
+    return labelElement;
+  }
+
+  // Function to handle board clicks
+  function handleBoardClick(e) {
+    if (e.target.classList.contains('add-card')) {
+      addCard(e.target);
+    } else if (e.target.classList.contains('card-title')) {
+      openCardModal(e.target.closest('.card'));
+    } else if (e.target.classList.contains('list-title')) {
+      e.target.focus();
+    } else if (e.target.classList.contains('move-left')) {
+      moveList(e.target.closest('.list'), 'left');
+    } else if (e.target.classList.contains('move-right')) {
+      moveList(e.target.closest('.list'), 'right');
+    } else if (e.target.classList.contains('delete-list')) {
+      deleteList(e.target.closest('.list'));
+    } else if (e.target.classList.contains('move-up')) {
+      moveCard(e.target.closest('.card'), 'up');
+    } else if (e.target.classList.contains('move-down')) {
+      moveCard(e.target.closest('.card'), 'down');
+    } else if (e.target.classList.contains('delete-card')) {
+      deleteCard(e.target.closest('.card'));
+    }
+  }
+
+  // Function to add a new list
+  async function addList() {
+    const listId = uuidv4();
+    const listData = {
+      id: listId,
+      title: 'New List',
+      order: await db.lists.count() + 1
+    };
+    await db.lists.add(listData);
+    
+    const listElement = createListElement(listData);
+    board.insertBefore(listElement, addListButton);
+    
+    new Sortable(listElement, {
+      group: 'shared',
+      animation: 150,
+      draggable: '.card',
+      ghostClass: 'blue-background-class',
+      onEnd: updateCardOrder
+    });
+  }
+
+  // Function to add a new card
+  async function addCard(addCardButton) {
+    const list = addCardButton.closest('.list');
+    const listId = list.dataset.listId;
+    const cardId = uuidv4();
+    const cardData = {
+      id: cardId,
+      listId: listId,
+      title: 'New Card',
+      description: '',
+      order: await db.cards.where('listId').equals(listId).count() + 1,
+      dueDate: null,
+      backgroundImageUrl: null
+    };
+    await db.cards.add(cardData);
+    
+    const cardElement = createCardElement(cardData);
+    list.insertBefore(cardElement, addCardButton);
+  }
+
+  // Function to open card modal
+  async function openCardModal(cardElement) {
+    const cardId = cardElement.dataset.cardId;
+    currentCardId = cardId;
+    const card = await db.cards.get(cardId);
+    
+    document.querySelector('.modal-title').textContent = card.title;
+    document.getElementById('cardDescription').value = card.description || '';
+    document.getElementById('dueDate').value = card.dueDate || '';
+    document.getElementById('backgroundImageUrl').value = card.backgroundImageUrl || '';
+    
+    // Load checklist items
+    const checklist = document.getElementById('checklist');
+    checklist.innerHTML = '';
+    const checklistItems = await db.checklistItems.where('cardId').equals(cardId).toArray();
+    checklistItems.forEach(item => {
+      const itemElement = createChecklistItemElement(item);
+      checklist.appendChild(itemElement);
+    });
+    
+    // Load labels
+    const labels = document.getElementById('labels');
+    labels.innerHTML = '';
+    const cardLabels = await db.cardLabels.where('cardId').equals(cardId).toArray();
+    for (const cardLabel of cardLabels) {
+      const label = await db.labels.get(cardLabel.labelId);
+      const labelElement = createLabelElement(label);
+      labels.appendChild(labelElement);
+    }
+    
+    // Load attachments
+    const attachmentList = document.getElementById('attachmentList');
+    attachmentList.innerHTML = '';
+    const attachments = await db.attachments.where('cardId').equals(cardId).toArray();
+    attachments.forEach(attachment => {
+      const attachmentElement = createAttach
+mentElement(attachment);
+      attachmentList.appendChild(attachmentElement);
+    });
+    
+    // Load comments
+    const commentList = document.getElementById('commentList');
+    commentList.innerHTML = '';
+    const comments = await db.comments.where('cardId').equals(cardId).reverse().sortBy('timestamp');
+    comments.forEach(comment => {
+      const commentElement = createCommentElement(comment);
+      commentList.appendChild(commentElement);
+    });
+    
+    // Set background image if exists
+    if (card.backgroundImageUrl) {
+      modalContent.style.backgroundImage = `url(${card.backgroundImageUrl})`;
+      modalContent.style.backgroundSize = 'cover';
+      modalContent.style.backgroundPosition = 'center';
+    } else {
+      modalContent.style.backgroundImage = 'none';
+      modalContent.style.backgroundColor = 'var(--light-pink)';
+    }
+    
+    modal.style.display = 'block';
+  }
+
+  // Function to update list order
+  async function updateListOrder(evt) {
+    const lists = Array.from(document.querySelectorAll('.list'));
+    for (let i = 0; i < lists.length; i++) {
+      const listId = lists[i].dataset.listId;
+      await db.lists.update(listId, { order: i + 1 });
+    }
+  }
+
+  // Function to update card order
+  async function updateCardOrder(evt) {
+    const list = evt.to;
+    const listId = list.dataset.listId;
+    const cards = Array.from(list.querySelectorAll('.card'));
+    for (let i = 0; i < cards.length; i++) {
+      const cardId = cards[i].dataset.cardId;
+      await db.cards.update(cardId, { listId: listId, order: i + 1 });
+    }
+  }
+
+  // Function to move a list
+  async function moveList(listElement, direction) {
+    const lists = Array.from(document.querySelectorAll('.list'));
+    const index = lists.indexOf(listElement);
+    if (direction === 'left' && index > 0) {
+      board.insertBefore(listElement, lists[index - 1]);
+    } else if (direction === 'right' && index < lists.length - 1) {
+      board.insertBefore(listElement, lists[index + 1].nextSibling);
+    }
+    await updateListOrder({ target: board });
+  }
+
+  // Function to delete a list
+  async function deleteList(listElement) {
+    const listId = listElement.dataset.listId;
+    await db.lists.delete(listId);
+    await db.cards.where('listId').equals(listId).delete();
+    listElement.remove();
+    await updateListOrder({ target: board });
+  }
+
+  // Function to move a card
+  async function moveCard(cardElement, direction) {
+    const list = cardElement.closest('.list');
+    const cards = Array.from(list.querySelectorAll('.card'));
+    const index = cards.indexOf(cardElement);
+    if (direction === 'up' && index > 0) {
+      list.insertBefore(cardElement, cards[index - 1]);
+    } else if (direction === 'down' && index < cards.length - 1) {
+      list.insertBefore(cardElement, cards[index + 1].nextSibling);
+    }
+    await updateCardOrder({ to: list });
+  }
+
+  // Function to delete a card
+  async function deleteCard(cardElement) {
+    const cardId = cardElement.dataset.cardId;
+    await db.cards.delete(cardId);
+    await db.checklistItems.where('cardId').equals(cardId).delete();
+    await db.cardLabels.where('cardId').equals(cardId).delete();
+    await db.attachments.where('cardId').equals(cardId).delete();
+    await db.comments.where('cardId').equals(cardId).delete();
+    cardElement.remove();
+    await updateCardOrder({ to: cardElement.closest('.list') });
+  }
+
+  // Function to add a checklist item
+  async function addChecklistItem() {
+    const checklist = document.getElementById('checklist');
+    const itemData = {
+      cardId: currentCardId,
+      text: 'New item',
+      completed: false
+    };
+    const id = await db.checklistItems.add(itemData);
+    itemData.id = id;
+    const itemElement = createChecklistItemElement(itemData);
+    checklist.appendChild(itemElement);
+  }
+
+  // Function to create a checklist item element
+  function createChecklistItemElement(item) {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'checklist-item';
+    itemElement.innerHTML = `
+      <input type="checkbox" ${item.completed ? 'checked' : ''}>
+      <span contenteditable="true">${item.text}</span>
+      <button class="control-btn delete-item">&#10005;</button>
+    `;
+    itemElement.querySelector('input[type="checkbox"]').addEventListener('change', async (e) => {
+      await db.checklistItems.update(item.id, { completed: e.target.checked });
+    });
+    itemElement.querySelector('span').addEventListener('blur', async (e) => {
+      await db.checklistItems.update(item.id, { text: e.target.textContent });
+    });
+    itemElement.querySelector('.delete-item').addEventListener('click', async () => {
+      await db.checklistItems.delete(item.id);
+      itemElement.remove();
+    });
+    return itemElement;
+  }
+
+  // Function to add a card label
+  async function addCardLabel() {
+    const labels = document.getElementById('labels');
+    const labelId = await promptLabelSelection();
+    if (labelId) {
+      const label = await db.labels.get(labelId);
+      const cardLabelData = {
+        cardId: currentCardId,
+        labelId: labelId
+      };
+      await db.cardLabels.add(cardLabelData);
+      const labelElement = createLabelElement(label);
+      labels.appendChild(labelElement);
+    }
+  }
+
+  // Function to prompt label selection
+  async function promptLabelSelection() {
+    const labels = await db.labels.toArray();
+    return new Promise((resolve) => {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.style.top = `${document.getElementById('addCardLabel').offsetTop + 30}px`;
+      popup.style.left = `${document.getElementById('addCardLabel').offsetLeft}px`;
+      
+      const select = document.createElement('select');
+      select.innerHTML = `<option value="">Select a label</option>
+        ${labels.map(label => `<option value="${label.id}">${label.text}</option>`).join('')}
+        <option value="new">Create new label</option>`;
+      
+      const confirmBtn = document.createElement('button');
+      confirmBtn.textContent = 'Confirm';
+      confirmBtn.className = 'btn';
+      
+      popup.appendChild(select);
+      popup.appendChild(confirmBtn);
+      
+      document.body.appendChild(popup);
+      
+      confirmBtn.addEventListener('click', () => {
+        const selectedValue = select.value;
+        popup.remove();
+        if (selectedValue === 'new') {
+          addGlobalLabel().then(newLabelId => resolve(newLabelId));
+        } else {
+          resolve(selectedValue);
+        }
+      });
+    });
+  }
+
+  // Function to create a label element
+  function createLabelElement(label) {
+    const labelElement = document.createElement('span');
+    labelElement.className = 'label';
+    labelElement.textContent = label.text;
+    labelElement.style.backgroundColor = label.color;
+    labelElement.dataset.labelId = label.id;
+    labelElement.addEventListener('click', async () => {
+      await db.cardLabels.where({ cardId: currentCardId, labelId: label.id }).delete();
+      labelElement.remove();
+    });
+    return labelElement;
+  }
+
+  // Function to upload attachment
+  async function uploadAttachment() {
+    const fileInput = document.getElementById('attachment');
+    const file = fileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const attachmentData = {
+          cardId: currentCardId,
+          name: file.name,
+          blob: e.target.result
+        };
+        const id = await db.attachments.add(attachmentData);
+        attachmentData.id = id;
+        const attachmentElement = createAttachmentElement(attachmentData);
+        document.getElementById('attachmentList').appendChild(attachmentElement);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Function to create an attachment element
+  function createAttachmentElement(attachment) {
+    const attachmentElement = document.createElement('div');
+    attachmentElement.className = 'attachment-item';
+    attachmentElement.innerHTML = `
+      <img class="attachment-thumbnail" src="${attachment.blob}" alt="${attachment.name}">
+      <span>${attachment.name}</span>
+      <a href="${attachment.blob}" download="${attachment.name}">Download</a>
+      <button class="control-btn delete-attachment">&#10005;</button>
+    `;
+    attachmentElement.querySelector('.delete-attachment').addEventListener('click', async () => {
+      await db.attachments.delete(attachment.id);
+      attachmentElement.remove();
+    });
+    return attachmentElement;
+  }
+
+  // Function to add a comment
+  async function addComment() {
+    const commentText = document.getElementById('newComment').value;
+    if (commentText.trim()) {
+      const commentData = {
+        cardId: currentCardId,
+        text: commentText,
+        timestamp: new Date().toISOString()
+      };
+      const id = await db.comments.add(commentData);
+      commentData.id = id;
+      const commentElement = createCommentElement(commentData);
+      document.getElementById('commentList').prepend(commentElement);
+      document.getElementById('newComment').value = '';
+    }
+  }
+
+  // Function to create a comment element
+  function createCommentElement(comment) {
+    const commentElement = document.createElement('div');
+    commentElement.className = 'comment';
+    commentElement.innerHTML = `
+      <p>${comment.text}</p>
+      <small>${new Date(comment.timestamp).toLocaleString()}</small>
+      <button class="control-btn delete-comment">&#10005;</button>
+    `;
+    commentElement.querySelector('.delete-comment').addEventListener('click', async () => {
+      await db.comments.delete(comment.id);
+      commentElement.remove();
+    });
+    return commentElement;
+  }
+
+  // Function to update background image
+  async function updateBackgroundImage() {
+    const backgroundImageUrl = document.getElementById('backgroundImageUrl').value;
+    await db.cards.update(currentCardId, { backgroundImageUrl: backgroundImageUrl });
+    modalContent.style.backgroundImage = `url(${backgroundImageUrl})`;
+    modalContent.style.backgroundSize = 'cover';
+    modalContent.style.backgroundPosition = 'center';
+  }
+
+  // Function to apply background colors
+  async function applyBackgroundColors() {
+    const color1 = document.getElementById('color1').value;
+    const color2 = document.getElementById('color2').value;
+    document.body.style.background = color2 ? 
+      `linear-gradient(to right, var(${color1}), var(${color2}))` : 
+      `var(${color1})`;
+    await db.appSettings.put({ key: 'backgroundColor1', value: color1 });
+    await db.appSettings.put({ key: 'backgroundColor2', value: color2 });
+  }
+
+  // Function to backup app data
+  async function backupApp() {
+    const backup = {
+      lists: await db.lists.toArray(),
+      cards: await db.cards.toArray(),
+      checklistItems: await db.checklistItems.toArray(),
+      labels: await db.labels.toArray(),
+      cardLabels: await db.cardLabels.toArray(),
+      attachments: await db.attachments.toArray(),
+      comments: await db.comments.toArray(),
+      appSettings: await db.appSettings.toArray()
+    };
+    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'trello_clone_backup.json';
+    a.click();
+  }
+
+  // Function to restore app data
+  async function restoreApp() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.onchange = async function(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const backup = JSON.parse(e.target.result);
+        await db.transaction('rw', db.lists, db.cards, db.checklistItems, db.labels, db.cardLabels, db.attachments, db.comments, db.appSettings, async () => {
+          await db.lists.clear();
+          await db.cards.clear();
+          await db.checklistItems.clear();
+          await db.labels.clear();
+          await db.cardLabels.clear();
+          await db.attachments.clear();
+          await db.comments.clear();
+          await db.appSettings.clear();
+          
+          await db.lists.bulkAdd(backup.lists);
+          await db.cards.bulkAdd(backup.cards);
+          await db.checklistItems.bulkAdd(backup.checklistItems);
+          await db.labels.bulkAdd(backup.labels);
+          await db.cardLabels.bulkAdd(backup.cardLabels);
+          await db.attachments.bulkAdd(backup.attachments);
+          await db.comments.bulkAdd(backup.comments);
+          await db.appSettings.bulkAdd(backup.appSettings);
+        });
+        await loadAppData();
+      };
+      reader.readAsText(file);
+    };
+    fileInput.click();
+  }
+
+  // Function to add a global label
+  async function addGlobalLabel() {
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+      <input type="text" id="newLabelText" placeholder="Label text">
+      <div class="color-picker-popup">
+        <div class="color-option" style="background-color: #61BD4F;"></div>
+        <div class="color-option" style="background-color: #F2D600;"></div>
+        <div class="color-option" style="background-color: #FF9F1A;"></div>
+        <div class="color-option" style="background-color: #EB5A46;"></div>
+        <div class="color-option" style="background-color: #C377E0;"></div>
+        <div class="color-option" style="background-color: #0079BF;"></div>
+      </div>
+      <button id="confirmNewLabel" class="btn">Add Label</button>
+    `;
+    document.body.appendChild(popup);
+
+    let selectedColor = '#61BD4F';
+    popup.querySelectorAll('.color-option').forEach(option => {
+      option.addEventListener('click', () => {
+        selectedColor = option.style.backgroundColor;
+        popup.querySelectorAll('.color-option').forEach(opt => opt.style.border = 'none');
+        option.style.border = '2px solid black';
+      });
+    });
+
+    return new Promise((resolve) => {
+      document.getElementById('confirmNewLabel').addEventListener('click', async () => {
+        const labelText = document.getElementById('newLabelText').value;
+        if (labelText) {
+          const labelData = {
+            text: labelText,
+            color: selectedColor
+          };
+          const id = await db.labels.add(labelData);
+          labelData.id = id;
+          const labelElement = createLabelManagerElement(labelData);
+          document.getElementById('labelList').appendChild(labelElement);
+          popup.remove();
+          resolve(id);
+        }
+      });
+    });
+  }
+
+  // Function to edit a label
+  async function editLabel(label, labelElement) {
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+      <input type="text" id="editLabelText" value="${label.text}">
+      <div class="color-picker-popup">
+        <div class="color-option" style="background-color: #61BD4F;"></div>
+        <div class="color-option" style="background-color: #F2D600;"></div>
+        <div class="color-option" style="background-color: #FF9F1A;"></div>
+        <div class="color-option" style="background-color: #EB5A46;"></div>
+        <div class="color-option" style="background-color: #C377E0;"></div>
+        <div class="color-option" style="background-color: #0079BF;"></div>
+      </div>
+      <button id="confirmEditLabel" class="btn">Update Label</button>
+    `;
+    document.body.appendChild(popup);
+
+    let selectedColor = label.color;
+    popup.querySelectorAll('.color-option').forEach(option => {
+      if (option.style.backgroundColor === label.color) {
+        option.style.border = '2px solid black';
+      }
+      option.addEventListener('click', () => {
+        selectedColor = option.style.backgroundColor;
+        popup.querySelectorAll('.color-option').forEach(opt => opt.style.border = 'none');
+        option.style.border = '2px solid black';
+      });
+    });
+
+    document.getElementById('confirmEditLabel').addEventListener('click', async () => {
+      const newText = document.getElementById('editLabelText').value;
+      if (newText) {
+        await db.labels.update(label.id, { text: newText, color: selectedColor });
+        labelElement.querySelector('.label').textContent = newText;
+        labelElement.querySelector('.label').style.backgroundColor = selectedColor;
+        // Update all instances of this label in the board
+        const cardLabels = await db.cardLabels.where('labelId').equals(label.id).toArray();
+        for (const cardLabel of cardLabels) {
+          const card = document.querySelector(`.card[data-card-id="${cardLabel.cardId}"]`);
+          if (card) {
+            const labelSpan = card.querySelector(`.label[data-label-id="${label.id}"]`);
+            if (labelSpan) {
+              labelSpan.textContent = newText;
+              labelSpan.style.backgroundColor = selectedColor;
+            }
+          }
+        }
+        popup.remove();
+      }
+    });
+  }
+
+  // Function to delete a label
+  async function deleteLabel(labelId) {
+    await db.labels.delete(labelId);
+    await db.cardLabels.where('labelId').equals(labelId).delete();
+    const labelElement = document.querySelector(`.label-item[data-label-id="${labelId}"]`);
+    if (labelElement) {
+      labelElement.remove();
+    }
+    // Remove all instances of this label from the board
+    const labelSpans = document.querySelectorAll(`.label[data-label-id="${labelId}"]`);
+    labelSpans.forEach(span => span.remove());
+  }
+
+  // Event listener for card title changes
+  document.querySelector('.modal-title').addEventListener('blur', async function() {
+    const newTitle = this.textContent;
+    await db.cards.update(currentCardId, { title: newTitle });
+    const cardElement = document.querySelector(`.card[data-card-id="${currentCardId}"]`);
+    if (cardElement) {
+      cardElement.querySelector('.card-title').textContent = newTitle;
+    }
+  });
+
+  // Event listener for card description changes
+  document.getElementById('cardDescription').addEventListener('blur', async function() {
+    const newDescription = this.value;
+    await db.cards.update(currentCardId, { description: newDescription });
+  });
+
+  // Event listener for due date changes
+  document.getElementById('dueDate').addEventListener('change', async function() {
+    const newDueDate = this.value;
+    await db.cards.update(currentCardId, { dueDate: newDueDate });
+  });
+
+  // Event listener for list title changes
+  board.addEventListener('blur', async function(e) {
+    if (e.target.classList.contains('list-title')) {
+      const listElement = e.target.closest('.list');
+      const listId = listElement.dataset.listId;
+      const newTitle = e.target.textContent;
+      await db.lists.update(listId, { title: newTitle });
+    }
+  }, true);
+});
+</script>
+</body>
+</html>
