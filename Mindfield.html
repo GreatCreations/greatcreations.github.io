@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced MindMap with Context Menu</title>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+    }
+    #mindmap-container {
+        width: 100%;
+        height: 100%;
+    }
+    .node {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 2;
+    }
+    .node:hover {
+        filter: brightness(1.2);
+    }
+    .node circle.selected {
+        stroke: #2bff00;
+        stroke-width: 3px;
+    }
+    .node text.selected {
+        fill: #2ca02c;
+    }
+    .node text {
+        font-size: 12px;
+        fill: #333;
+    }
+    .link {
+        fill: none;
+        stroke: #999;
+        stroke-width: 2px;
+    }
+    #controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.6);
+        padding: 5px;
+        border-radius: 5px;
+        pointer-events: none;
+    }
+    #controls button {
+        pointer-events: auto;
+        margin: 2px;
+        padding: 3px 6px;
+        cursor: pointer;
+        font-size: 10px;
+    }
+    #toggle-grid.active {
+        background-color: #333;
+        color: #fff;
+        border-color: #fff;
+    }
+    .selected {
+        stroke: #2bff00;
+        stroke-width: 3px;
+        vector-effect: non-scaling-stroke;
+    }
+    .edit-field {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #999;
+        padding: 2px;
+        font-size: 12px;
+    }
+    .edit-field input {
+        width: 100px;
+        border: none;
+        outline: none;
+    }
+    .edit-field button {
+        background: none;
+        border: none;
+        padding: 2px;
+        cursor: pointer;
+    }
+    .context-menu {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px;
+        font-size: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .context-menu-section {
+        border-bottom: 1px solid #eee;
+        padding: 5px 0;
+    }
+    .context-menu-section:last-child {
+        border-bottom: none;
+    }
+    .context-menu .selected-node {
+        color: #2ca02c;
+        font-weight: bold;
+    }
+    .color-option {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        margin: 2px;
+        border: 1px solid #999;
+        cursor: pointer;
+    }
+    .hierarchy-tree {
+        font-size: 10px;
+        margin-left: 10px;
+    }
+    .hierarchy-tree div {
+        cursor: pointer;
+    }
+    .hierarchy-tree div:hover {
+        text-decoration: underline;
+    }
+    .grid {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+    }
+    .grid .thick {
+        stroke: #a0a0a0;
+        stroke-width: 5px;
+        vector-effect: non-scaling-stroke;
+    }
+    .grid .selected {
+        stroke: #2bff00;
+        stroke-width: 5px;
+        vector-effect: non-scaling-stroke;
+    }
+    #mini-map {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 200px;
+        height: 200px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    #mini-map-controls {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+    }
+    #mini-map-controls button {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        padding: 0;
+        margin: 0 2px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    @keyframes buttonPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+    }
+    #controls button:active,
+    #mini-map-controls button:active {
+        animation: buttonPop 0.1s ease-in-out;
+    }
+    #mini-menu {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 12px;
+        max-width: 300px;
+        display: none;
+    }
+    #mini-menu h3 {
+        margin-top: 0;
+        font-size: 14px;
+    }
+    #mini-menu ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
+    #mini-menu li {
+        margin-bottom: 5px;
+    }
+    .space-window {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.7);
+        border: 1px solid #ccc;
+        min-width: 100px;
+        min-height: 100px;
+        pointer-events: auto;
+        z-index: 1;
+        overflow: hidden;
+        cursor: default;
+    }
+    .space-window-header {
+        background-color: #f0f0f0;
+        padding: 2px 5px;
+        cursor: move;
+        font-size: 12px;
+    }
+    .space-window-content {
+        display: flex;
+        flex-wrap: wrap;
+        height: calc(100% - 60px);
+        overflow-x: auto;
+        padding: 5px;
+    }
+    .space-window-column {
+        flex: 1 0 200px;
+        min-width: 200px;
+        max-width: 400px;
+        margin: 5px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        position: relative;
+        overflow-y: auto;
+    }
+    .column-separator {
+        width: 5px;
+        background-color: #ccc;
+        cursor: col-resize;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+    }
+    .space-window-close {
+        float: right;
+        cursor: pointer;
+    }
+    .space-window-resize {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        cursor: nwse-resize;
+    }
+    .add-column-button {
+        flex: 0 0 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        cursor: pointer;
+        border: 1px dashed #ccc;
+        border-radius: 5px;
+        margin: 5px;
+    }
+    .add-element-modal {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        z-index: 3;
+    }
+    .modal-title {
+        font-size: 12px;
+        margin: 0 0 10px 0;
+    }
+    .modal-buttons button {
+        font-size: 10px;
+        padding: 2px 4px;
+        margin-right: 5px;
+    }
+    .modal-close {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .demo-button {
+        font-size: 10px;
+        padding: 2px 4px;
+        margin-right: 5px;
+    }
+    .space-element {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        margin-bottom: 10px;
+        position: relative;
+        padding-left: 52px;
+        cursor: pointer;
+    }
+    .thought-element {
+        background-color: #f0f0f0;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .image-element img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+    }
+    .image-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    .image-modal-header {
+        margin-bottom: 10px;
+    }
+    .place-element a {
+        text-decoration: underline;
+        color: #333;
+    }
+    .tree-element ul {
+        margin-left: 20px;
+    }
+    .add-child-button {
+        font-size: 10px;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+    .image-preview {
+        position: absolute;
+        z-index: 1000;
+    }
+    .column-dropdown {
+        font-size: 10px;
+        padding: 2px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+    .thought-modal,
+    .place-modal,
+    .tree-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    .thought-modal-header,
+    .place-modal-header,
+    .tree-modal-header {
+        margin-bottom: 10px;
+    }
+    .thought-modal input,
+    .place-modal input,
+    .tree-modal input {
+        display: block;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .thought-modal button,
+    .place-modal button,
+    .tree-modal button {
+        margin-right: 10px;
+    }
+    .tree-element svg {
+        overflow: visible;
+    }
+    .tree-element .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+    }
+    .tree-element .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 3px;
+    }
+    .tree-element .node text {
+        font: 12px sans-serif;
+    }
+    .tree-line {
+        position: absolute;
+        background-color: #000;
+    }
+    .tree-modal {
+        max-height: 80vh;
+        overflow-y: auto;
+        resize: both;
+    }
+    .remove-column-button,
+    .edit-element-button,
+    .delete-element-button {
+        position: absolute;
+        font-size: 10px;
+        padding: 2px 4px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    .edit-element-button {
+        left: 0;
+        top: 5px;
+    }
+    .delete-element-button {
+        left: 26px;
+        top: 5px;
+    }
+    .add-element-button {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+    }
+    .add-column-button {
+        font-size: 10px;
+        padding: 2px 4px;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+    .resize-handle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #ccc;
+        right: 0;
+        bottom: 0;
+        cursor: nwse-resize;
+    }
+    .image-url {
+        color: #444;
+        text-decoration: underline;
+        margin-bottom: 10px;
+    }
+    .image-details {
+        color: #666;
+        font-size: 12px;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+    <div id="controls">
+        <button id="add-child">Add Child</button>
+        <button id="remove-node">Remove Node</button>
+        <button id="save">Save</button>
+        <button id="load">Load</button>
+        <button id="reset-zoom">Reset Zoom</button>
+        <button id="toggle-grid">Toggle Grid</button>
+        <button id="toggle-help">Help</button>
+    </div>
+    <div id="mini-map"></div>
+    <div id="mini-map-controls">
+        <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
+        <button id="focus-mini-map" title="Show Full Grid">⊡</button>
+    </div>
+    <div id="mini-menu">
+        <!-- [Your existing Help Menu HTML here] -->
+    </div>
+    <div id="space-windows"></div>
+    <div id="mindmap-container"></div>
+    
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+    function getExistingColumns(content) {
+        const columns = content.selectAll(".space-window-column");
+        const columnNames = columns.size() ? columns.nodes().map((_, i) => `Column ${i + 1}`) : ["Column 1"];
+        return columnNames;
+    }
+    
+    function addElementToColumn(column, element) {
+        column.node().appendChild(element.node());
+    }
+    
+    function showAddElementModal(content, event) {
+        const modal = d3.select("body").append("div")
+            .attr("class", "add-element-modal")
+            .style("left", `${event.pageX}px`)
+            .style("top", `${event.pageY}px`);
+    
+        modal.append("div")
+            .attr("class", "modal-title")
+            .text("Add Element");
+    
+        const columnDropdown = modal.append("select")
+            .attr("class", "column-dropdown");
+    
+        const existingColumns = getExistingColumns(content);
+        existingColumns.forEach((columnName, index) => {
+            columnDropdown.append("option")
+                .attr("value", columnName)
+                .text(columnName);
+        });
+    
+        modal.append("button")
+            .attr("class", "modal-close")
+            .html("&times;")
+            .style("position", "absolute")
+            .style("top", "5px")
+            .style("right", "5px")
+            .on("click", () => modal.remove());
+    
+        const buttonContainer = modal.append("div")
+            .attr("class", "modal-buttons");
+    
+        buttonContainer.append("button")
+            .text("Image")
+            .on("click", () => addImage(content, modal, columnDropdown));
+    
+        buttonContainer.append("button")
+            .text("Thought")
+            .on("click", () => addThought(content, modal, columnDropdown));
+    
+        buttonContainer.append("button")
+            .text("Place")
+            .on("click", () => addPlace(content, modal, columnDropdown));
+    
+        buttonContainer.append("button")
+            .text("Tree")
+            .on("click", () => addTree(content, modal, columnDropdown));
+    }
+    
+    function generateElementId() {
+        return Math.floor(100000000000000000 + Math.random() * 900000000000000000).toString();
+    }
+    
+    function generateNodeId() {
+        return Math.floor(100000000000000000 + Math.random() * 900000000000000000).toString();
+    }
+    
+    function addImage(content, modal, columnDropdown, existingElement = null) {
+        const imageModal = d3.select("body").append("div")
+            .attr("class", "image-modal");
+    
+        imageModal.append("div")
+            .attr("class", "image-modal-header")
+            .text(existingElement ? "Edit Image" : "Add Image");
+    
+        const input = imageModal.append("input")
+            .attr("type", "text")
+            .attr("placeholder", "Enter image URL");
+    
+        if (existingElement) {
+            input.property("value", existingElement.select("img").attr("src"));
+        }
+    
+        imageModal.append("button")
+            .text(existingElement ? "Update" : "Add")
+            .on("click", function() {
+                const url = input.property("value");
+                if (url) {
+                    const selectedColumnIndex = columnDropdown.property("value").replace("Column ", "") - 1;
+                    const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+    
+                    if (existingElement) {
+                        existingElement.select("img").attr("src", url);
+                    } else {
+                        const newElement = d3.create("div")
+                            .attr("class", "space-element image-element")
+                            .style("position", "relative")
+                            .attr("data-element-id", generateElementId());
+    
+                        newElement.append("img")
+                            .attr("src", url)
+                            .attr("alt", "User-added image")
+                            .style("width", "100px")
+                            .style("height", "100px")
+                            .style("object-fit", "contain")
+                            .on("click", function() {
+                                showImageModal(url);
+                            })
+                            .on("mouseover", function(event) {
+                                showImagePreview(event, this, url);
+                            })
+                            .on("mouseout", hideImagePreview);
+    
+                        addEditButton(newElement, "image");
+                        addDeleteButton(newElement);
+                        addElementToColumn(d3.select(targetColumn), newElement);
+                    }
+                }
+                imageModal.remove();
+                if (modal) modal.remove();
+            });
+    
+        imageModal.append("button")
+            .text("Cancel")
+            .on("click", () => imageModal.remove());
+    
+        imageModal.append("div")
+            .attr("class", "resize-handle");
+    }
+    
+    function addThought(content, modal, columnDropdown, existingElement = null) {
+        const thoughtModal = d3.select("body").append("div")
+            .attr("class", "thought-modal");
+    
+        thoughtModal.append("div")
+            .attr("class", "thought-modal-header")
+            .text(existingElement ? "Edit Thought" : "Add Thought");
+    
+        const editor = thoughtModal.append("div")
+            .attr("id", "thought-editor")
+            .style("height", "200px");
+    
+        const quill = new Quill('#thought-editor', {
+            theme: 'snow'
+        });
+    
+        if (existingElement) {
+            quill.root.innerHTML = existingElement.select(".thought-content").html();
+        }
+    
+        thoughtModal.append("button")
+            .text(existingElement ? "Update" : "Add")
+            .on("click", function() {
+                const thoughtText = quill.root.innerHTML;
+                if (thoughtText) {
+                    const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
+                    const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+    
+                    if (existingElement) {
+                        existingElement.select(".thought-content").html(thoughtText);
+                    } else {
+                        const newElement = d3.select(targetColumn).append("div")
+                            .attr("class", "space-element thought-element")
+                            .style("width", "100%")
+                            .style("overflow", "auto")
+                            .attr("data-element-id", generateElementId());
+    
+                        newElement.append("div")
+                            .attr("class", "thought-content")
+                            .html(thoughtText);
+    
+                        addEditButton(newElement, "thought");
+                        addDeleteButton(newElement);
+                    }
+                }
+                thoughtModal.remove();
+                if (modal) modal.remove();
+            });
+    
+        thoughtModal.append("button")
+            .text("Cancel")
+            .on("click", () => thoughtModal.remove());
+    
+        thoughtModal.select("#thought-editor").append("div")
+            .attr("class", "resize-handle");
+    }
+    
+    function addPlace(content, modal, columnDropdown, existingElement = null) {
+        const placeModal = d3.select("body").append("div")
+            .attr("class", "place-modal");
+    
+        placeModal.append("div")
+            .attr("class", "place-modal-header")
+            .text(existingElement ? "Edit Place" : "Add Place");
+    
+        const nameInput = placeModal.append("input")
+            .attr("type", "text")
+            .attr("placeholder", "Enter place name");
+    
+        const urlInput = placeModal.append("input")
+            .attr("type", "text")
+            .attr("placeholder", "Enter URL");
+    
+        if (existingElement) {
+            nameInput.property("value", existingElement.select("a").text());
+            urlInput.property("value", existingElement.select("a").attr("href"));
+        }
+    
+        placeModal.append("button")
+            .text(existingElement ? "Update" : "Add")
+            .on("click", function() {
+                const name = nameInput.property("value");
+                const url = urlInput.property("value");
+                if (name && url) {
+                    const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
+                    const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+    
+                    if (existingElement) {
+                        existingElement.select("a").text(name).attr("href", url);
+                    } else {
+                        const newElement = d3.select(targetColumn).append("div")
+                            .attr("class", "space-element place-element")
+                            .style("width", "100%")
+                            .style("overflow", "hidden")
+                            .attr("data-element-id", generateElementId());
+    
+                        newElement.append("a")
+                            .attr("href", url)
+                            .attr("target", "_blank")
+                            .style("color", "#333")
+                            .style("text-decoration", "underline")
+                            .text(name);
+    
+                        addEditButton(newElement, "place");
+                        addDeleteButton(newElement);
+                    }
+                }
+                placeModal.remove();
+                if (modal) modal.remove();
+            });
+    
+        placeModal.append("button")
+            .text("Cancel")
+            .on("click", () => placeModal.remove());
+    }
+    
+    function addTree(content, modal, columnDropdown, existingElement = null, existingTreeData = null) {
+        const treeModal = d3.select("body").append("div")
+            .attr("class", "tree-modal")
+            .style("position", "fixed")
+            .style("top", "50%")
+            .style("left", "50%")
+            .style("transform", "translate(-50%, -50%)")
+            .style("background-color", "white")
+            .style("padding", "20px")
+            .style("border", "1px solid #ccc")
+            .style("box-shadow", "0 4px 8px rgba(0,0,0,0.1)")
+            .style("z-index", "1000")
+            .style("min-width", "300px")
+            .style("min-height", "400px");
+    
+        treeModal.append("div")
+            .attr("class", "tree-modal-header")
+            .text(existingElement ? "Edit Tree" : "Add Tree");
+    
+        const treeContent = treeModal.append("div")
+            .attr("class", "tree-content")
+            .style("max-height", "300px")
+            .style("overflow-y", "auto");
+    
+        if (existingElement || existingTreeData) {
+            const existingData = existingTreeData || JSON.parse(existingElement.attr("data-tree"));
+            loadExistingTree(treeContent, existingData);
+        } else {
+            addTreeItem(treeContent, "root");
+        }
+    
+        treeModal.append("button")
+            .text(existingElement ? "Update" : "Add")
+            .on("click", function() {
+                const treeData = generateTreeData(treeContent);
+                const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
+                const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+    
+                if (existingElement) {
+                    existingElement.attr("data-tree", JSON.stringify(treeData));
+                    existingElement.select("svg").remove();
+                    renderTree(existingElement, treeData);
+                    updateGridTree(existingElement.attr("data-grid-id"), treeData);
+                } else {
+                    const newElement = d3.select(targetColumn).append("div")
+                        .attr("class", "space-element tree-element")
+                        .attr("data-tree", JSON.stringify(treeData))
+                        .attr("data-element-id", generateElementId());
+    
+                    renderTree(newElement, treeData);
+                    addEditButton(newElement, "tree");
+                    addDeleteButton(newElement);
+    
+                    newElement.append("button")
+                        .attr("class", "add-to-grid-button")
+                        .text("Add to Grid")
+                        .on("click", function() {
+                            const gridId = addTreeToGrid(treeData);
+                            newElement.attr("data-grid-id", gridId);
+                        });
+                }
+                treeModal.remove();
+                if (modal) modal.remove();
+            });
+    
+        treeModal.append("button")
+            .text("Cancel")
+            .on("click", () => treeModal.remove());
+    
+        treeModal.append("div")
+            .attr("class", "resize-handle");
+    
+        treeModal.call(d3.drag()
+            .subject(function() {
+                const handle = d3.select(this).select(".resize-handle");
+                return {x: handle.attr("cx"), y: handle.attr("cy")};
+            })
+            .on("drag", function(event) {
+                const width = parseFloat(treeModal.style("width")) + event.dx;
+                const height = parseFloat(treeModal.style("height")) + event.dy;
+                treeModal.style("width", width + "px").style("height", height + "px");
+            }));
+    }
+    
+    function loadExistingTree(container, data) {
+        function recursiveLoad(parentContainer, nodeData, level = 0) {
+            const item = addTreeItem(parentContainer, level === 0 ? "root" : "branch", level);
+            item.select("input").property("value", nodeData.name);
+            if (nodeData.children) {
+                nodeData.children.forEach(child => recursiveLoad(item, child, level + 1));
+            }
+        }
+        recursiveLoad(container, data);
+    }
+    
+    function addTreeToGrid(treeData) {
+        if (!selectedNode) {
+            alert("Please select a node on the grid to attach the tree.");
+            return;
+        }
+        const parentNode = d3.select(selectedNode).datum();
+    
+        function createGridNode(treeNode, parent) {
+            const gridNode = {
+                id: generateNodeId(),
+                name: treeNode.name,
+                children: [],
+                x: parent.x + 100,
+                y: parent.y + (parent.children ? parent.children.length * 50 : 0),
+                color: colorOptions[Math.floor(Math.random() * colorOptions.length)]
+            };
+            if (treeNode.children) {
+                for (let child of treeNode.children) {
+                    const childGridNode = createGridNode(child, gridNode);
+                    gridNode.children.push(childGridNode);
+                }
+            }
+            return gridNode;
+        }
+    
+        const rootNode = createGridNode(treeData, parentNode);
+    
+        if (!parentNode.data.children) parentNode.data.children = [];
+        parentNode.data.children.push(rootNode);
+    
+        update(data);
+        return rootNode.id;
+    }
+    
+    function updateGridTree(gridId, treeData) {
+        function findNodeById(node, id) {
+            if (node.id === id) return node;
+            if (node.children) {
+                for (let child of node.children) {
+                    const found = findNodeById(child, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+    
+        const gridNode = findNodeById(data, gridId);
+        if (gridNode) {
+            gridNode.name = treeData.name;
+            gridNode.children = [];
+    
+            function createGridNode(treeNode, parent) {
+                const gridNode = {
+                    id: generateNodeId(),
+                    name: treeNode.name,
+                    children: [],
+                    x: parent.x + 100,
+                    y: parent.y + (parent.children ? parent.children.length * 50 : 0),
+                    color: colorOptions[Math.floor(Math.random() * colorOptions.length)]
+                };
+                if (treeNode.children) {
+                    for (let child of treeNode.children) {
+                        const childGridNode = createGridNode(child, gridNode);
+                        gridNode.children.push(childGridNode);
+                    }
+                }
+                return gridNode;
+            }
+    
+            if (treeData.children) {
+                for (let child of treeData.children) {
+                    const childGridNode = createGridNode(child, gridNode);
+                    gridNode.children.push(childGridNode);
+                }
+            }
+            update(data);
+        }
+    }
+    
+    function showImagePreview(event, img, url) {
+        const preview = d3.select("body").append("div")
+            .attr("class", "image-preview")
+            .style("position", "absolute")
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY + 10}px`)
+            .style("z-index", "1000")
+            .style("background-color", "white")
+            .style("border", "1px solid #ccc")
+            .style("box-shadow", "0 0 10px rgba(0,0,0,0.1)")
+            .style("padding", "5px");
+    
+        preview.append("img")
+            .attr("src", url)
+            .style("max-width", "300px")
+            .style("max-height", "300px");
+    }
+    
+    function hideImagePreview() {
+        d3.select(".image-preview").remove();
+    }
+    
+    function showImageModal(url) {
+        const modal = d3.select("body").append("div")
+            .attr("class", "image-modal")
+            .style("position", "fixed")
+            .style("top", "50%")
+            .style("left", "50%")
+            .style("transform", "translate(-50%, -50%)")
+            .style("background-color", "white")
+            .style("padding", "20px")
+            .style("border", "1px solid #ccc")
+            .style("box-shadow", "0 4px 8px rgba(0,0,0,0.1)")
+            .style("z-index", "1000");
+    
+        modal.append("a")
+            .attr("class", "image-url")
+            .attr("href", url)
+            .attr("target", "_blank")
+            .text(url);
+    
+        const img = modal.append("img")
+            .attr("src", url)
+            .style("max-width", "90vw")
+            .style("max-height", "70vh");
+    
+        const detailsDiv = modal.append("div")
+            .attr("class", "image-details");
+    
+        img.on("load", function() {
+            const this_img = this;
+            const fileSize = getFileSize(url).then(size => {
+                detailsDiv.html(`
+                    Dimensions: ${this_img.naturalWidth} x ${this_img.naturalHeight}<br>
+                    File size: ${size}<br>
+                    File type: ${getFileExtension(url)}
+                `);
+            });
+        });
+    
+        modal.append("button")
+            .text("Close")
+            .on("click", () => modal.remove());
+    }
+    
+    function getFileSize(url) {
+        return fetch(url, { method: 'HEAD' })
+            .then(response => {
+                const size = response.headers.get('content-length');
+                return formatFileSize(size);
+            })
+            .catch(() => 'Unknown');
+    }
+    
+    function formatFileSize(bytes) {
+        if (!bytes) return 'Unknown';
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes === 0) return '0 Byte';
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+    }
+    
+    function getFileExtension(url) {
+        return url.split('.').pop().toUpperCase();
+    }
+    
+    function addEditButton(element, type) {
+        element.append("button")
+            .attr("class", "edit-element-button")
+            .html("✎")
+            .on("click", function() {
+                const columnDropdown = d3.select(element.node().parentNode.parentNode)
+                    .select(".column-dropdown");
+                switch (type) {
+                    case "image":
+                        addImage(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        break;
+                    case "thought":
+                        addThought(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        break;
+                    case "place":
+                        addPlace(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        break;
+                    case "tree":
+                        addTree(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        break;
+                }
+            });
+    }
+    
+    function addDeleteButton(element) {
+        element.append("button")
+            .attr("class", "delete-element-button")
+            .html("🗑")
+            .on("click", function() {
+                element.remove();
+            });
+    }
+    
+    function addTreeItem(container, parentId, level = 0) {
+        const itemId = 'item_' + Math.random().toString(36).substr(2, 9);
+        const item = container.append("div")
+            .attr("class", "tree-item")
+            .attr("data-id", itemId)
+            .style("margin-left", `${level * 20}px`);
+    
+        item.append("input")
+            .attr("type", "text")
+            .attr("placeholder", level === 0 ? "Enter root name" : level === 1 ? "Enter trunk name" : "Enter branch name");
+    
+        item.append("button")
+            .text("+")
+            .on("click", function() {
+                addTreeItem(item, itemId, level + 1);
+            });
+    
+        if (parentId !== 'root') {
+            item.append("button")
+                .text("-")
+                .on("click", function() {
+                    item.remove();
+                });
+        }
+    
+        if (level > 0) {
+            item.insert("div", ":first-child")
+                .attr("class", "tree-line")
+                .style("left", `${(level - 1) * 20 + 10}px`)
+                .style("top", "50%")
+                .style("width", "10px")
+                .style("height", "1px");
+        }
+    
+        return item;
+    }
+    
+    function generateTreeData(treeContent) {
+        function processNode(node) {
+            const data = { name: node.select("input").property("value"), children: [] };
+            node.selectAll(":scope > .tree-item").each(function() {
+                data.children.push(processNode(d3.select(this)));
+            });
+            return data;
+        }
+        return processNode(treeContent.select(".tree-item"));
+    }
+    
+    function renderTree(container, data) {
+        const treeId = container.attr("data-tree-id") || generateElementId();
+        container.attr("data-tree-id", treeId);
+    
+        container.selectAll("*").remove();
+        const root = d3.hierarchy(data);
+        const treeLayout = d3.tree().size([180, 180]);
+        const treeData = treeLayout(root);
+    
+        const svg = container.append("svg")
+            .attr("width", "100%")
+            .attr("height", "200")
+            .attr("viewBox", "0 0 200 200")
+            .attr("preserveAspectRatio", "xMidYMid meet");
+    
+        const g = svg.append("g")
+            .attr("transform", "translate(10,10)");
+    
+        const link = g.selectAll(".link")
+            .data(treeData.links())
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", d3.linkHorizontal()
+                .x(d => d.y)
+                .y(d => d.x));
+    
+        const node = g.selectAll(".node")
+            .data(treeData.descendants())
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.y},${d.x})`);
+    
+        node.append("circle")
+            .attr("r", 4);
+    
+        node.append("text")
+            .attr("dy", ".31em")
+            .attr("x", d => d.children ? -8 : 8)
+            .style("text-anchor", d => d.children ? "end" : "start")
+            .text(d => d.data.name)
+            .on("click", function(event, d) {
+                const newText = prompt("Enter new text:", d.data.name);
+                if (newText) {
+                    d.data.name = newText;
+                    d3.select(this).text(newText);
+                    updateTreeElement(container);
+                }
+            });
+    
+        node.append("text")
+            .attr("dy", ".31em")
+            .attr("x", d => d.children ? -20 : 20)
+            .style("text-anchor", d => d.children ? "end" : "start")
+            .text("🌳")
+            .on("click", function(event, d) {
+                openEditTreeModal(container, d);
+            });
+    }
+    
+    function openEditTreeModal(container, nodeData) {
+        const treeData = JSON.parse(container.attr("data-tree"));
+    
+        function addNodeToTree(treeNode, targetNodeData) {
+            if (treeNode.name === targetNodeData.data.name) {
+                if (!treeNode.children) treeNode.children = [];
+                treeNode.children.push({ name: "New Node" });
+                return true;
+            } else if (treeNode.children) {
+                for (let child of treeNode.children) {
+                    if (addNodeToTree(child, targetNodeData)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    
+        addNodeToTree(treeData, nodeData);
+    
+        addTree(null, null, null, container, treeData);
+    }
+    
+    function updateTreeElement(container) {
+        const treeData = JSON.parse(container.attr("data-tree"));
+        container.attr("data-tree", JSON.stringify(treeData));
+        renderTree(container, treeData);
+    
+        const gridId = container.attr("data-grid-id");
+        if (gridId) {
+            updateGridTree(gridId, treeData);
+        }
+    }
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    const svg = d3.select("#mindmap-container")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+    
+    const g = svg.append("g");
+    
+    let data = {
+        id: generateNodeId(),
+        name: "Central Idea",
+        children: []
+    };
+    
+    const colorOptions = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+    
+
+    let showGrid = false;
+    const gridSize = 50;
+
+    function gridForce() {
+        let nodes;
+
+        function force(alpha) {
+            for (let node of nodes) {
+                const gridX = Math.round(node.x / gridSize) * gridSize;
+                const gridY = Math.round(node.y / gridSize) * gridSize;
+                node.x += (gridX - node.x) * alpha;
+                node.y += (gridY - node.y) * alpha;
+            }
+        }
+
+        force.initialize = function(_nodes) {
+            nodes = _nodes;
+        };
+
+        return force;
+    }
+
+    const simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(d => d.id).distance(100))
+        .force("charge", d3.forceManyBody().strength(-500))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collision", d3.forceCollide().radius(30))
+        .force("grid", gridForce());
+
+    let selectedNode = null;
+
+    let zoom = d3.zoom()
+        .scaleExtent([0.1, 10])
+        .on("zoom", zoomed);
+
+    svg.call(zoom);
+
+    function zoomed(event) {
+        const { transform } = event;
+        g.attr("transform", transform);
+
+        const centerX = width / 2 - transform.x / transform.k;
+        const centerY = height / 2 - transform.y / transform.k;
+        simulation.force("center", d3.forceCenter(centerX, centerY));
+
+        g.selectAll(".node")
+            .attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
+
+        g.selectAll(".link")
+            .attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
+
+        if (showGrid) {
+            svg.select(".grid").attr("transform", `translate(${transform.x},${transform.y}) scale(${transform.k})`);
+            svg.selectAll(".grid .thick, .grid .selected").attr("stroke-width", 5 / transform.k);
+        }
+        updateMiniMap();
+    }
+
+    function createGrid() {
+        const gridWidth = 5000 * gridSize;
+        const gridHeight = 5000 * gridSize;
+
+        const gridGroup = svg.insert("g", ":first-child")
+            .attr("class", "grid")
+            .attr("pointer-events", "none");
+
+        for (let x = 0; x <= gridWidth; x += gridSize) {
+            gridGroup.append("line")
+                .attr("x1", x)
+                .attr("y1", 0)
+                .attr("x2", x)
+                .attr("y2", gridHeight)
+                .attr("class", x % (gridSize * 50) === 0 ? "thick" : "")
+                .attr("pointer-events", x % (gridSize * 50) === 0 ? "all" : "none")
+                .on("click", function() {
+                    if (d3.select(this).classed("thick")) {
+                        d3.select(this).classed("selected", !d3.select(this).classed("selected"));
+                        updateZones();
+                        updateMiniMap();
+                    }
+                });
+        }
+
+        for (let y = 0; y <= gridHeight; y += gridSize) {
+            gridGroup.append("line")
+                .attr("x1", 0)
+                .attr("y1", y)
+                .attr("x2", gridWidth)
+                .attr("y2", y)
+                .attr("class", y % (gridSize * 50) === 0 ? "thick" : "")
+                .attr("pointer-events", y % (gridSize * 50) === 0 ? "all" : "none")
+                .on("click", function() {
+                    if (d3.select(this).classed("thick")) {
+                        d3.select(this).classed("selected", !d3.select(this).classed("selected"));
+                        updateZones();
+                        updateMiniMap();
+                    }
+                });
+        }
+
+        gridGroup.attr("transform", `translate(${-gridWidth/2},${-gridHeight/2})`);
+        return gridGroup;
+    }
+
+    function updateZones() {
+        const selectedLines = svg.select(".grid").selectAll(".selected");
+        const zones = [];
+
+        selectedLines.each(function() {
+            const line = d3.select(this);
+            const x1 = parseFloat(line.attr("x1"));
+            const y1 = parseFloat(line.attr("y1"));
+            const x2 = parseFloat(line.attr("x2"));
+            const y2 = parseFloat(line.attr("y2"));
+
+            if (x1 === x2) {
+                zones.push({ type: "vertical", x: x1 });
+            } else {
+                zones.push({ type: "horizontal", y: y1 });
+            }
+        });
+
+        g.selectAll(".node").each(function(d) {
+            const node = d3.select(this);
+            const x = d.x;
+            const y = d.y;
+
+            let inZone = false;
+            for (let i = 0; i < zones.length - 1; i++) {
+                const zone1 = zones[i];
+                const zone2 = zones[i + 1];
+
+                if (zone1.type === "vertical" && zone2.type === "vertical") {
+                    if (x > zone1.x && x < zone2.x) {
+                        inZone = true;
+                        break;
+                    }
+                } else if (zone1.type === "horizontal" && zone2.type === "horizontal") {
+                    if (y > zone1.y && y < zone2.y) {
+                        inZone = true;
+                        break;
+                    }
+                }
+            }
+
+            node.select("circle").style("stroke", inZone ? "#ff0000" : "none");
+        });
+    }
+
+    function update(data) {
+        const root = d3.hierarchy(data);
+        const links = root.links();
+        const nodes = root.descendants();
+
+        nodes.forEach(node => {
+            if (node.data.x !== undefined && node.data.y !== undefined) {
+                node.x = node.data.x;
+                node.y = node.data.y;
+                node.fx = node.data.x;
+                node.fy = node.data.y;
+            }
+        });
+
+        simulation.nodes(nodes);
+        simulation.force("link").links(links);
+
+        let link = g.selectAll(".link")
+            .data(links, d => d.target.id);
+
+        link.exit().remove();
+
+        const linkEnter = link.enter().append("path")
+            .attr("class", "link");
+
+        link = linkEnter.merge(link);
+
+        let node = g.selectAll(".node")
+            .data(nodes, d => d.id);
+
+        node.exit().remove();
+
+        const nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .on("click", clicked)
+            .on("contextmenu", showContextMenu)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        nodeEnter.append("circle")
+            .attr("r", 10)
+            .style("fill", d => d.data.color || colorOptions[0]);
+
+        nodeEnter.append("text")
+            .attr("dy", "0.31em")
+            .attr("x", d => d.children ? -13 : 13)
+            .style("text-anchor", d => d.children ? "end" : "start")
+            .text(d => d.data.name)
+            .on("dblclick", editText);
+
+        nodeEnter.append("text")
+            .attr("class", "node-id")
+            .attr("dy", "1.5em")
+            .attr("x", 0)
+            .style("text-anchor", "middle")
+            .style("font-size", "6px")
+            .text(d => d.id);
+
+        node = nodeEnter.merge(node);
+
+        simulation.on("tick", () => {
+            const transform = d3.zoomTransform(svg.node());
+
+            link.attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
+            node.attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
+        });
+
+        updateZones();
+    }
+
+    function clicked(event, d) {
+        if (selectedNode) {
+            d3.select(selectedNode).select("circle").classed("selected", false);
+            d3.select(selectedNode).select("text").classed("selected", false).style("fill", null);
+        }
+        selectedNode = this;
+        d3.select(this).select("circle").classed("selected", true);
+        d3.select(this).select("text").classed("selected", true).style("fill", "#2ca02c");
+        event.stopPropagation();
+    }
+
+    function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+        const dx = event.x - d.x;
+        const dy = event.y - d.y;
+        d.x = event.x;
+        d.y = event.y;
+        d.fx = event.x;
+        d.fy = event.y;
+
+        if (d.children) {
+            moveChildren(d, dx, dy);
+        }
+    }
+
+    function moveChildren(node, dx, dy) {
+        if (node.children) {
+            node.children.forEach(child => {
+                child.x += dx;
+                child.y += dy;
+                child.fx = child.x;
+                child.fy = child.y;
+                moveChildren(child, dx, dy);
+            });
+        }
+    }
+
+    function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = d.x;
+        d.fy = d.y;
+        d.data.x = d.x;
+        d.data.y = d.y;
+    }
+
+    function editText(event, d) {
+        event.stopPropagation();
+        const node = d3.select(this.parentNode);
+        const text = node.select("text");
+        const textElement = text.node();
+
+        const editField = d3.select("body").append("div")
+            .attr("class", "edit-field")
+            .style("left", (event.pageX - 50) + "px")
+            .style("top", (event.pageY - 15) + "px");
+
+        const input = editField.append("input")
+            .attr("type", "text")
+            .attr("value", d.data.name)
+            .on("keyup", function(event) {
+                if (event.key === "Enter") confirmEdit();
+                if (event.key === "Escape") cancelEdit();
+            });
+
+        editField.append("button")
+            .html("✓")
+            .on("click", confirmEdit);
+
+        editField.append("button")
+            .html("✗")
+            .on("click", cancelEdit);
+
+        input.node().focus();
+
+        function confirmEdit() {
+            d.data.name = input.node().value;
+            text.text(d.data.name);
+            editField.remove();
+        }
+
+        function cancelEdit() {
+            editField.remove();
+        }
+    }
+
+    function showContextMenu(event, d) {
+        event.preventDefault();
+
+        d3.select(".context-menu").remove();
+
+        const contextMenu = d3.select("body").append("div")
+            .attr("class", "context-menu")
+            .style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY + 5) + "px");
+
+        addMenuSection(contextMenu, "Selected Node", [d.data.name], "selected-node");
+        addMenuSection(contextMenu, "ID", [d.id], "node-id");
+        addMenuSection(contextMenu, "Actions", ["Add Child", "Remove Node", "Edit Text", "Add Space"]);
+        addMenuSection(contextMenu, "Color", colorOptions.map(color =>
+            `<span class="color-option" style="background-color:${color}"></span>`
+        ));
+
+        d3.select("body").on("click.context-menu", () => {
+            d3.select(".context-menu").remove();
+            d3.select("body").on("click.context-menu", null);
+        });
+
+        function addMenuSection(menu, title, items, className = "") {
+            const section = menu.append("div").attr("class", "context-menu-section");
+            section.append("div").text(title);
+            items.forEach(item => {
+                section.append("div")
+                    .html(item)
+                    .attr("class", className)
+                    .on("click", () => handleContextMenuAction(d, item));
+            });
+        }
+    }
+
+    function handleContextMenuAction(d, action) {
+        switch(action) {
+            case "Add Child":
+                addChild(d);
+                break;
+            case "Remove Node":
+                removeNode(d);
+                break;
+            case "Edit Text":
+                editNodeText(d);
+                break;
+            case "Add Space":
+                createSpaceWindow(d);
+                break;
+            default:
+                if (colorOptions.includes(action)) {
+                    d.data.color = action;
+                    update(data);
+                }
+        }
+    }
+
+    function addChild(d) {
+        const newNode = {
+            id: generateNodeId(),
+            name: "New Concept",
+            x: d.x + (Math.random() - 0.5) * 100,
+            y: d.y + (Math.random() - 0.5) * 100,
+            color: colorOptions[Math.floor(Math.random() * colorOptions.length)]
+        };
+        if (!d.data.children) d.data.children = [];
+        d.data.children.push(newNode);
+        update(data);
+        simulation.alpha(1).restart();
+    }
+
+    function removeNode(d) {
+        if (d.parent) {
+            const index = d.parent.data.children.indexOf(d.data);
+            if (index > -1) {
+                d.parent.data.children.splice(index, 1);
+                update(data);
+                selectedNode = null;
+                simulation.alpha(1).restart();
+            }
+        }
+    }
+
+    function editNodeText(d) {
+        const node = d3.select(d3.selectAll(".node").filter(n => n.id === d.id).node());
+        const text = node.select("text");
+
+        const editField = d3.select("body").append("div")
+            .attr("class", "edit-field")
+            .style("left", (d.x + 10) + "px")
+            .style("top", (d.y - 15) + "px");
+
+        const input = editField.append("input")
+            .attr("type", "text")
+            .attr("value", d.data.name)
+            .on("keyup", function(event) {
+                if (event.key === "Enter") confirmEdit();
+                if (event.key === "Escape") cancelEdit();
+            });
+
+        editField.append("button")
+            .html("✓")
+            .on("click", confirmEdit);
+
+        editField.append("button")
+            .html("✗")
+            .on("click", cancelEdit);
+
+        input.node().focus();
+
+        function confirmEdit() {
+            d.data.name = input.node().value;
+            text.text(d.data.name);
+            editField.remove();
+        }
+
+        function cancelEdit() {
+            editField.remove();
+        }
+    }
+
+    function createSpaceWindow(node) {
+        const spaceWindow = d3.select("#space-windows").append("div")
+            .attr("class", "space-window")
+            .style("left", `${node.x}px`)
+            .style("top", `${node.y}px`)
+            .style("width", "400px")
+            .style("height", "225px");
+
+        const header = spaceWindow.append("div")
+            .attr("class", "space-window-header");
+
+        header.append("span")
+            .text("New Space")
+            .on("dblclick", editSpaceWindowTitle);
+
+        header.append("span")
+            .attr("class", "space-window-close")
+            .html("&times;")
+            .on("click", () => spaceWindow.remove());
+
+        const buttonContainer = spaceWindow.append("div")
+            .style("display", "flex")
+            .style("justify-content", "space-between")
+            .style("margin-bottom", "5px");
+
+        buttonContainer.append("button")
+            .attr("class", "add-element-button")
+            .text("Add Element")
+            .on("click", function(event) {
+                showAddElementModal(spaceWindow, event);
+            });
+
+        buttonContainer.append("button")
+            .attr("class", "add-column-button")
+            .text("Add Column")
+            .on("click", function() {
+                addColumn(content);
+            });
+
+        const content = spaceWindow.append("div")
+            .attr("class", "space-window-content")
+            .style("display", "flex")
+            .style("flex-wrap", "wrap");
+
+        addColumn(content);
+
+        spaceWindow.append("div")
+            .attr("class", "resize-handle");
+
+        spaceWindow.call(d3.drag()
+            .on("start", dragSpaceWindowStart)
+            .on("drag", dragSpaceWindow)
+            .on("end", dragSpaceWindowEnd));
+
+        spaceWindow.select(".resize-handle").call(d3.drag()
+            .on("drag", resizeSpaceWindow));
+
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const height = entry.contentRect.height;
+                content.selectAll(".space-window-column")
+                    .style("height", `${height - 60}px`); // Adjust for header and buttons
+            }
+        });
+        resizeObserver.observe(spaceWindow.node());
+    }
+
+    function editSpaceWindowTitle(event) {
+        const headerSpan = d3.select(this);
+        const currentTitle = headerSpan.text();
+
+        const input = headerSpan.html("")
+            .append("input")
+            .attr("type", "text")
+            .attr("value", currentTitle)
+            .style("font-size", "12px")
+            .style("width", "80%")
+            .on("blur", confirmEdit)
+            .on("keyup", function(event) {
+                if (event.key === "Enter") confirmEdit();
+                if (event.key === "Escape") cancelEdit();
+            });
+
+        input.node().focus();
+
+        function confirmEdit() {
+            const newTitle = input.property("value");
+            headerSpan.html(newTitle);
+        }
+
+        function cancelEdit() {
+            headerSpan.html(currentTitle);
+        }
+    }
+
+    function resizeSpaceWindow(event) {
+        const spaceWindow = d3.select(this.parentNode);
+        const width = parseFloat(spaceWindow.style("width")) + event.dx;
+        const height = parseFloat(spaceWindow.style("height")) + event.dy;
+        spaceWindow.style("width", `${width}px`).style("height", `${height}px`);
+    }
+
+    function dragSpaceWindowStart(event) {
+        d3.select(this).select(".space-window-header").style("cursor", "grabbing");
+    }
+
+    function dragSpaceWindow(event) {
+        const spaceWindow = d3.select(this);
+        const left = parseFloat(spaceWindow.style("left")) + event.dx;
+        const top = parseFloat(spaceWindow.style("top")) + event.dy;
+        spaceWindow.style("left", `${left}px`).style("top", `${top}px`);
+    }
+
+    function dragSpaceWindowEnd(event) {
+        d3.select(this).select(".space-window-header").style("cursor", "move");
+    }
+
+    function addColumn(content) {
+        const column = content.append("div")
+            .attr("class", "space-window-column")
+            .style("flex", "1 0 200px")
+            .style("min-width", "200px")
+            .style("max-width", "400px")
+            .style("margin", "5px")
+            .style("padding", "5px")
+            .style("border", "1px solid #ccc")
+            .style("border-radius", "5px")
+            .style("position", "relative");
+
+        column.append("button")
+            .attr("class", "remove-column-button")
+            .html("&times;")
+            .style("position", "absolute")
+            .style("top", "5px")
+            .style("right", "5px")
+            .style("font-size", "10px")
+            .style("padding", "2px 4px")
+            .on("click", function() {
+                if (column.selectAll(".space-element").size() > 0) {
+                    showToast("Elements must be removed from a Column first before removing a Column.");
+                } else {
+                    column.remove();
+                }
+            });
+    }
+
+    function showToast(message) {
+        const toast = d3.select("body").append("div")
+            .attr("class", "toast-message")
+            .text(message)
+            .style("position", "fixed")
+            .style("bottom", "20px")
+            .style("left", "50%")
+            .style("transform", "translateX(-50%)")
+            .style("background-color", "rgba(0, 0, 0, 0.7)")
+            .style("color", "#fff")
+            .style("padding", "10px 20px")
+            .style("border-radius", "5px")
+            .style("opacity", 0);
+
+        toast.transition()
+            .duration(200)
+            .style("opacity", 1);
+
+        setTimeout(() => {
+            toast.transition()
+                .duration(500)
+                .style("opacity", 0)
+                .remove();
+        }, 3000);
+    }
+
+    d3.select("#mini-menu").style("display", "none");
+
+    d3.select("#reset-zoom").on("click", () => {
+        svg.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity);
+    });
+
+    d3.select("#toggle-grid").on("click", () =>
+    {
+        showGrid = !showGrid;
+        if (showGrid) {
+            if (!svg.select(".grid").size()) {
+                createGrid();
+            }
+            svg.select(".grid").style("display", "block");
+        } else {
+            svg.select(".grid").style("display", "none");
+        }
+        d3.select("#toggle-grid").classed("active", showGrid);
+        handleButtonClick("toggle-grid");
+    });
+
+    d3.select("#toggle-help").on("click", () => {
+        const miniMenu = d3.select("#mini-menu");
+        miniMenu.style("display", miniMenu.style("display") === "none" ? "block" : "none");
+    });
+
+    function handleButtonClick(buttonId) {
+        const button = d3.select(`#${buttonId}`);
+        button.transition()
+            .duration(100)
+            .style("transform", "scale(0.95)")
+            .transition()
+            .duration(100)
+            .style("transform", "scale(1)");
+    }
+
+    function createMiniMap() {
+        const miniMapSize = 200;
+        const gridWidth = 5000 * gridSize;
+        let miniMapScale = miniMapSize / gridWidth;
+
+        const miniMap = d3.select("#mini-map")
+            .append("svg")
+            .attr("width", miniMapSize)
+            .attr("height", miniMapSize);
+
+        const miniMapContent = miniMap.append("g");
+
+        for (let x = 0; x <= gridWidth; x += gridSize) {
+            miniMapContent.append("line")
+                .attr("class", "mini-map-grid-line")
+                .attr("x1", x * miniMapScale)
+                .attr("y1", 0)
+                .attr("x2", x * miniMapScale)
+                .attr("y2", gridWidth * miniMapScale)
+                .attr("stroke", "#e0e0e0")
+                .attr("stroke-width", 1);
+        }
+
+        for (let y = 0; y <= gridWidth; y += gridSize) {
+            miniMapContent.append("line")
+                .attr("class", "mini-map-grid-line")
+                .attr("x1", 0)
+                .attr("y1", y * miniMapScale)
+                .attr("x2", gridWidth * miniMapScale)
+                .attr("y2", y * miniMapScale)
+                .attr("stroke", "#e0e0e0")
+                .attr("stroke-width", 1);
+        }
+
+        miniMapContent.append("g")
+            .attr("class", "mini-map-red-lines");
+
+        const viewportRect = miniMap.append("rect")
+            .attr("class", "viewport")
+            .attr("fill", "none")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 2);
+
+        function updateMiniMap() {
+            const transform = d3.zoomTransform(svg.node());
+            const vpWidth = width / transform.k;
+            const vpHeight = height / transform.k;
+
+            viewportRect
+                .attr("x", (-transform.x / transform.k) * miniMapScale)
+                .attr("y", (-transform.y / transform.k) * miniMapScale)
+                .attr("width", vpWidth * miniMapScale)
+                .attr("height", vpHeight * miniMapScale);
+
+            miniMapContent.selectAll(".mini-map-node")
+                .data(simulation.nodes())
+                .join("circle")
+                .attr("class", "mini-map-node")
+                .attr("cx", d => d.x * miniMapScale)
+                .attr("cy", d => d.y * miniMapScale)
+                .attr("r", 1.25)
+                .attr("fill", d => d.data.color || colorOptions[0]);
+
+            const redLines = svg.selectAll(".grid .selected");
+            const miniMapRedLines = miniMapContent.select(".mini-map-red-lines").selectAll(".mini-map-red-line")
+                .data(redLines.nodes(), d => d.id);
+
+            miniMapRedLines.exit().remove();
+
+            miniMapRedLines.enter()
+                .append("line")
+                .attr("class", "mini-map-red-line")
+                .merge(miniMapRedLines)
+                .attr("x1", d => parseFloat(d3.select(d).attr("x1")) * miniMapScale)
+                .attr("y1", d => parseFloat(d3.select(d).attr("y1")) * miniMapScale)
+                .attr("x2", d => parseFloat(d3.select(d).attr("x2")) * miniMapScale)
+                .attr("y2", d => parseFloat(d3.select(d).attr("y2")) * miniMapScale)
+                .attr("stroke", "#ff0000")
+                .attr("stroke-width", 1);
+        }
+
+        miniMap.on("click", function(event) {
+            const [x, y] = d3.pointer(event);
+            const targetX = x / miniMapScale;
+            const targetY = y / miniMapScale;
+
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity
+                    .translate(width / 2, height / 2)
+                    .scale(1)
+                    .translate(-targetX, -targetY));
+        });
+
+        d3.select("#reset-mini-map").on("click", () => {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2));
+            updateMiniMap();
+        });
+
+        d3.select("#focus-mini-map").on("click", () => {
+            const gridWidth = 5000 * gridSize;
+            const scale = Math.min(width / gridWidth, height / gridWidth);
+            const translateX = (width - gridWidth * scale) / 2;
+            const translateY = (height - gridWidth * scale) / 2;
+
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale));
+            updateMiniMap();
+        });
+
+        return updateMiniMap;
+    }
+
+    const updateMiniMap = createMiniMap();
+
+    d3.select("#add-child").on("click", () => {
+        if (selectedNode) {
+            const d = d3.select(selectedNode).datum();
+            addChild(d);
+        }
+    });
+
+    d3.select("#remove-node").on("click", () => {
+        if (selectedNode) {
+            const d = d3.select(selectedNode).datum();
+            removeNode(d);
+        }
+    });
+
+    d3.select("#save").on("click", () => {
+        const mindMapData = JSON.stringify(data);
+        localStorage.setItem("mindMapData", mindMapData);
+        alert("Mind map saved.");
+    });
+
+    d3.select("#load").on("click", () => {
+        const mindMapData = localStorage.getItem("mindMapData");
+        if (mindMapData) {
+            data = JSON.parse(mindMapData);
+            update(data);
+            alert("Mind map loaded.");
+        } else {
+            alert("No saved mind map found.");
+        }
+    });
+
+    update(data);
+
+    </script>
+</body>
+
+</html>
