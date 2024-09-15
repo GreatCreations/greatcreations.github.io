@@ -138,9 +138,15 @@
         vector-effect: non-scaling-stroke;
     }
     .grid .selected {
-        stroke: #2bff00;
+        stroke: #ff0000;
         stroke-width: 5px;
         vector-effect: non-scaling-stroke;
+    }
+    .grid-label {
+    fill: red;
+    font-size: 24px;
+    font-weight: bold;
+    pointer-events: none;
     }
     #mini-map {
         position: absolute;
@@ -178,6 +184,37 @@
     #mini-map-controls button:active {
         animation: buttonPop 0.1s ease-in-out;
     }
+
+    #mini-map-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 200px; /* Adjust based on your mini-map size */
+    }
+
+    #grid-navigation {
+    position: absolute;
+    bottom: 5px;
+    right: 108px; /* Adjust based on your mini-map width */
+    display: flex;
+    align-items: center;
+    }
+
+    #grid-navigation input {
+    width: 50px;
+    margin-right: 5px;
+    padding: 0px;
+    font-size: 12px;
+    border: 1px solid #d3d3d3; /* Light gray border */
+    border-radius: 2px;
+    }
+
+    #grid-navigation input:focus {
+    outline: none;
+    border-color: #a9a9a9; /* Slightly darker gray when focused */
+    box-shadow: 0 0 2px #d3d3d3; /* Subtle shadow for focus effect */
+    }
+
     #mini-menu {
         position: absolute;
         bottom: 20px;
@@ -186,8 +223,8 @@
         border: 1px solid #ccc;
         border-radius: 5px;
         padding: 10px;
-        font-size: 12px;
-        max-width: 300px;
+        font-size: 10px;
+        max-width: 400px;
         display: none;
     }
     #mini-menu h3 {
@@ -201,16 +238,97 @@
     #mini-menu li {
         margin-bottom: 5px;
     }
-    .space-window {
-        position: absolute;
-        background-color: rgba(255, 255, 255, 0.7);
-        border: 1px solid #ccc;
-        min-width: 100px;
-        min-height: 100px;
-        pointer-events: auto;
-        z-index: 1;
-        overflow: hidden;
-        cursor: default;
+    #close-help-menu {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .tab-content {
+            height: 400px;
+            position: relative;
+        }
+        .tab {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .tab:first-child {
+            display: block;
+        }
+        .tab h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .tab ul, .tab ol {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+        .tab-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .nav-button-container {
+            width: 60px;
+            display: flex;
+            justify-content: center;
+        }
+        .tab-dots {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .dot.active {
+            background-color: #717171;
+        }
+        .demo-button {
+            font-size: 12px;
+            padding: 2px 5px;
+            margin-right: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #prevTab, #nextTab {
+            display: block;
+            visibility: hidden;
+            font-size: 12px;
+            padding: 2px 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .space-window {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #ccc;
+    min-width: 100px;
+    min-height: 300px; /* Increased from previous value */
+    height: 400px; /* Set a taller default height */
+    pointer-events: auto;
+    z-index: 1;
+    overflow: hidden;
+    cursor: default;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .space-window-header {
         background-color: #f0f0f0;
@@ -221,7 +339,7 @@
     .space-window-content {
         display: flex;
         flex-wrap: wrap;
-        height: calc(100% - 60px);
+        height: calc(100% - 0px);
         overflow-x: auto;
         padding: 5px;
     }
@@ -257,17 +375,7 @@
         height: 10px;
         cursor: nwse-resize;
     }
-    .add-column-button {
-        flex: 0 0 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        cursor: pointer;
-        border: 1px dashed #ccc;
-        border-radius: 5px;
-        margin: 5px;
-    }
+    
     .add-element-modal {
         position: absolute;
         background-color: white;
@@ -408,6 +516,16 @@
         overflow-y: auto;
         resize: both;
     }
+    .add-to-grid-button {
+    font-size: 10px; /* Smaller font size */
+    padding: 2px 4px; /* Reduced padding to make the button smaller */
+    margin-right: 5px; /* Add some right margin */
+    margin-left: -40px; /* Move slightly to the left */
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    }
     .remove-column-button,
     .edit-element-button,
     .delete-element-button {
@@ -428,17 +546,81 @@
         top: 5px;
     }
     .add-element-button {
-        width: 100%;
-        padding: 5px;
-        margin-bottom: 5px;
-        cursor: pointer;
-    }
-    .add-column-button {
-        font-size: 10px;
-        padding: 2px 4px;
-        margin-left: 5px;
-        cursor: pointer;
-    }
+    width: calc(100% - 20px); /* Full width with some margin */
+    padding: 10px 15px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.add-element-button:hover {
+    background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+}
+
+.add-element-button:active {
+    background-color: #3e8e41;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transform: translateY(1px);
+}
+
+.add-element-button::before {
+    content: "+";
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    font-weight: bold;
+}
+.add-column-button {
+    width: calc(50% - 20px); /* Twice as wide as before, with some margin */
+    height: 40px; /* Fixed height for better proportion */
+    padding: 5px 10px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #fffafa; /* White background */
+    color: #333;
+    border: 2px dashed #999; /* Keeping the dotted (dashed) border */
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-column-button:hover {
+    background-color: #f1f1f1;
+    border-color: #666;
+}
+
+.add-column-button:active {
+    background-color: #d0d0d0;
+    transform: translateY(1px);
+}
+
+.add-column-button::before {
+    content: "+";
+    font-size: 20px;
+    margin-right: 8px;
+    font-weight: bold;
+}
     .resize-handle {
         position: absolute;
         width: 10px;
@@ -471,13 +653,177 @@
         <button id="toggle-help">Help</button>
     </div>
     <div id="mini-map"></div>
+    <div id="grid-navigation">
+        <input type="number" id="x-coordinate" placeholder="X" min="0" max="100">
+        <input type="number" id="y-coordinate" placeholder="Y" min="0" max="100">
+    </div>
     <div id="mini-map-controls">
-        <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
+        
         <button id="focus-mini-map" title="Show Full Grid">⊡</button>
+        <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
+    </div>
+    <div id="grid-navigation">
+        <input type="number" id="x-coordinate" placeholder="X" min="0" max="100">
+        <input type="number" id="y-coordinate" placeholder="Y" min="0" max="100">
     </div>
     <div id="mini-menu">
-        <!-- [Your existing Help Menu HTML here] -->
+        <button id="close-help-menu" onclick="toggleHelpMenu()">×</button>
+        <div class="tab-content">
+            <div class="tab" id="tab1">
+                <h3>Basic Controls</h3>
+                <ul>
+                    <li><button class="demo-button" onclick="simulateAddChild()">Add Child</button> Add a new child node to the selected node.</li>
+                    <li><button class="demo-button" onclick="simulateRemoveNode()">Remove Node</button> Remove the selected node.</li>
+                    <li><button class="demo-button" onclick="simulateSave()">Save</button> Save the current mind map.</li>
+                    <li><button class="demo-button" onclick="simulateLoad()">Load</button> Load a saved mind map.</li>
+                    <li><button class="demo-button" onclick="simulateResetZoom()">Reset Zoom</button> Reset the zoom level.</li>
+                    <li><button class="demo-button" onclick="simulateToggleGrid()">Toggle Grid</button> Show/hide the grid.</li>
+                    <li>Double-click a node to edit its text.</li>
+                    <li>Right-click a node to open the context menu.</li>
+                    <li>Drag nodes to reposition them.</li>
+                    <li>Use the mini-map to navigate the mind map.</li>
+                </ul>
+            </div>
+            <div class="tab" id="tab2">
+                <h3>Advanced Features</h3>
+                <ul>
+                    <li><button class="demo-button" onclick="simulateAddSpace()">Add Space</button> Create a new Space window for additional content.</li>
+                    <li>Spaces can contain multiple columns and elements:</li>
+                    <ul>
+                        <li>Images: Add and preview images.</li>
+                        <li>Thoughts: Add formatted text notes.</li>
+                        <li>Places: Add links to external resources.</li>
+                        <li>Trees: Create hierarchical structures.</li>
+                    </ul>
+                    <li>Edit or delete elements using the buttons on each item.</li>
+                    <li>Resize Space windows using the handle in the bottom-right corner.</li>
+                    <li>Double-click a Space window's title to edit its name.</li>
+                    <li>Node colors: Right-click a node and use the color picker in the context menu to change its color.</li>
+                </ul>
+            </div>
+            <div class="tab" id="tab3">
+                <h3>Trees</h3>
+                <ul>
+                    <li>Trees are hierarchical structures that can be added to Space windows.</li>
+                    <li>To create a tree:</li>
+                    <ol>
+                        <li>Click "Add Element" in a Space window.</li>
+                        <li>Select "Tree" from the options.</li>
+                        <li>Use the tree editor to add, edit, or remove nodes.</li>
+                    </ol>
+                    <li>To add a tree to the main grid:</li>
+                    <ol>
+                        <li>Select a node in the main mind map.</li>
+                        <li>Click the "Add to Grid" button on a tree in a Space window.</li>
+                        <li>The tree will be added as a series of connected nodes, with each tree node becoming a separate node in the mind map.</li>
+                    </ol>
+                    <li>Edit trees in Space windows by clicking the edit button (✎) on the tree element.</li>
+                    <li>Trees added to the grid become part of the main mind map structure and can be manipulated like other nodes.</li>
+                    <li>Changes to the original tree in the Space window will not automatically update the nodes added to the grid until the Node structure is interacted with.</li>
+                </ul>
+            </div>
+            <div class="tab" id="tab4">
+                <h3>Grid and Navigation</h3>
+                <ul>
+                    <li>Use the grid to organize your mind map into zones.</li>
+                    <li>Click on thick grid lines to highlight them.</li>
+                    <li>Nodes within highlighted zones will be marked.</li>
+                    <li>Mini-map controls:</li>
+                    <ul>
+                        <li><button class="demo-button" onclick="simulateResetMiniMap()">↖</button> Go to top-left corner.</li>
+                        <li><button class="demo-button" onclick="simulateFocusMiniMap()">⊡</button> Show full grid.</li>
+                    </ul>
+                    <li>Click on the mini-map to quickly navigate to different areas.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-navigation">
+            <div class="nav-button-container">
+                <button id="prevTab" onclick="changeTab(-1)">Prev</button>
+            </div>
+            <div class="tab-dots">
+                <span class="dot active" onclick="jumpToTab(0)"></span>
+                <span class="dot" onclick="jumpToTab(1)"></span>
+                <span class="dot" onclick="jumpToTab(2)"></span>
+                <span class="dot" onclick="jumpToTab(3)"></span>
+            </div>
+            <div class="nav-button-container">
+                <button id="nextTab" onclick="changeTab(1)">Next</button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        let currentTab = 0;
+
+        function initializeHelpMenu() {
+            const tabs = document.querySelectorAll('.tab');
+            document.getElementById('prevTab').style.visibility = 'hidden';
+            document.getElementById('nextTab').style.visibility = tabs.length > 1 ? 'visible' : 'hidden';
+        }
+
+        function changeTab(direction) {
+            const tabs = document.querySelectorAll('.tab');
+            const dots = document.querySelectorAll('.dot');
+            
+            tabs[currentTab].style.display = 'none';
+            dots[currentTab].classList.remove('active');
+            
+            currentTab += direction;
+            if (currentTab >= tabs.length) currentTab = 0;
+            if (currentTab < 0) currentTab = tabs.length - 1;
+            
+            tabs[currentTab].style.display = 'block';
+            dots[currentTab].classList.add('active');
+            
+            updateNavButtons();
+        }
+
+        function jumpToTab(tabIndex) {
+            const tabs = document.querySelectorAll('.tab');
+            const dots = document.querySelectorAll('.dot');
+            
+            tabs[currentTab].style.display = 'none';
+            dots[currentTab].classList.remove('active');
+            
+            currentTab = tabIndex;
+            
+            tabs[currentTab].style.display = 'block';
+            dots[currentTab].classList.add('active');
+            
+            updateNavButtons();
+        }
+
+        function updateNavButtons() {
+            const tabs = document.querySelectorAll('.tab');
+            document.getElementById('prevTab').style.visibility = currentTab === 0 ? 'hidden' : 'visible';
+            document.getElementById('nextTab').style.visibility = currentTab === tabs.length - 1 ? 'hidden' : 'visible';
+        }
+
+        function toggleHelpMenu() {
+            const miniMenu = document.getElementById('mini-menu');
+            if (miniMenu.style.display === 'none') {
+                miniMenu.style.display = 'block';
+                initializeHelpMenu();
+            } else {
+                miniMenu.style.display = 'none';
+            }
+        }
+
+        // Simulation functions (these would be connected to your actual mind map functionality)
+        function simulateAddChild() { alert("Add Child clicked"); }
+        function simulateRemoveNode() { alert("Remove Node clicked"); }
+        function simulateSave() { alert("Save clicked"); }
+        function simulateLoad() { alert("Load clicked"); }
+        function simulateResetZoom() { alert("Reset Zoom clicked"); }
+        function simulateToggleGrid() { alert("Toggle Grid clicked"); }
+        function simulateAddSpace() { alert("Add Space clicked"); }
+        function simulateResetMiniMap() { alert("Reset Mini-Map clicked"); }
+        function simulateFocusMiniMap() { alert("Focus Mini-Map clicked"); }
+
+        // Initialize the help menu when the page loads
+        document.addEventListener('DOMContentLoaded', initializeHelpMenu);
+    </script>
     <div id="space-windows"></div>
     <div id="mindmap-container"></div>
 
@@ -1228,70 +1574,180 @@
     svg.call(zoom);
 
     function zoomed(event) {
-        const { transform } = event;
-        g.attr("transform", transform);
+    const { transform } = event;
+    g.attr("transform", transform);
 
-        const centerX = width / 2 - transform.x / transform.k;
-        const centerY = height / 2 - transform.y / transform.k;
-        simulation.force("center", d3.forceCenter(centerX, centerY));
+    const centerX = width / 2 - transform.x / transform.k;
+    const centerY = height / 2 - transform.y / transform.k;
+    simulation.force("center", d3.forceCenter(centerX, centerY));
 
-        g.selectAll(".node")
-            .attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
+    g.selectAll(".node")
+        .attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
 
-        g.selectAll(".link")
-            .attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
+    g.selectAll(".link")
+        .attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
 
-        if (showGrid) {
-            svg.select(".grid").attr("transform", `translate(${transform.x},${transform.y}) scale(${transform.k})`);
-            svg.selectAll(".grid .thick, .grid .selected").attr("stroke-width", 5 / transform.k);
-        }
-        updateMiniMap();
+    if (showGrid) {
+        svg.select(".grid").attr("transform", `translate(${transform.x},${transform.y}) scale(${transform.k})`);
+        svg.selectAll(".grid .thick, .grid .selected").attr("stroke-width", 5 / transform.k);
+        svg.selectAll(".grid-label").attr("font-size", 24 / transform.k);
+    }
+    updateMiniMap();
+    updateCoordinateInputs(transform);
+    }
+
+    function updateCoordinateInputs(transform) {
+    const xInput = document.getElementById('x-coordinate');
+    const yInput = document.getElementById('y-coordinate');
+
+    // Calculate the center of the current view in grid coordinates
+    const centerX = (-transform.x + width / 2) / transform.k;
+    const centerY = (-transform.y + height / 2) / transform.k;
+
+    // Convert to grid line numbers (assuming every 50th line is a major line)
+    const gridX = Math.round(centerX / (gridSize * 50));
+    const gridY = Math.round(centerY / (gridSize * 50));
+
+    xInput.value = gridX;
+    yInput.value = gridY;
     }
 
     function createGrid() {
-        const gridWidth = 5000 * gridSize;
-        const gridHeight = 5000 * gridSize;
+    const gridWidth = 5000 * gridSize;
+    const gridHeight = 5000 * gridSize;
 
-        const gridGroup = svg.insert("g", ":first-child")
-            .attr("class", "grid")
-            .attr("pointer-events", "none");
+    const gridGroup = svg.insert("g", ":first-child")
+        .attr("class", "grid")
+        .attr("pointer-events", "none");
 
-        for (let x = 0; x <= gridWidth; x += gridSize) {
+    // Create vertical lines
+    for (let x = 0; x <= gridWidth; x += gridSize) {
+        if (x % (gridSize * 50) === 0) {
             gridGroup.append("line")
                 .attr("x1", x)
                 .attr("y1", 0)
                 .attr("x2", x)
                 .attr("y2", gridHeight)
-                .attr("class", x % (gridSize * 50) === 0 ? "thick" : "")
-                .attr("pointer-events", x % (gridSize * 50) === 0 ? "all" : "none")
+                .attr("class", "thick")
+                .attr("pointer-events", "all")
                 .on("click", function() {
-                    if (d3.select(this).classed("thick")) {
-                        d3.select(this).classed("selected", !d3.select(this).classed("selected"));
-                        updateZones();
-                        updateMiniMap();
-                    }
+                    d3.select(this).classed("selected", !d3.select(this).classed("selected"));
+                    updateZones();
+                    updateMiniMap();
                 });
-        }
 
-        for (let y = 0; y <= gridHeight; y += gridSize) {
+            // Add label at the top
+            gridGroup.append("text")
+                .attr("class", "grid-label")
+                .attr("x", x)
+                .attr("y", 20)
+                .attr("text-anchor", "middle")
+                .text(x / (gridSize * 50));
+
+            // Add label at the bottom
+            gridGroup.append("text")
+                .attr("class", "grid-label")
+                .attr("x", x)
+                .attr("y", gridHeight - 20)
+                .attr("text-anchor", "middle")
+                .text(x / (gridSize * 50));
+        } else {
+            gridGroup.append("line")
+                .attr("x1", x)
+                .attr("y1", 0)
+                .attr("x2", x)
+                .attr("y2", gridHeight);
+        }
+    }
+
+    // Create horizontal lines
+    for (let y = 0; y <= gridHeight; y += gridSize) {
+        if (y % (gridSize * 50) === 0) {
             gridGroup.append("line")
                 .attr("x1", 0)
                 .attr("y1", y)
                 .attr("x2", gridWidth)
                 .attr("y2", y)
-                .attr("class", y % (gridSize * 50) === 0 ? "thick" : "")
-                .attr("pointer-events", y % (gridSize * 50) === 0 ? "all" : "none")
+                .attr("class", "thick")
+                .attr("pointer-events", "all")
                 .on("click", function() {
-                    if (d3.select(this).classed("thick")) {
-                        d3.select(this).classed("selected", !d3.select(this).classed("selected"));
-                        updateZones();
-                        updateMiniMap();
-                    }
+                    d3.select(this).classed("selected", !d3.select(this).classed("selected"));
+                    updateZones();
+                    updateMiniMap();
                 });
-        }
 
-        gridGroup.attr("transform", `translate(${-gridWidth/2},${-gridHeight/2})`);
-        return gridGroup;
+            // Add label on the left
+            gridGroup.append("text")
+                .attr("class", "grid-label")
+                .attr("x", 20)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "start")
+                .text(y / (gridSize * 50));
+
+            // Add label on the right
+            gridGroup.append("text")
+                .attr("class", "grid-label")
+                .attr("x", gridWidth - 20)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "end")
+                .text(y / (gridSize * 50));
+        } else {
+            gridGroup.append("line")
+                .attr("x1", 0)
+                .attr("y1", y)
+                .attr("x2", gridWidth)
+                .attr("y2", y);
+        }
+    }
+
+    gridGroup.attr("transform", `translate(${-gridWidth/2},${-gridHeight/2})`);
+    return gridGroup;
+    }
+
+    function setupGridNavigation() {
+    const xInput = document.getElementById('x-coordinate');
+    const yInput = document.getElementById('y-coordinate');
+
+    xInput.addEventListener('change', () => navigateToGridPosition());
+    yInput.addEventListener('change', () => navigateToGridPosition());
+
+    // Prevent the default behavior of arrow keys in number inputs
+    [xInput, yInput].forEach(input => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+        });
+    });
+    }
+
+    function navigateToGridPosition() {
+    const xInput = document.getElementById('x-coordinate');
+    const yInput = document.getElementById('y-coordinate');
+    
+    const x = parseInt(xInput.value) || 0;
+    const y = parseInt(yInput.value) || 0;
+
+    const gridX = x * gridSize * 50; // Assuming every 50th line is a major line
+    const gridY = y * gridSize * 50;
+
+    // Calculate the center of the viewport
+    const viewportCenterX = width / 2;
+    const viewportCenterY = height / 2;
+
+    // Calculate the translation needed to center the selected grid position
+    const translateX = viewportCenterX - gridX;
+    const translateY = viewportCenterY - gridY;
+
+    // Use D3's zoom transform to move to the new position
+    svg.transition()
+        .duration(750)
+        .call(zoom.transform, d3.zoomIdentity
+            .translate(translateX, translateY)
+            .scale(1) // You can adjust this if you want to zoom in/out
+        );
     }
 
     function updateZones() {
@@ -1673,7 +2129,7 @@
 
         buttonContainer.append("button")
             .attr("class", "add-column-button")
-            .text("Add Column")
+            .text("ADD COLUMN")
             .on("click", function() {
                 addColumn(content);
             });
@@ -1997,6 +2453,8 @@
             alert("No saved mind map found.");
         }
     });
+
+    document.addEventListener('DOMContentLoaded', setupGridNavigation);
 
     update(data);
 
