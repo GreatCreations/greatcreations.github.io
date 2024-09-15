@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced MindMap with Context Menu</title>
+<title>Mindfield</title>
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <style>
@@ -105,6 +105,10 @@
     .context-menu .selected-node {
         color: #2ca02c;
         font-weight: bold;
+    }
+    .context-menu .node-id {
+    font-size: 8px; /* Very tiny text */
+    color: #666; /* Optional styling */
     }
     .color-option {
         width: 20px;
@@ -476,15 +480,18 @@
     </div>
     <div id="space-windows"></div>
     <div id="mindmap-container"></div>
-    
+
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Include Quill for the thought editor -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script>
+    // Helper functions and variables
     function getExistingColumns(content) {
         const columns = content.selectAll(".space-window-column");
         const columnNames = columns.size() ? columns.nodes().map((_, i) => `Column ${i + 1}`) : ["Column 1"];
         return columnNames;
     }
-    
+
     function addElementToColumn(column, element) {
         column.node().appendChild(element.node());
     }
@@ -494,14 +501,14 @@
             .attr("class", "add-element-modal")
             .style("left", `${event.pageX}px`)
             .style("top", `${event.pageY}px`);
-    
+
         modal.append("div")
             .attr("class", "modal-title")
             .text("Add Element");
-    
+
         const columnDropdown = modal.append("select")
             .attr("class", "column-dropdown");
-    
+
         const existingColumns = getExistingColumns(content);
         existingColumns.forEach((columnName, index) => {
             columnDropdown.append("option")
@@ -516,22 +523,22 @@
             .style("top", "5px")
             .style("right", "5px")
             .on("click", () => modal.remove());
-    
+
         const buttonContainer = modal.append("div")
             .attr("class", "modal-buttons");
-    
+
         buttonContainer.append("button")
             .text("Image")
             .on("click", () => addImage(content, modal, columnDropdown));
-    
+
         buttonContainer.append("button")
             .text("Thought")
             .on("click", () => addThought(content, modal, columnDropdown));
-    
+
         buttonContainer.append("button")
             .text("Place")
             .on("click", () => addPlace(content, modal, columnDropdown));
-    
+
         buttonContainer.append("button")
             .text("Tree")
             .on("click", () => addTree(content, modal, columnDropdown));
@@ -540,23 +547,23 @@
     function generateElementId() {
         return Math.floor(100000000000000000 + Math.random() * 900000000000000000).toString();
     }
-    
+
     function generateNodeId() {
         return Math.floor(100000000000000000 + Math.random() * 900000000000000000).toString();
     }
-    
+
     function addImage(content, modal, columnDropdown, existingElement = null) {
         const imageModal = d3.select("body").append("div")
             .attr("class", "image-modal");
-    
+
         imageModal.append("div")
             .attr("class", "image-modal-header")
             .text(existingElement ? "Edit Image" : "Add Image");
-    
+
         const input = imageModal.append("input")
             .attr("type", "text")
             .attr("placeholder", "Enter image URL");
-    
+
         if (existingElement) {
             input.property("value", existingElement.select("img").attr("src"));
         }
@@ -566,17 +573,17 @@
             .on("click", function() {
                 const url = input.property("value");
                 if (url) {
-                    const selectedColumnIndex = columnDropdown.property("value").replace("Column ", "") - 1;
-                    const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
-    
                     if (existingElement) {
                         existingElement.select("img").attr("src", url);
                     } else {
+                        const selectedColumnIndex = columnDropdown.property("value").replace("Column ", "") - 1;
+                        const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+
                         const newElement = d3.create("div")
                             .attr("class", "space-element image-element")
                             .style("position", "relative")
                             .attr("data-element-id", generateElementId());
-    
+
                         newElement.append("img")
                             .attr("src", url)
                             .attr("alt", "User-added image")
@@ -590,7 +597,7 @@
                                 showImagePreview(event, this, url);
                             })
                             .on("mouseout", hideImagePreview);
-    
+
                         addEditButton(newElement, "image");
                         addDeleteButton(newElement);
                         addElementToColumn(d3.select(targetColumn), newElement);
@@ -600,30 +607,27 @@
                 if (modal) modal.remove();
             });
     
-        imageModal.append("button")
+            imageModal.append("button")
             .text("Cancel")
             .on("click", () => imageModal.remove());
-    
-        imageModal.append("div")
-            .attr("class", "resize-handle");
     }
-    
+
     function addThought(content, modal, columnDropdown, existingElement = null) {
         const thoughtModal = d3.select("body").append("div")
             .attr("class", "thought-modal");
-    
+
         thoughtModal.append("div")
             .attr("class", "thought-modal-header")
             .text(existingElement ? "Edit Thought" : "Add Thought");
-    
+
         const editor = thoughtModal.append("div")
             .attr("id", "thought-editor")
             .style("height", "200px");
-    
+
         const quill = new Quill('#thought-editor', {
             theme: 'snow'
         });
-    
+
         if (existingElement) {
             quill.root.innerHTML = existingElement.select(".thought-content").html();
         }
@@ -631,56 +635,53 @@
         thoughtModal.append("button")
             .text(existingElement ? "Update" : "Add")
             .on("click", function() {
-                const thoughtText = quill.root.innerHTML;
-                if (thoughtText) {
+            const thoughtText = quill.root.innerHTML;
+            if (thoughtText) {
+                if (existingElement) {
+                    existingElement.select(".thought-content").html(thoughtText);
+                } else {
                     const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
                     const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
-    
-                    if (existingElement) {
-                        existingElement.select(".thought-content").html(thoughtText);
-                    } else {
-                        const newElement = d3.select(targetColumn).append("div")
-                            .attr("class", "space-element thought-element")
-                            .style("width", "100%")
-                            .style("overflow", "auto")
-                            .attr("data-element-id", generateElementId());
-    
-                        newElement.append("div")
-                            .attr("class", "thought-content")
-                            .html(thoughtText);
-    
-                        addEditButton(newElement, "thought");
-                        addDeleteButton(newElement);
-                    }
+
+                    const newElement = d3.select(targetColumn).append("div")
+                        .attr("class", "space-element thought-element")
+                        .style("width", "100%")
+                        .style("overflow", "auto")
+                        .attr("data-element-id", generateElementId());
+
+                    newElement.append("div")
+                        .attr("class", "thought-content")
+                        .html(thoughtText);
+
+                    addEditButton(newElement, "thought");
+                    addDeleteButton(newElement);
                 }
-                thoughtModal.remove();
-                if (modal) modal.remove();
-            });
+            }
+            thoughtModal.remove();
+            if (modal) modal.remove();
+        });
     
         thoughtModal.append("button")
             .text("Cancel")
             .on("click", () => thoughtModal.remove());
-    
-        thoughtModal.select("#thought-editor").append("div")
-            .attr("class", "resize-handle");
     }
-    
+
     function addPlace(content, modal, columnDropdown, existingElement = null) {
         const placeModal = d3.select("body").append("div")
             .attr("class", "place-modal");
-    
+
         placeModal.append("div")
             .attr("class", "place-modal-header")
             .text(existingElement ? "Edit Place" : "Add Place");
-    
+
         const nameInput = placeModal.append("input")
             .attr("type", "text")
             .attr("placeholder", "Enter place name");
-    
+
         const urlInput = placeModal.append("input")
             .attr("type", "text")
             .attr("placeholder", "Enter URL");
-    
+
         if (existingElement) {
             nameInput.property("value", existingElement.select("a").text());
             urlInput.property("value", existingElement.select("a").attr("href"));
@@ -692,25 +693,25 @@
                 const name = nameInput.property("value");
                 const url = urlInput.property("value");
                 if (name && url) {
-                    const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
-                    const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
-    
                     if (existingElement) {
                         existingElement.select("a").text(name).attr("href", url);
                     } else {
+                        const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
+                        const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+
                         const newElement = d3.select(targetColumn).append("div")
                             .attr("class", "space-element place-element")
                             .style("width", "100%")
                             .style("overflow", "hidden")
                             .attr("data-element-id", generateElementId());
-    
+
                         newElement.append("a")
                             .attr("href", url)
                             .attr("target", "_blank")
                             .style("color", "#333")
                             .style("text-decoration", "underline")
                             .text(name);
-    
+
                         addEditButton(newElement, "place");
                         addDeleteButton(newElement);
                     }
@@ -724,7 +725,7 @@
             .on("click", () => placeModal.remove());
     }
     
-    function addTree(content, modal, columnDropdown, existingElement = null, existingTreeData = null) {
+    function addTree(content, modal, columnDropdown, existingElement = null, existingTreeData = null, nodeNameToAddChild = null) {
         const treeModal = d3.select("body").append("div")
             .attr("class", "tree-modal")
             .style("position", "fixed")
@@ -738,74 +739,78 @@
             .style("z-index", "1000")
             .style("min-width", "300px")
             .style("min-height", "400px");
-    
+
         treeModal.append("div")
             .attr("class", "tree-modal-header")
             .text(existingElement ? "Edit Tree" : "Add Tree");
-    
+
         const treeContent = treeModal.append("div")
             .attr("class", "tree-content")
             .style("max-height", "300px")
             .style("overflow-y", "auto");
     
+            let treeData;
         if (existingElement || existingTreeData) {
-            const existingData = existingTreeData || JSON.parse(existingElement.attr("data-tree"));
-            loadExistingTree(treeContent, existingData);
+            treeData = existingTreeData || JSON.parse(existingElement.attr("data-tree"));
+            if (nodeNameToAddChild) {
+                function addNodeToTree(treeNode, targetNodeName) {
+                    if (treeNode.name === targetNodeName) {
+                        if (!treeNode.children) treeNode.children = [];
+                        treeNode.children.push({ name: "New Node" });
+                        return true;
+                    } else if (treeNode.children) {
+                        for (let child of treeNode.children) {
+                            if (addNodeToTree(child, targetNodeName)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+                addNodeToTree(treeData, nodeNameToAddChild);
+            }
+            loadExistingTree(treeContent, treeData);
         } else {
             addTreeItem(treeContent, "root");
         }
     
         treeModal.append("button")
-            .text(existingElement ? "Update" : "Add")
-            .on("click", function() {
-                const treeData = generateTreeData(treeContent);
+        .text(existingElement ? "Update" : "Add")
+        .on("click", function() {
+            const updatedTreeData = generateTreeData(treeContent);
+
+            if (existingElement) {
+                existingElement.attr("data-tree", JSON.stringify(updatedTreeData));
+                updateTreeElement(existingElement);
+            } else {
                 const selectedColumnIndex = parseInt(columnDropdown.property("value").replace("Column ", "")) - 1;
                 const targetColumn = content.selectAll(".space-window-column").nodes()[selectedColumnIndex];
+
+                const newElement = d3.select(targetColumn).append("div")
+                    .attr("class", "space-element tree-element")
+                    .attr("data-tree", JSON.stringify(updatedTreeData))
+                    .attr("data-element-id", generateElementId());
+
+                renderTree(newElement, updatedTreeData);
+                addEditButton(newElement, "tree");
+                addDeleteButton(newElement);
+
+                newElement.append("button")
+                    .attr("class", "add-to-grid-button")
+                    .text("Add to Grid")
+                    .on("click", function() {
+                        const gridId = addTreeToGrid(updatedTreeData);
+                        newElement.attr("data-grid-id", gridId);
+                    });
+            }
+            treeModal.remove();
+            if (modal) modal.remove();
+        });
+
     
-                if (existingElement) {
-                    existingElement.attr("data-tree", JSON.stringify(treeData));
-                    existingElement.select("svg").remove();
-                    renderTree(existingElement, treeData);
-                    updateGridTree(existingElement.attr("data-grid-id"), treeData);
-                } else {
-                    const newElement = d3.select(targetColumn).append("div")
-                        .attr("class", "space-element tree-element")
-                        .attr("data-tree", JSON.stringify(treeData))
-                        .attr("data-element-id", generateElementId());
-    
-                    renderTree(newElement, treeData);
-                    addEditButton(newElement, "tree");
-                    addDeleteButton(newElement);
-    
-                    newElement.append("button")
-                        .attr("class", "add-to-grid-button")
-                        .text("Add to Grid")
-                        .on("click", function() {
-                            const gridId = addTreeToGrid(treeData);
-                            newElement.attr("data-grid-id", gridId);
-                        });
-                }
-                treeModal.remove();
-                if (modal) modal.remove();
-            });
-    
-        treeModal.append("button")
+            treeModal.append("button")
             .text("Cancel")
             .on("click", () => treeModal.remove());
-    
-        treeModal.append("div")
-            .attr("class", "resize-handle");
-    
-        treeModal.call(d3.drag()
-            .subject(function() {
-                const handle = d3.select(this).select(".resize-handle");
-                return {x: handle.attr("cx"), y: handle.attr("cy")};
-            })
-            .on("drag", function(event) {
-                const width = parseFloat(treeModal.style("width")) + event.dx;
-                const height = parseFloat(treeModal.style("height")) + event.dy;
-                treeModal.style("width", width + "px").style("height", height + "px");
-            }));
     }
     
     function loadExistingTree(container, data) {
@@ -989,25 +994,23 @@
             .attr("class", "edit-element-button")
             .html("✎")
             .on("click", function() {
-                const columnDropdown = d3.select(element.node().parentNode.parentNode)
-                    .select(".column-dropdown");
                 switch (type) {
                     case "image":
-                        addImage(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        addImage(null, null, null, element);
                         break;
                     case "thought":
-                        addThought(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        addThought(null, null, null, element);
                         break;
                     case "place":
-                        addPlace(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        addPlace(null, null, null, element);
                         break;
                     case "tree":
-                        addTree(d3.select(element.node().parentNode.parentNode), null, columnDropdown, element);
+                        addTree(null, null, null, element);
                         break;
                 }
             });
     }
-    
+
     function addDeleteButton(element) {
         element.append("button")
             .attr("class", "delete-element-button")
@@ -1066,96 +1069,106 @@
     }
     
     function renderTree(container, data) {
-        const treeId = container.attr("data-tree-id") || generateElementId();
-        container.attr("data-tree-id", treeId);
-    
-        container.selectAll("*").remove();
-        const root = d3.hierarchy(data);
-        const treeLayout = d3.tree().size([180, 180]);
-        const treeData = treeLayout(root);
-    
-        const svg = container.append("svg")
-            .attr("width", "100%")
-            .attr("height", "200")
-            .attr("viewBox", "0 0 200 200")
-            .attr("preserveAspectRatio", "xMidYMid meet");
-    
-        const g = svg.append("g")
-            .attr("transform", "translate(10,10)");
-    
-        const link = g.selectAll(".link")
-            .data(treeData.links())
-            .enter().append("path")
-            .attr("class", "link")
-            .attr("d", d3.linkHorizontal()
-                .x(d => d.y)
-                .y(d => d.x));
-    
-        const node = g.selectAll(".node")
-            .data(treeData.descendants())
-            .enter().append("g")
-            .attr("class", "node")
-            .attr("transform", d => `translate(${d.y},${d.x})`);
-    
-        node.append("circle")
-            .attr("r", 4);
-    
-        node.append("text")
-            .attr("dy", ".31em")
-            .attr("x", d => d.children ? -8 : 8)
-            .style("text-anchor", d => d.children ? "end" : "start")
-            .text(d => d.data.name)
-            .on("click", function(event, d) {
-                const newText = prompt("Enter new text:", d.data.name);
-                if (newText) {
-                    d.data.name = newText;
-                    d3.select(this).text(newText);
-                    updateTreeElement(container);
-                }
-            });
-    
-        node.append("text")
-            .attr("dy", ".31em")
-            .attr("x", d => d.children ? -20 : 20)
-            .style("text-anchor", d => d.children ? "end" : "start")
-            .text("🌳")
-            .on("click", function(event, d) {
-                openEditTreeModal(container, d);
-            });
-    }
-    
-    function openEditTreeModal(container, nodeData) {
-        const treeData = JSON.parse(container.attr("data-tree"));
-    
-        function addNodeToTree(treeNode, targetNodeData) {
-            if (treeNode.name === targetNodeData.data.name) {
-                if (!treeNode.children) treeNode.children = [];
-                treeNode.children.push({ name: "New Node" });
-                return true;
-            } else if (treeNode.children) {
-                for (let child of treeNode.children) {
-                    if (addNodeToTree(child, targetNodeData)) {
-                        return true;
-                    }
-                }
+    const treeId = container.attr("data-tree-id") || generateElementId();
+    container.attr("data-tree-id", treeId);
+
+    // Preserve existing buttons
+    const existingButtons = container.selectAll("button").remove();
+
+    // Clear existing content except buttons
+    container.selectAll("*:not(button)").remove();
+
+    const root = d3.hierarchy(data);
+    const treeLayout = d3.tree().size([180, 180]);
+    const treeData = treeLayout(root);
+
+    const svg = container.append("svg")
+        .attr("width", "100%")
+        .attr("height", "200")
+        .attr("viewBox", "0 0 200 200")
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    const g = svg.append("g")
+        .attr("transform", "translate(10,10)");
+
+    const link = g.selectAll(".link")
+        .data(treeData.links())
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal()
+            .x(d => d.y)
+            .y(d => d.x));
+
+    const node = g.selectAll(".node")
+        .data(treeData.descendants())
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    node.append("circle")
+        .attr("r", 4);
+
+    node.append("text")
+        .attr("dy", ".31em")
+        .attr("x", d => d.children ? -8 : 8)
+        .style("text-anchor", d => d.children ? "end" : "start")
+        .text(d => d.data.name)
+        .on("click", function(event, d) {
+            const newText = prompt("Enter new text:", d.data.name);
+            if (newText !== null) {
+                d.data.name = newText;
+                d3.select(this).text(newText);
+                updateTreeElement(container);
             }
-            return false;
-        }
-    
-        addNodeToTree(treeData, nodeData);
-    
-        addTree(null, null, null, container, treeData);
-    }
+        });
+
+    node.append("text")
+        .attr("dy", ".31em")
+        .attr("x", d => d.children ? -20 : 20)
+        .style("text-anchor", d => d.children ? "end" : "start")
+        .text("🌳")
+        .on("click", function(event, d) {
+            openEditTreeModal(container, null, d.data.name);
+        });
+
+    // Re-add the existing buttons
+    existingButtons.each(function() {
+        container.node().appendChild(this);
+    });
+}
     
     function updateTreeElement(container) {
-        const treeData = JSON.parse(container.attr("data-tree"));
-        container.attr("data-tree", JSON.stringify(treeData));
-        renderTree(container, treeData);
+    const treeData = JSON.parse(container.attr("data-tree"));
+    container.attr("data-tree", JSON.stringify(treeData));
+    renderTree(container, treeData);
+
+    const gridId = container.attr("data-grid-id");
+    if (gridId) {
+        updateGridTree(gridId, treeData);
+    }
+}
+
     
-        const gridId = container.attr("data-grid-id");
-        if (gridId) {
-            updateGridTree(gridId, treeData);
+    function openEditTreeModal(container, nodeData, nodeNameToAddChild = null) {
+        const treeData = JSON.parse(container.attr("data-tree"));
+        if (nodeNameToAddChild) {
+            function addNodeToTree(treeNode, targetNodeName) {
+                if (treeNode.name === targetNodeName) {
+                    if (!treeNode.children) treeNode.children = [];
+                    treeNode.children.push({ name: "New Node" });
+                    return true;
+                } else if (treeNode.children) {
+                    for (let child of treeNode.children) {
+                        if (addNodeToTree(child, targetNodeName)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            addNodeToTree(treeData, nodeNameToAddChild);
         }
+        addTree(null, null, null, container, treeData);
     }
     
     const width = window.innerWidth;
@@ -1489,40 +1502,58 @@
     }
 
     function showContextMenu(event, d) {
-        event.preventDefault();
+    event.preventDefault();
 
+    d3.select(".context-menu").remove();
+
+    const contextMenu = d3.select("body").append("div")
+        .attr("class", "context-menu")
+        .style("left", (event.pageX + 5) + "px")
+        .style("top", (event.pageY + 5) + "px");
+
+    addMenuSection(contextMenu, "Selected Node", [d.data.name], "selected-node");
+    addMenuSection(contextMenu, "Node ID", [d.data.id], "node-id"); // Changed from d.id to d.data.id
+    addMenuSection(contextMenu, "Actions", ["Add Child", "Remove Node", "Edit Text", "Add Space"]);
+    addColorSection(contextMenu, d);
+
+    d3.select("body").on("click.context-menu", () => {
         d3.select(".context-menu").remove();
+        d3.select("body").on("click.context-menu", null);
+    });
 
-        const contextMenu = d3.select("body").append("div")
-            .attr("class", "context-menu")
-            .style("left", (event.pageX + 5) + "px")
-            .style("top", (event.pageY + 5) + "px");
-
-        addMenuSection(contextMenu, "Selected Node", [d.data.name], "selected-node");
-        addMenuSection(contextMenu, "ID", [d.id], "node-id");
-        addMenuSection(contextMenu, "Actions", ["Add Child", "Remove Node", "Edit Text", "Add Space"]);
-        addMenuSection(contextMenu, "Color", colorOptions.map(color =>
-            `<span class="color-option" style="background-color:${color}"></span>`
-        ));
-
-        d3.select("body").on("click.context-menu", () => {
-            d3.select(".context-menu").remove();
-            d3.select("body").on("click.context-menu", null);
+    function addMenuSection(menu, title, items, className = "") {
+        const section = menu.append("div").attr("class", "context-menu-section");
+        section.append("div").text(title);
+        items.forEach(item => {
+            section.append("div")
+                .text(item) // Changed from .html(item) to .text(item) for security
+                .attr("class", className)
+                .on("click", () => handleContextMenuAction(d, item));
         });
-
-        function addMenuSection(menu, title, items, className = "") {
-            const section = menu.append("div").attr("class", "context-menu-section");
-            section.append("div").text(title);
-            items.forEach(item => {
-                section.append("div")
-                    .html(item)
-                    .attr("class", className)
-                    .on("click", () => handleContextMenuAction(d, item));
-            });
+        if (className === "node-id") {
+            section.selectAll("div:not(:first-child)")
+                .style("font-size", "8px")
+                .style("color", "#666")
+                .style("word-break", "break-all");
         }
     }
 
-    function handleContextMenuAction(d, action) {
+    function addColorSection(menu, nodeData) {
+        const section = menu.append("div").attr("class", "context-menu-section");
+        section.append("div").text("Color");
+
+        const colorContainer = section.append("div").attr("class", "color-container");
+        colorOptions.forEach(color => {
+            colorContainer.append("div")
+                .attr("class", "color-option")
+                .style("background-color", color)
+                .on("click", () => handleContextMenuAction(nodeData, color));
+        });
+    }
+}
+
+     // Update the handleContextMenuAction function to handle color changes
+     function handleContextMenuAction(d, action) {
         switch(action) {
             case "Add Child":
                 addChild(d);
