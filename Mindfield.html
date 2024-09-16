@@ -419,11 +419,53 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .space-window-header {
-        background-color: #f0f0f0;
-        padding: 2px 5px;
-        cursor: move;
-        font-size: 12px;
-    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 2px 5px;
+    cursor: move;
+    font-size: 12px;
+    height: 20px;
+}
+
+.space-window-title {
+    flex-grow: 1;
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.space-window-node-info {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.space-window-pin {
+    margin-right: 10px;
+    font-size: 10px;
+}
+
+.space-window-controls {
+    display: flex;
+    align-items: center;
+}
+
+.space-window-minimize,
+.space-window-close {
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 16px;
+}
+
+.space-window-minimize {
+    margin-right: 5px;
+}
     .space-window-content {
         display: flex;
         flex-wrap: wrap;
@@ -2104,16 +2146,20 @@
         updateZones();
     }
 
-    function clicked(event, d) {
-        if (selectedNode) {
-            d3.select(selectedNode).select("circle").classed("selected", false);
-            d3.select(selectedNode).select("text").classed("selected", false).style("fill", null);
-        }
-        selectedNode = this;
-        d3.select(this).select("circle").classed("selected", true);
-        d3.select(this).select("text").classed("selected", true).style("fill", "#2ca02c");
-        event.stopPropagation();
+    let selectedNodeData = null;
+
+function clicked(event, d) {
+    if (selectedNode) {
+        d3.select(selectedNode).select("circle").classed("selected", false);
+        d3.select(selectedNode).select("text").classed("selected", false).style("fill", null);
     }
+    selectedNode = this;
+    selectedNodeData = d;
+    d3.select(this).select("circle").classed("selected", true);
+    d3.select(this).select("text").classed("selected", true).style("fill", "#2ca02c");
+    updateSpaceWindowHeaders(d);
+    event.stopPropagation();
+}
 
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -2205,21 +2251,54 @@
         .style("top", (event.pageY + 5) + "px");
 
     addMenuSection(contextMenu, "Selected Node", [d.data.name], "selected-node");
-    addMenuSection(contextMenu, "Node ID", [d.data.id], "node-id"); // Changed from d.id to d.data.id
+    addMenuSection(contextMenu, "Node ID", [d.data.id], "node-id");
     addMenuSection(contextMenu, "Actions", ["Add Child", "Remove Node", "Edit Text", "Add Space"]);
     addColorSection(contextMenu, d);
+    addAssignedSpacesSection(contextMenu, d);
 
     d3.select("body").on("click.context-menu", () => {
         d3.select(".context-menu").remove();
         d3.select("body").on("click.context-menu", null);
     });
 
-    function addMenuSection(menu, title, items, className = "") {
+    function addAssignedSpacesSection(menu, nodeData) {
+    const assignedSpaces = d3.selectAll(".space-window")
+        .filter(function() {
+            return d3.select(this).attr("data-assigned-node") === nodeData.data.id;
+        });
+
+    if (assignedSpaces.size() > 0) {
+        const section = menu.append("div").attr("class", "context-menu-section");
+        section.append("div").text("Assigned Spaces");
+        assignedSpaces.each(function() {
+            const spaceWindow = d3.select(this);
+            section.append("div")
+                .text(spaceWindow.select(".space-window-title").text())
+                .on("click", () => {
+                    spaceWindow.style("display", "block");
+                    centerSpaceWindow(spaceWindow);
+                });
+        });
+    }
+}
+
+function centerSpaceWindow(spaceWindow) {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const spaceWidth = parseFloat(spaceWindow.style("width"));
+    const spaceHeight = parseFloat(spaceWindow.style("height"));
+
+    spaceWindow
+        .style("left", `${(windowWidth - spaceWidth) / 2}px`)
+        .style("top", `${(windowHeight - spaceHeight) / 2}px`);
+}
+
+function addMenuSection(menu, title, items, className = "") {
         const section = menu.append("div").attr("class", "context-menu-section");
         section.append("div").text(title);
         items.forEach(item => {
             section.append("div")
-                .text(item) // Changed from .html(item) to .text(item) for security
+                .text(item)
                 .attr("class", className)
                 .on("click", () => handleContextMenuAction(d, item));
         });
@@ -2245,28 +2324,28 @@
     }
 }
 
-     // Update the handleContextMenuAction function to handle color changes
-     function handleContextMenuAction(d, action) {
-        switch(action) {
-            case "Add Child":
-                addChild(d);
-                break;
-            case "Remove Node":
-                removeNode(d);
-                break;
-            case "Edit Text":
-                editNodeText(d);
-                break;
-            case "Add Space":
-                createSpaceWindow(d);
-                break;
-            default:
-                if (colorOptions.includes(action)) {
-                    d.data.color = action;
-                    update(data);
-                }
-        }
+function handleContextMenuAction(d, action) {
+    switch(action) {
+        case "Add Child":
+            addChild(d);
+            break;
+        case "Remove Node":
+            removeNode(d);
+            break;
+        case "Edit Text":
+            editNodeText(d);
+            break;
+        case "Add Space":
+            createSpaceWindow(d);
+            break;
+        default:
+            if (colorOptions.includes(action)) {
+                d.data.color = action;
+                update(data);
+            }
     }
+}
+
 
     function addChild(d) {
         const newNode = {
@@ -2333,71 +2412,236 @@
     }
 
     function createSpaceWindow(node) {
-        const spaceWindow = d3.select("#space-windows").append("div")
-            .attr("class", "space-window")
-            .style("left", `${node.x}px`)
-            .style("top", `${node.y}px`)
-            .style("width", "400px")
-            .style("height", "225px");
+    const spaceWindow = d3.select("#space-windows").append("div")
+        .attr("class", "space-window")
+        .style("left", `${node.x}px`)
+        .style("top", `${node.y}px`)
+        .style("width", "400px")
+        .style("height", "225px")
+        .attr("data-space-id", generateSpaceId());
 
-        const header = spaceWindow.append("div")
-            .attr("class", "space-window-header");
+    const header = spaceWindow.append("div")
+        .attr("class", "space-window-header");
 
-        header.append("span")
-            .text("New Space")
-            .on("dblclick", editSpaceWindowTitle);
+    header.append("span")
+        .attr("class", "space-window-title")
+        .text("New Space")
+        .on("dblclick", editSpaceWindowTitle);
 
-        header.append("span")
-            .attr("class", "space-window-close")
-            .html("&times;")
-            .on("click", () => spaceWindow.remove());
+    header.append("span")
+        .attr("class", "space-window-node-info")
+        .style("color", "red")
+        .style("margin", "0 10px");
 
-        const buttonContainer = spaceWindow.append("div")
-            .style("display", "flex")
-            .style("justify-content", "space-between")
-            .style("margin-bottom", "5px");
+    header.append("span")
+        .attr("class", "space-window-pin")
+        .html("📌")
+        .style("cursor", "pointer")
+        .on("click", toggleSpaceAssignment);
 
-        buttonContainer.append("button")
-            .attr("class", "add-element-button")
-            .text("Add Element")
-            .on("click", function(event) {
-                showAddElementModal(spaceWindow, event);
-            });
+    const controlsContainer = header.append("div")
+        .attr("class", "space-window-controls");
 
-        buttonContainer.append("button")
-            .attr("class", "add-column-button")
-            .text("ADD COLUMN")
-            .on("click", function() {
-                addColumn(content);
-            });
+    controlsContainer.append("span")
+        .attr("class", "space-window-minimize")
+        .html("−")
+        .on("click", minimizeSpaceWindow);
 
-        const content = spaceWindow.append("div")
-            .attr("class", "space-window-content")
-            .style("display", "flex")
-            .style("flex-wrap", "wrap");
-
-        addColumn(content);
-
-        spaceWindow.append("div")
-            .attr("class", "resize-handle");
-
-        spaceWindow.call(d3.drag()
-            .on("start", dragSpaceWindowStart)
-            .on("drag", dragSpaceWindow)
-            .on("end", dragSpaceWindowEnd));
-
-        spaceWindow.select(".resize-handle").call(d3.drag()
-            .on("drag", resizeSpaceWindow));
-
-        const resizeObserver = new ResizeObserver(entries => {
-            for (let entry of entries) {
-                const height = entry.contentRect.height;
-                content.selectAll(".space-window-column")
-                    .style("height", `${height - 60}px`); // Adjust for header and buttons
-            }
+    controlsContainer.append("span")
+        .attr("class", "space-window-close")
+        .html("&times;")
+        .on("click", () => {
+            unassignSpace(spaceWindow);
+            spaceWindow.remove();
         });
-        resizeObserver.observe(spaceWindow.node());
+
+    const buttonContainer = spaceWindow.append("div")
+        .style("display", "flex")
+        .style("justify-content", "space-between")
+        .style("margin-bottom", "5px");
+
+    buttonContainer.append("button")
+        .attr("class", "add-element-button")
+        .text("Add Element")
+        .on("click", function(event) {
+            showAddElementModal(spaceWindow, event);
+        });
+
+    buttonContainer.append("button")
+        .attr("class", "add-column-button")
+        .text("ADD COLUMN")
+        .on("click", function() {
+            addColumn(content);
+        });
+
+    const content = spaceWindow.append("div")
+        .attr("class", "space-window-content")
+        .style("display", "flex")
+        .style("flex-wrap", "wrap");
+
+    addColumn(content);
+
+    spaceWindow.append("div")
+        .attr("class", "resize-handle");
+
+    spaceWindow.call(d3.drag()
+        .on("start", dragSpaceWindowStart)
+        .on("drag", dragSpaceWindow)
+        .on("end", dragSpaceWindowEnd));
+
+    spaceWindow.select(".resize-handle").call(d3.drag()
+        .on("drag", resizeSpaceWindow));
+
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            const height = entry.contentRect.height;
+            content.selectAll(".space-window-column")
+                .style("height", `${height - 60}px`);
+        }
+    });
+    resizeObserver.observe(spaceWindow.node());
+
+    return spaceWindow;
+}
+
+function generateSpaceId() {
+    return 'space_' + Math.random().toString(36).substr(2, 9);
+}
+
+function generateSpaceId() {
+    return 'space_' + Math.random().toString(36).substr(2, 9);
+}
+
+function updateSpaceWindowHeaders(selectedNode) {
+    d3.selectAll(".space-window").each(function() {
+        const spaceWindow = d3.select(this);
+        const nodeInfo = spaceWindow.select(".space-window-node-info");
+        const pin = spaceWindow.select(".space-window-pin");
+
+        if (spaceWindow.attr("data-assigned-node")) {
+            // Space is assigned, keep the assigned node info
+            return;
+        }
+
+        if (selectedNode) {
+            nodeInfo.text(`${selectedNode.data.name} (${selectedNode.data.id})`)
+                .style("color", "red");
+            pin.style("display", "inline");
+        } else {
+            nodeInfo.text("")
+            pin.style("display", "none");
+        }
+    });
+}
+
+function toggleSpaceAssignment() {
+    const spaceWindow = d3.select(this.parentNode.parentNode);
+    const nodeInfo = spaceWindow.select(".space-window-node-info");
+    const assignedNodeId = spaceWindow.attr("data-assigned-node");
+
+    if (assignedNodeId) {
+        // Unassign
+        unassignSpace(spaceWindow);
+    } else if (selectedNode) {
+        // Assign
+        spaceWindow.attr("data-assigned-node", selectedNode.data.id);
+        nodeInfo.style("color", "green");
+        d3.select(this).style("color", "red");
+        updateNodeContextMenu(selectedNode);
     }
+}
+
+function unassignSpace(spaceWindow) {
+    const assignedNodeId = spaceWindow.attr("data-assigned-node");
+    if (assignedNodeId) {
+        spaceWindow.attr("data-assigned-node", null);
+        spaceWindow.select(".space-window-node-info").style("color", "red");
+        spaceWindow.select(".space-window-pin").style("color", "green");
+        updateNodeContextMenu(findNodeById(assignedNodeId));
+    }
+}
+
+function findNodeById(id) {
+    return d3.hierarchy(data).descendants().find(node => node.data.id === id);
+}
+
+function updateNodeContextMenu(node) {
+    const openContextMenu = d3.select(".context-menu");
+    if (openContextMenu.size() > 0 && openContextMenu.datum() === node) {
+        showContextMenu(d3.event, node);
+    }
+}
+
+function updateSpaceWindowHeaders(selectedNode) {
+    d3.selectAll(".space-window").each(function() {
+        const spaceWindow = d3.select(this);
+        const nodeInfo = spaceWindow.select(".space-window-node-info");
+        const pin = spaceWindow.select(".space-window-pin");
+
+        if (spaceWindow.attr("data-assigned-node")) {
+            // Space is assigned, keep the assigned node info
+            return;
+        }
+
+        if (selectedNode) {
+            nodeInfo.text(`${selectedNode.data.name} (${selectedNode.data.id})`)
+                .style("color", "red");
+            pin.style("display", "inline");
+        } else {
+            nodeInfo.text("")
+            pin.style("display", "none");
+        }
+    });
+}
+
+function toggleSpaceAssignment() {
+    const spaceWindow = d3.select(this.parentNode.parentNode);
+    const nodeInfo = spaceWindow.select(".space-window-node-info");
+    const pin = d3.select(this);
+    const assignedNodeId = spaceWindow.attr("data-assigned-node");
+
+    if (assignedNodeId) {
+        // Unassign
+        unassignSpace(spaceWindow);
+    } else if (selectedNodeData) {
+        // Assign
+        spaceWindow.attr("data-assigned-node", selectedNodeData.data.id);
+        nodeInfo.text(`${selectedNodeData.data.name} (${selectedNodeData.data.id})`)
+            .style("color", "green");
+        pin.style("color", "green");
+        updateNodeContextMenu(selectedNodeData);
+    }
+}
+
+function unassignSpace(spaceWindow) {
+    const assignedNodeId = spaceWindow.attr("data-assigned-node");
+    if (assignedNodeId) {
+        spaceWindow.attr("data-assigned-node", null);
+        const nodeInfo = spaceWindow.select(".space-window-node-info");
+        const pin = spaceWindow.select(".space-window-pin");
+        
+        if (selectedNodeData) {
+            nodeInfo.text(`${selectedNodeData.data.name} (${selectedNodeData.data.id})`)
+                .style("color", "red");
+        } else {
+            nodeInfo.text("").style("color", "red");
+        }
+        
+        pin.style("color", "green");
+        updateNodeContextMenu(findNodeById(assignedNodeId));
+    }
+}
+
+function findNodeById(id) {
+    return d3.hierarchy(data).descendants().find(node => node.data.id === id);
+}
+
+function updateNodeContextMenu(node) {
+    const openContextMenu = d3.select(".context-menu");
+    if (openContextMenu.size() > 0 && openContextMenu.datum() === node) {
+        showContextMenu({pageX: parseFloat(openContextMenu.style("left")), pageY: parseFloat(openContextMenu.style("top"))}, node);
+    }
+}
 
     function editSpaceWindowTitle(event) {
         const headerSpan = d3.select(this);
@@ -2425,6 +2669,10 @@
         function cancelEdit() {
             headerSpan.html(currentTitle);
         }
+    }
+    function minimizeSpaceWindow() {
+    const spaceWindow = d3.select(this.closest('.space-window'));
+    spaceWindow.style("display", "none");
     }
 
     function resizeSpaceWindow(event) {
