@@ -65,7 +65,7 @@
     }
     .selected {
         stroke: #2bff00;
-        stroke-width: 3px;
+        stroke-width: 1px;
         vector-effect: non-scaling-stroke;
     }
     .edit-field {
@@ -658,13 +658,8 @@
         <input type="number" id="y-coordinate" placeholder="Y" min="0" max="100">
     </div>
     <div id="mini-map-controls">
-        
-        <button id="focus-mini-map" title="Show Full Grid">⊡</button>
         <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
-    </div>
-    <div id="grid-navigation">
-        <input type="number" id="x-coordinate" placeholder="X" min="0" max="100">
-        <input type="number" id="y-coordinate" placeholder="Y" min="0" max="100">
+        <button id="focus-mini-map" title="Show Full Grid">⊡</button>
     </div>
     <div id="mini-menu">
         <button id="close-help-menu" onclick="toggleHelpMenu()">×</button>
@@ -1712,18 +1707,9 @@
 
     xInput.addEventListener('change', () => navigateToGridPosition());
     yInput.addEventListener('change', () => navigateToGridPosition());
+}
 
-    // Prevent the default behavior of arrow keys in number inputs
-    [xInput, yInput].forEach(input => {
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-            }
-        });
-    });
-    }
-
-    function navigateToGridPosition() {
+function navigateToGridPosition() {
     const xInput = document.getElementById('x-coordinate');
     const yInput = document.getElementById('y-coordinate');
     
@@ -2455,7 +2441,6 @@
     });
 
     document.addEventListener('DOMContentLoaded', setupGridNavigation);
-
     update(data);
 
     </script>
