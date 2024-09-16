@@ -128,6 +128,97 @@
     .hierarchy-tree div:hover {
         text-decoration: underline;
     }
+
+    .mindfield-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 200px;
+    top: 50px;
+    width: 300px;
+    background-color: #ffffff;
+    border: 1px solid #999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    font-size: 12px;
+}
+
+.mindfield-modal-topbar {
+    background-color: #2b2b2b;
+    color: white;
+    padding: 5px 10px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mindfield-modal-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.mindfield-modal-close {
+    cursor: pointer;
+}
+
+.mindfield-modal-tabs {
+    display: flex;
+    background-color: #f1f1f1;
+}
+
+.mindfield-tab-button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+.mindfield-tab-button:hover {
+    background-color: #ffffff;
+}
+
+.mindfield-tab-button.active {
+    background-color: #ffffff;
+}
+
+.mindfield-modal-content {
+    padding: 10px;
+}
+
+.mindfield-tab-pane {
+    display: none;
+}
+
+.mindfield-tab-pane.active {
+    display: block;
+}
+
+#mindfield-background-type,
+#mindfield-color-picker-container,
+#mindfield-image-url-container {
+    margin-bottom: 10px;
+}
+
+#mindfield-background-image-url {
+    width: calc(100% - 50px);
+    padding: 2px;
+    font-size: 11px;
+}
+
+#mindfield-set-background-image {
+    padding: 2px 5px;
+    font-size: 11px;
+}
+
+.mindfield-modal h3 {
+    font-size: 13px;
+    margin: 0 0 10px 0;
+}
+
+    
+
     .grid {
         stroke: #e0e0e0;
         stroke-width: 1px;
@@ -143,8 +234,8 @@
         vector-effect: non-scaling-stroke;
     }
     .grid-label {
-    fill: red;
-    font-size: 24px;
+    fill: rgb(134, 134, 134);
+    font-size: 48px;
     font-weight: bold;
     pointer-events: none;
     }
@@ -162,7 +253,7 @@
     #mini-map-controls {
         position: absolute;
         bottom: 5px;
-        right: 5px;
+        right: 3px;
     }
     #mini-map-controls button {
         width: 16px;
@@ -185,12 +276,9 @@
         animation: buttonPop 0.1s ease-in-out;
     }
 
-    #mini-map-container {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 200px; /* Adjust based on your mini-map size */
-    }
+    #clear-red-lines {
+    color: red;
+}
 
     #grid-navigation {
     position: absolute;
@@ -651,6 +739,7 @@
         <button id="reset-zoom">Reset Zoom</button>
         <button id="toggle-grid">Toggle Grid</button>
         <button id="toggle-help">Help</button>
+        <button id="mindfield-settings-button">⚙️</button>
     </div>
     <div id="mini-map"></div>
     <div id="grid-navigation">
@@ -658,8 +747,9 @@
         <input type="number" id="y-coordinate" placeholder="Y" min="0" max="100">
     </div>
     <div id="mini-map-controls">
-        <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
+        <button id="clear-red-lines" title="Clear Red Lines">#</button>
         <button id="focus-mini-map" title="Show Full Grid">⊡</button>
+        <button id="reset-mini-map" title="Go to Top-Left Corner">↖</button>
     </div>
     <div id="mini-menu">
         <button id="close-help-menu" onclick="toggleHelpMenu()">×</button>
@@ -748,6 +838,48 @@
         </div>
     </div>
 
+    <div id="mindfield-settings-modal" class="mindfield-modal">
+        <div class="mindfield-modal-topbar">
+            <span class="mindfield-modal-title">Mindfield Settings</span>
+            <span class="mindfield-modal-close">&times;</span>
+        </div>
+        <div class="mindfield-modal-tabs">
+            <button class="mindfield-tab-button active" data-tab="mindfield-appearance">Appearance</button>
+            <button class="mindfield-tab-button" data-tab="mindfield-tab2">Tab 2</button>
+            <button class="mindfield-tab-button" data-tab="mindfield-tab3">Tab 3</button>
+            <button class="mindfield-tab-button" data-tab="mindfield-tab4">Tab 4</button>
+        </div>
+        <div class="mindfield-modal-content">
+            <div id="mindfield-appearance" class="mindfield-tab-pane active">
+                <h3>Background</h3>
+                <div id="mindfield-background-type">
+                    <label>
+                        <input type="radio" name="mindfield-bg-type" value="color" checked> Color
+                    </label>
+                    <label>
+                        <input type="radio" name="mindfield-bg-type" value="image"> Image
+                    </label>
+                </div>
+                <div id="mindfield-color-picker-container">
+                    <input type="color" id="mindfield-background-color" value="#f0f0f0">
+                </div>
+                <div id="mindfield-image-url-container" style="display:none;">
+                    <input type="text" id="mindfield-background-image-url" placeholder="Enter image URL">
+                    <button id="mindfield-set-background-image">Set</button>
+                </div>
+            </div>
+            <div id="mindfield-tab2" class="mindfield-tab-pane">
+                <p>Coming Soon</p>
+            </div>
+            <div id="mindfield-tab3" class="mindfield-tab-pane">
+                <p>Coming Soon</p>
+            </div>
+            <div id="mindfield-tab4" class="mindfield-tab-pane">
+                <p>Coming Soon</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentTab = 0;
 
@@ -832,6 +964,95 @@
         const columnNames = columns.size() ? columns.nodes().map((_, i) => `Column ${i + 1}`) : ["Column 1"];
         return columnNames;
     }
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('mindfield-settings-modal');
+    const settingsBtn = document.getElementById('mindfield-settings-button');
+    const closeBtn = modal.querySelector('.mindfield-modal-close');
+    const topBar = modal.querySelector('.mindfield-modal-topbar');
+    const tabButtons = modal.querySelectorAll('.mindfield-tab-button');
+    const tabContents = modal.querySelectorAll('.mindfield-tab-pane');
+    const bgTypeRadios = modal.querySelectorAll('input[name="mindfield-bg-type"]');
+    const colorPicker = document.getElementById('mindfield-background-color');
+    const imageUrlInput = document.getElementById('mindfield-background-image-url');
+    const setImageBtn = document.getElementById('mindfield-set-background-image');
+
+    settingsBtn.addEventListener('click', function() {
+        modal.style.display = "block";
+    });
+
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = "none";
+    });
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tab = button.dataset.tab;
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            button.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        });
+    });
+
+    bgTypeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.value === 'color') {
+                document.getElementById('mindfield-color-picker-container').style.display = 'block';
+                document.getElementById('mindfield-image-url-container').style.display = 'none';
+            } else {
+                document.getElementById('mindfield-color-picker-container').style.display = 'none';
+                document.getElementById('mindfield-image-url-container').style.display = 'block';
+            }
+        });
+    });
+
+    colorPicker.addEventListener('change', (e) => {
+        document.body.style.backgroundColor = e.target.value;
+    });
+
+    setImageBtn.addEventListener('click', () => {
+        const imageUrl = imageUrlInput.value;
+        if (imageUrl) {
+            document.body.style.backgroundImage = `url(${imageUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+        }
+    });
+
+    // Make the modal draggable
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+
+    topBar.addEventListener('mousedown', startDragging);
+
+    function startDragging(e) {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = modal.offsetLeft;
+        startTop = modal.offsetTop;
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDragging);
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            modal.style.left = startLeft + dx + 'px';
+            modal.style.top = startTop + dy + 'px';
+        }
+    }
+
+    function stopDragging() {
+        isDragging = false;
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stopDragging);
+    }
+});
+
 
     function addElementToColumn(column, element) {
         column.node().appendChild(element.node());
@@ -1707,9 +1928,39 @@
 
     xInput.addEventListener('change', () => navigateToGridPosition());
     yInput.addEventListener('change', () => navigateToGridPosition());
-}
+    }
 
-function navigateToGridPosition() {
+    function clearRedLines() {
+    svg.selectAll(".grid .selected")
+        .classed("selected", false);
+    updateZones();
+    updateMiniMap();
+    }
+
+    function setupMiniMapControls() {
+    d3.select("#reset-mini-map").on("click", () => {
+        svg.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2));
+        updateMiniMap();
+    });
+
+    d3.select("#focus-mini-map").on("click", () => {
+        const gridWidth = 5000 * gridSize;
+        const scale = Math.min(width / gridWidth, height / gridWidth);
+        const translateX = (width - gridWidth * scale) / 2;
+        const translateY = (height - gridWidth * scale) / 2;
+
+        svg.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale));
+        updateMiniMap();
+    });
+
+    d3.select("#clear-red-lines").on("click", clearRedLines);
+    }
+
+    function navigateToGridPosition() {
     const xInput = document.getElementById('x-coordinate');
     const yInput = document.getElementById('y-coordinate');
     
@@ -2439,10 +2690,14 @@ function navigateToGridPosition() {
             alert("No saved mind map found.");
         }
     });
-
+    document.addEventListener('DOMContentLoaded', () => {
+    setupGridNavigation();
+    setupMiniMapControls();
+    });
     document.addEventListener('DOMContentLoaded', setupGridNavigation);
     update(data);
 
+    
     </script>
 </body>
 
