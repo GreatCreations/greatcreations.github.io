@@ -19,6 +19,7 @@
         height: 100%;
     }
     .node {
+        pointer-events: all;
         cursor: pointer;
         transition: all 0.3s ease;
         z-index: 2;
@@ -110,6 +111,44 @@
     font-size: 8px; /* Very tiny text */
     color: #666; /* Optional styling */
     }
+
+    .bark {
+    cursor: move;
+    pointer-events: all;
+}
+
+.node circle:not(.bark) {
+    pointer-events: all;
+}
+
+.node-circle {
+    pointer-events: none;
+}
+
+.bark.dragging {
+    opacity: 0.7;
+}
+
+.bark.overlapping {
+    fill: #00ff00 !important;
+    transition: fill 0.1s ease-in-out;
+}
+
+.internode {
+    fill: none;
+    stroke: #cccccc;  /* Lighter grey color */
+    stroke-width: 3px;  /* Thicker line */
+    cursor: pointer;  /* Change cursor to indicate clickability */
+}
+
+.internode path {
+    fill: none;
+    stroke: #00ff00;  /* Darker gray */
+    stroke-width: 2px;
+    stroke-dasharray: 4,4;  /* Dotted line */
+    cursor: pointer;
+}
+
     .color-option {
         width: 20px;
         height: 20px;
@@ -621,7 +660,36 @@
     .tree-modal button {
         margin-right: 10px;
     }
-    .tree-element svg {
+    .tree-element {
+    position: relative;
+    min-height: 200px;
+}
+
+.tree-orientation-button {
+    position: absolute;
+    top: 30px; /* Adjust this value to fine-tune vertical position */
+    left: 2.5%;
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.tree-orientation-button span {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.tree-element svg {
+    display: block;
+    margin: auto;
         overflow: visible;
     }
     .tree-element .link {
@@ -646,12 +714,14 @@
         overflow-y: auto;
         resize: both;
     }
+    
     .add-to-grid-button {
-    font-size: 10px; /* Smaller font size */
+    font-size: 12px; /* Smaller font size */
     padding: 2px 4px; /* Reduced padding to make the button smaller */
+    margin-top: 5px;
     margin-right: 5px; /* Add some right margin */
-    margin-left: -40px; /* Move slightly to the left */
-    background-color: #f0f0f0;
+    margin-left: -1px; /* Move slightly to the left */
+    background-color: #ffffff;
     border: 1px solid #ccc;
     border-radius: 3px;
     cursor: pointer;
@@ -1401,7 +1471,7 @@
 
                 newElement.append("button")
                     .attr("class", "add-to-grid-button")
-                    .text("Add to Grid")
+                    .text("Add to Selected Node")
                     .on("click", function() {
                         const gridId = addTreeToGrid(updatedTreeData);
                         newElement.attr("data-grid-id", gridId);
@@ -1735,23 +1805,122 @@
             openEditTreeModal(container, null, d.data.name);
         });
 
+        renderTreeWithOrientation(container, data, container.attr("data-orientation") || "horizontal");
+  
+
     // Re-add the existing buttons
     existingButtons.each(function() {
         container.node().appendChild(this);
+
+    // Add toggle button
+    svg.append("text")
+        .attr("x", 180)
+        .attr("y", 20)
+        .text("↻")
+        .style("font-size", "20px")
+        .style("cursor", "pointer")
+        .on("click", () => toggleTreeOrientation(container));    
     });
 }
-    
-    function updateTreeElement(container) {
+
+function toggleTreeOrientation(container) {
     const treeData = JSON.parse(container.attr("data-tree"));
+    const currentOrientation = container.attr("data-orientation") || "horizontal";
+    const newOrientation = currentOrientation === "horizontal" ? "vertical" : "horizontal";
+    container.attr("data-orientation", newOrientation);
+    renderTreeWithOrientation(container, treeData, newOrientation);
+}
+function renderTreeWithOrientation(container, data, orientation) {
+    container.selectAll("svg").remove();
+    container.selectAll(".tree-orientation-button").remove();
+
+    // Add toggle button container
+    const buttonContainer = container.append("div")
+        .attr("class", "tree-orientation-button")
+        .on("click", () => toggleTreeOrientation(container));
+
+    buttonContainer.append("span")
+        .text("↻");
+
+    const svg = container.append("svg")
+        .attr("width", "100%")
+        .attr("height", orientation === "vertical" ? "300" : "200")
+        .attr("viewBox", orientation === "vertical" ? "0 0 200 300" : "0 0 200 200")
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    const g = svg.append("g")
+        .attr("transform", "translate(10,10)");
+
+   
+
+    const root = d3.hierarchy(data);
+    const treeLayout = orientation === "vertical" 
+        ? d3.tree().size([180, 280])
+        : d3.tree().size([180, 180]);
+    const treeData = treeLayout(root);
+
+    const link = g.selectAll(".link")
+        .data(treeData.links())
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", orientation === "vertical"
+            ? d3.linkVertical().x(d => d.x).y(d => d.y)
+            : d3.linkHorizontal().x(d => d.y).y(d => d.x));
+
+    const node = g.selectAll(".node")
+        .data(treeData.descendants())
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", d => orientation === "vertical"
+            ? `translate(${d.x},${d.y})`
+            : `translate(${d.y},${d.x})`);
+
+    node.append("circle")
+        .attr("r", 4);
+
+    node.append("text")
+        .attr("dy", ".31em")
+        .attr("x", d => orientation === "vertical"
+            ? (d.children ? -8 : 8)
+            : (d.children ? -8 : 8))
+        .style("text-anchor", d => orientation === "vertical"
+            ? (d.children ? "end" : "start")
+            : (d.children ? "end" : "start"))
+        .text(d => d.data.name)
+        .on("click", function(event, d) {
+            const newText = prompt("Enter new text:", d.data.name);
+            if (newText !== null) {
+                d.data.name = newText;
+                d3.select(this).text(newText);
+                updateTreeElement(container);
+            }
+        });
+
+    node.append("text")
+        .attr("dy", ".31em")
+        .attr("x", d => orientation === "vertical"
+            ? (d.children ? -20 : 20)
+            : (d.children ? -20 : 20))
+        .style("text-anchor", d => orientation === "vertical"
+            ? (d.children ? "end" : "start")
+            : (d.children ? "end" : "start"))
+        .text("🌳")
+        .on("click", function(event, d) {
+            openEditTreeModal(container, null, d.data.name);
+        });
+}
+
+function updateTreeElement(container) {
+    const treeData = JSON.parse(container.attr("data-tree"));
+    const orientation = container.attr("data-orientation") || "horizontal";
     container.attr("data-tree", JSON.stringify(treeData));
-    renderTree(container, treeData);
+    renderTreeWithOrientation(container, treeData, orientation);
 
     const gridId = container.attr("data-grid-id");
     if (gridId) {
         updateGridTree(gridId, treeData);
     }
 }
-
     
     function openEditTreeModal(container, nodeData, nodeNameToAddChild = null) {
         const treeData = JSON.parse(container.attr("data-tree"));
@@ -1791,6 +1960,20 @@
         children: []
     };
     
+    svg.append("defs").append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "-0 -5 10 10")
+    .attr("refX", 15)
+    .attr("refY", 0)
+    .attr("orient", "auto")
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("xoverflow", "visible")
+    .append("svg:path")
+    .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+    .attr("fill", "#00ff00")
+    .style("stroke", "none");
+
     const colorOptions = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
     
 
@@ -2075,78 +2258,249 @@
     }
 
     function update(data) {
-        const root = d3.hierarchy(data);
-        const links = root.links();
-        const nodes = root.descendants();
+    const root = d3.hierarchy(data);
+    const links = root.links();
+    const nodes = root.descendants();
 
-        nodes.forEach(node => {
-            if (node.data.x !== undefined && node.data.y !== undefined) {
-                node.x = node.data.x;
-                node.y = node.data.y;
-                node.fx = node.data.x;
-                node.fy = node.data.y;
-            }
-        });
+    nodes.forEach(node => {
+        if (node.data.x !== undefined && node.data.y !== undefined) {
+            node.x = node.data.x;
+            node.y = node.data.y;
+            node.fx = node.data.x;
+            node.fy = node.data.y;
+        }
+    });
 
-        simulation.nodes(nodes);
-        simulation.force("link").links(links);
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
 
-        let link = g.selectAll(".link")
-            .data(links, d => d.target.id);
+    let link = g.selectAll(".link")
+        .data(links, d => d.target.id);
 
-        link.exit().remove();
+    link.exit().remove();
 
-        const linkEnter = link.enter().append("path")
-            .attr("class", "link");
+    const linkEnter = link.enter().append("path")
+        .attr("class", "link");
 
-        link = linkEnter.merge(link);
+    link = linkEnter.merge(link);
 
-        let node = g.selectAll(".node")
-            .data(nodes, d => d.id);
+    let node = g.selectAll(".node")
+        .data(nodes, d => d.id);
 
-        node.exit().remove();
+    node.exit().remove();
 
-        const nodeEnter = node.enter().append("g")
-            .attr("class", "node")
-            .on("click", clicked)
-            .on("contextmenu", showContextMenu)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
+    const nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .on("click", clicked)
+        .on("contextmenu", showContextMenu)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
 
-        nodeEnter.append("circle")
-            .attr("r", 10)
-            .style("fill", d => d.data.color || colorOptions[0]);
+   // Add Bark circles first (so they're behind the node circle)
+nodeEnter.append("circle")
+    .attr("class", "bark")
+    .attr("r", 15)
+    .style("fill", d => d.data.spaceAssigned ? "#e6ffe6" : "white")
+    .style("stroke", d => d.data.spaceAssigned ? "white" : "darkgray")
+    .style("stroke-width", 1)
+    .call(d3.drag()
+        .on("start", dragBarkStarted)
+        .on("drag", draggedBark)
+        .on("end", dragBarkEnded));
 
-        nodeEnter.append("text")
-            .attr("dy", "0.31em")
-            .attr("x", d => d.children ? -13 : 13)
-            .style("text-anchor", d => d.children ? "end" : "start")
-            .text(d => d.data.name)
-            .on("dblclick", editText);
+// Then add the node circle
+nodeEnter.append("circle")
+    .attr("class", "node-circle")
+    .attr("r", 10)
+    .style("fill", d => d.data.color || colorOptions[0])
+    .style("pointer-events", "all")
+    .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
 
-        nodeEnter.append("text")
-            .attr("class", "node-id")
-            .attr("dy", "1.5em")
-            .attr("x", 0)
-            .style("text-anchor", "middle")
-            .style("font-size", "6px")
-            .text(d => d.id);
+// Add the text last so it's on top
+nodeEnter.append("text")
+    .attr("dy", "0.31em")
+    .attr("x", d => d.children ? -20 : 20)
+    .style("text-anchor", d => d.children ? "end" : "start")
+    .text(d => d.data.name)
+    .on("dblclick", editText);
+
+    nodeEnter.append("text")
+        .attr("class", "node-id")
+        .attr("dy", "1.5em")
+        .attr("x", 0)
+        .style("text-anchor", "middle")
+        .style("font-size", "6px")
+        .text(d => d.id);
 
         node = nodeEnter.merge(node);
 
-        simulation.on("tick", () => {
-            const transform = d3.zoomTransform(svg.node());
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
 
-            link.attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
-            node.attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
-        });
+    // Ensure bark circles are behind node circles
+    node.each(function() {
+        const nodeGroup = d3.select(this);
+        nodeGroup.select(".bark").lower();
+    });
 
-        updateZones();
+    simulation.on("tick", () => {
+        const transform = d3.zoomTransform(svg.node());
+
+        link.attr("d", d => `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);
+        node.attr("transform", d => `translate(${d.x},${d.y}) scale(${1 / transform.k})`);
+
+        updateInternodes();
+    });
+
+    updateInternodes();
+    updateZones();
+}
+
+function dragBarkStarted(event, d) {
+    d.fx = d.x;
+    d.fy = d.y;
+    d3.select(this).classed("dragging", true);
+}
+
+function draggedBark(event, d) {
+    const draggedBark = d3.select(this);
+    const dx = event.x - d.x;
+    const dy = event.y - d.y;
+    draggedBark.attr("transform", `translate(${dx},${dy})`);
+    checkBarkOverlap(draggedBark, d, dx, dy);
+}
+
+function dragBarkEnded(event, d) {
+    d.fx = null;
+    d.fy = null;
+    const draggedBark = d3.select(this);
+    draggedBark.classed("dragging", false)
+               .transition()
+               .duration(300)
+               .attr("transform", "translate(0,0)");
+    handleBarkDrop(draggedBark, d);
+}
+
+function checkBarkOverlap(draggedBark, draggedData, dx, dy) {
+    g.selectAll(".bark").each(function(d) {
+        if (this !== draggedBark.node()) {
+            const targetX = d.x;
+            const targetY = d.y;
+            const draggedX = draggedData.x + dx;
+            const draggedY = draggedData.y + dy;
+            const distance = Math.sqrt((targetX - draggedX)**2 + (targetY - draggedY)**2);
+            
+            if (distance < 30) {  // Adjust this value as needed
+                d3.select(this).classed("overlapping", true);
+                draggedBark.classed("overlapping", true);
+            } else {
+                d3.select(this).classed("overlapping", false);
+            }
+        }
+    });
+}
+
+function handleBarkDrop(draggedBark, draggedData) {
+    const draggedTransform = draggedBark.attr("transform");
+    let draggedX = 0, draggedY = 0;
+    
+    if (draggedTransform) {
+        const match = draggedTransform.match(/translate\(([^,]+),([^)]+)\)/);
+        if (match) {
+            draggedX = parseFloat(match[1]);
+            draggedY = parseFloat(match[2]);
+        }
     }
 
+    g.selectAll(".bark").each(function(d) {
+        if (this !== draggedBark.node()) {
+            const targetX = d.x;
+            const targetY = d.y;
+            const distance = Math.sqrt((targetX - (draggedData.x + draggedX))**2 + (targetY - (draggedData.y + draggedY))**2);
+            
+            if (distance < 30) {  // Adjust this value as needed
+                createInternode(draggedData, d);
+            }
+        }
+        d3.select(this).classed("overlapping", false);
+    });
+    draggedBark.classed("overlapping", false);
+}
+
+function createInternode(source, target) {
+    if (!source.data.internodes) source.data.internodes = [];
+    if (!target.data.internodes) target.data.internodes = [];
+
+    const existingInternode = source.data.internodes.find(i => i.target === target && i.source === source);
+
+    if (!existingInternode) {
+        const internode = { source: source, target: target };
+        source.data.internodes.push(internode);
+        target.data.internodes.push(internode);
+        updateInternodes();
+    }
+}
+
+function updateInternodes() {
+    const internodes = g.selectAll(".internode")
+        .data(getInternodes(), d => `${d.source.id}-${d.target.id}`);
+
+    internodes.exit().remove();
+
+    const internodeEnter = internodes.enter().append("g")
+        .attr("class", "internode");
+
+    internodeEnter.append("path")
+        .attr("marker-end", "url(#arrowhead)")
+        .attr("fill", "none")
+        .attr("stroke", "#666")  // Darker gray
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,4");  // Dotted line
+
+    internodeEnter.merge(internodes)
+        .select("path")
+        .attr("d", d => {
+            const sourceX = d.source.x;
+            const sourceY = d.source.y;
+            const targetX = d.target.x;
+            const targetY = d.target.y;
+            return `M${sourceX},${sourceY}L${targetX},${targetY}`;
+        });
+
+    internodeEnter.on("contextmenu", removeInternode);
+}
+
+function getTranslation(transform) {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttributeNS(null, "transform", transform);
+    const matrix = g.transform.baseVal.consolidate().matrix;
+    return [matrix.e, matrix.f];
+}
+
+function getInternodes() {
+    const internodes = [];
+    g.selectAll(".node").each(function(d) {
+        if (d.data.internodes) {
+            internodes.push(...d.data.internodes);
+        }
+    });
+    return internodes;
+}
+
+function removeInternode(event, d) {
+    event.preventDefault();
+    d.source.data.internodes = d.source.data.internodes.filter(i => i !== d);
+    d.target.data.internodes = d.target.data.internodes.filter(i => i !== d);
+    updateInternodes();
+}
+
     let selectedNodeData = null;
+
+    
 
 function clicked(event, d) {
     if (selectedNode) {
@@ -2180,17 +2534,33 @@ function clicked(event, d) {
         }
     }
 
-    function moveChildren(node, dx, dy) {
-        if (node.children) {
-            node.children.forEach(child => {
-                child.x += dx;
-                child.y += dy;
-                child.fx = child.x;
-                child.fy = child.y;
-                moveChildren(child, dx, dy);
-            });
-        }
+    function dragged(event, d) {
+    const dx = event.x - d.x;
+    const dy = event.y - d.y;
+    d.x = event.x;
+    d.y = event.y;
+    d.fx = event.x;
+    d.fy = event.y;
+
+    if (d.children) {
+        moveChildren(d, dx, dy);
     }
+
+    // Move internodes connected to this node
+    if (d.data.internodes) {
+        d.data.internodes.forEach(internode => {
+            if (internode.source === d) {
+                internode.target.x += dx;
+                internode.target.y += dy;
+            } else if (internode.target === d) {
+                internode.source.x += dx;
+                internode.source.y += dy;
+            }
+        });
+    }
+
+    updateInternodes();
+}
 
     function dragended(event, d) {
         if (!event.active) simulation.alphaTarget(0);
