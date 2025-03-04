@@ -1,1 +1,517 @@
-<print>Hello World</print>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comic Book Panels</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-left: 1px solid #000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border: 1px solid #000;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* For Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #888 #f1f1f1;
+    }
+
+    /* Header animations */
+    .header-hidden {
+      transform: translateY(-100%);
+    }
+
+    .header-visible {
+      transform: translateY(0);
+    }
+
+    /* Toggle switch styling */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 30px;
+      height: 16px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #2196F3;
+    }
+
+    input:focus + .toggle-slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(14px);
+    }
+
+   /* Tooltip styling */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #fff;
+      color: #555;
+      text-align: center;
+      border: 1px solid #000;
+      border-radius: 0;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      top: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 10px;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Footer modal styling */
+    .footer-modal {
+      position: fixed;
+      bottom: 0;
+      left: -90%;
+      width: 90%;
+      height: auto;
+      background-color: #fff;
+      border-top: 1px solid #000;
+      border-right: 1px solid #000;
+      transition: left 0.3s ease-in-out;
+      z-index: 50;
+    }
+
+    .footer-modal.open {
+      left: 0;
+    }
+
+    .footer-tab {
+      position: absolute;
+      right: -40px;
+      bottom: 0;
+      width: 40px;
+      height: 100%;
+      background-color: #fff;
+      border: 1px solid #000;
+      border-left: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    /* Menu dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 30px;
+      right: -90px;
+      transform: translateX(0) rotate(-1deg);
+      background-color: #fff;
+      min-width: 360px;
+      border: 1px solid #000;
+      border-top: none;
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 8px 12px;
+      text-decoration: none;
+      display: block;
+      font-size: 12px;
+    }
+
+    .dropdown-content .column {
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #ddd;
+    }
+
+    /* Make header very thin */
+    .header {
+      height: 40px;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    /* iframe container */
+    .iframe-container {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background-color: transparent;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Center icon when header is hidden */
+    .header-icon {
+      position: fixed;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+      z-index: 40;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      padding: 3px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .header-icon.visible {
+      opacity: 1;
+    }
+
+    /* Animated background gradient */
+    .animated-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(to bottom, #ffb6c1, #ffd8b1, #a0e6ff);
+      background-size: 100% 400%;
+      animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 0%;
+      }
+      50% {
+        background-position: 0% 100%;
+      }
+      100% {
+        background-position: 0% 0%;
+      }
+    }
+  </style>
+</head>
+<body class="bg-transparent">
+  <!-- Animated background -->
+  <div class="animated-background"></div>
+  
+  <!-- Header Bar -->
+  <header id="header" class="header header-visible fixed top-0 left-0 w-full bg-white border-b border-black z-50">
+    <div class="container mx-auto flex items-center justify-between h-full px-4">
+      <!-- Left Container -->
+      <div class="w-2/5 md:w-2/5 flex items-center justify-start">
+        <span class="text-xs md:text-sm font-bold">COMIC PANELS</span>
+      </div>
+      
+      <!-- Center Container -->
+      <div class="w-1/3 md:w-1/5 flex items-center justify-start">
+        <img src="https://via.placeholder.com/24" alt="Square Icon" class="h-6 w-6 mr-2">
+      </div>
+      
+      <!-- Right Container -->
+      <div class="w-1/6 md:w-1/4 flex items-center justify-end space-x-2">
+        <!-- Back to Top Button -->
+        <button id="topBtn" class="text-xs border border-black px-2 py-1">Top</button>
+        
+        <!-- Menu Dropdown -->
+        <div class="dropdown">
+          <button class="text-xs border border-black px-2 py-1">Menu</button>
+          <div class="dropdown-content">
+            <div class="flex">
+              <div class="column w-1/3">
+                <a href="#frame1" data-url="https://example.com">Panel 1</a>
+                <a href="#frame2" data-url="https://example.com/about">Panel 2</a>
+                <a href="#frame3" data-url="https://example.com/contact">Panel 3</a>
+              </div>
+              <div class="column w-1/3">
+                <a href="#frame1" data-url="https://example.com/blog">Panel 1-2</a>
+                <a href="#frame2" data-url="https://example.com/products">Panel 2-2</a>
+                <a href="#frame3" data-url="https://example.com/services">Panel 3-2</a>
+              </div>
+              <div class="column w-1/3">
+                <a href="#frame1" data-url="https://example.com/gallery">Panel 1-3</a>
+                <a href="#frame2" data-url="https://example.com/team">Panel 2-3</a>
+                <a href="#frame3" data-url="https://example.com/faq">Panel 3-3</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Header Toggle Switch -->
+        <div class="tooltip">
+          <label class="toggle-switch">
+            <input type="checkbox" id="headerToggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="tooltiptext">Toggle header visibility</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Header icon (shows when header is hidden) -->
+  <div id="headerIcon" class="header-icon">
+    <img src="https://cdn.jsdelivr.net/gh/twbs/icons@main/icons/info-circle.png" alt="Info" width="12" height="12" style="width: 12px; height: 12px;">
+  </div>
+
+  <!-- Main Content - iFrames -->
+  <main class="mt-0">
+    <div id="frame1" class="iframe-container">
+      <iframe src="https://example.com" title="Panel 1"></iframe>
+    </div>
+    
+    <div id="frame2" class="iframe-container">
+      <iframe src="https://example.com/about" title="Panel 2"></iframe>
+    </div>
+    
+    <div id="frame3" class="iframe-container">
+      <iframe src="https://example.com/contact" title="Panel 3"></iframe>
+    </div>
+  </main>
+
+  <!-- Footer Modal -->
+  <div id="footerModal" class="footer-modal">
+    <iframe id="footerIframe" class="w-full h-full border-0" src="https://example.com/help" title="Footer Content"></iframe>
+    <div id="footerTab" class="footer-tab">
+      <svg id="footerArrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements
+      const header = document.getElementById('header');
+      const headerToggle = document.getElementById('headerToggle');
+      const headerIcon = document.getElementById('headerIcon');
+      const topBtn = document.getElementById('topBtn');
+      const footerModal = document.getElementById('footerModal');
+      const footerTab = document.getElementById('footerTab');
+      const footerArrow = document.getElementById('footerArrow');
+      const footerIframe = document.getElementById('footerIframe');
+      const dropdown = document.querySelector('.dropdown');
+      const dropdownContent = document.querySelector('.dropdown-content');
+      
+      let lastScrollTop = 0;
+      let isHeaderHidden = false;
+      let headerTimeout;
+      let dropdownTimeout;
+
+      // Initially hide the top button when page loads
+      topBtn.style.display = 'none';
+
+      // Toggle header visibility
+      headerToggle.addEventListener('change', function() {
+        isHeaderHidden = this.checked;
+        
+        if (isHeaderHidden) {
+          header.classList.remove('header-visible');
+          header.classList.add('header-hidden');
+          // Let the header hide first, then show the icon with fade-in
+          setTimeout(function() {
+            headerIcon.classList.add('visible');
+          }, 500);
+        } else {
+          header.classList.remove('header-hidden');
+          header.classList.add('header-visible');
+          headerIcon.classList.remove('visible');
+        }
+      });
+
+      // Header icon events
+      headerIcon.addEventListener('mouseenter', showHeaderTemporarily);
+      headerIcon.addEventListener('click', showHeaderTemporarily);
+
+      // Show header temporarily when scrolling and control top button visibility
+      window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Control top button visibility based on scroll position
+        if (scrollTop > 100) {
+          topBtn.style.display = 'block';
+        } else {
+          topBtn.style.display = 'none';
+        }
+        
+        // If hide is enabled
+        if (isHeaderHidden) {
+          // Show header temporarily when scrolling up
+          if (scrollTop < lastScrollTop) {
+            showHeaderTemporarily();
+          }
+        }
+        
+        lastScrollTop = scrollTop;
+      });
+
+      function showHeaderTemporarily() {
+        header.classList.remove('header-hidden');
+        header.classList.add('header-visible');
+        headerIcon.classList.remove('visible');
+        
+        // Clear any existing timeout
+        clearTimeout(headerTimeout);
+        
+        // Hide header again after 2 seconds
+        headerTimeout = setTimeout(function() {
+          if (isHeaderHidden) {
+            header.classList.remove('header-visible');
+            header.classList.add('header-hidden');
+            headerIcon.classList.add('visible');
+          }
+        }, 2000);
+      }
+
+      // Scroll to top button
+      topBtn.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // Footer modal toggle
+      footerTab.addEventListener('click', function() {
+        footerModal.classList.toggle('open');
+        updateFooterArrow();
+      });
+      
+      // Update footer arrow direction based on modal state
+      function updateFooterArrow() {
+        if (footerModal.classList.contains('open')) {
+          // Modal is open, arrow should point left
+          footerArrow.innerHTML = '<path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>';
+        } else {
+          // Modal is closed, arrow should point right
+          footerArrow.innerHTML = '<path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>';
+        }
+      }
+      
+      // Initialize arrow direction
+      updateFooterArrow();
+
+      // Dropdown menu delay implementation
+      dropdown.addEventListener('mouseenter', function() {
+        clearTimeout(dropdownTimeout);
+        dropdownContent.style.display = 'block';
+      });
+      
+      dropdown.addEventListener('mouseleave', function() {
+        clearTimeout(dropdownTimeout);
+        dropdownTimeout = setTimeout(function() {
+          dropdownContent.style.display = 'none';
+        }, 500); // 500ms delay before closing
+      });
+      
+      dropdownContent.addEventListener('mouseenter', function() {
+        clearTimeout(dropdownTimeout);
+      });
+      
+      dropdownContent.addEventListener('mouseleave', function() {
+        clearTimeout(dropdownTimeout);
+        dropdownTimeout = setTimeout(function() {
+          dropdownContent.style.display = 'none';
+        }, 500);
+      });
+
+      // Smooth scroll for menu links
+      document.querySelectorAll('.dropdown-content a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          const newUrl = this.getAttribute('data-url');
+          
+          // Change the iframe source if a data-url is provided
+          if (newUrl && targetElement) {
+            const iframe = targetElement.querySelector('iframe');
+            if (iframe) {
+              iframe.src = newUrl;
+            }
+          }
+          
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
