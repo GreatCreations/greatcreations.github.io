@@ -1,0 +1,3065 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            min-height: 100vh;
+        }
+        
+        .grid-container {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            display: block;
+        }
+        
+        .artwork-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-auto-rows: 250px;
+            gap: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .comic-panel {
+            border: 3px solid #000;
+            position: relative;
+            transition: transform 0.3s ease-out;
+            overflow: hidden;
+            cursor: pointer;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .panel-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background: inherit;
+        }
+        
+        .image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            background: inherit;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+        
+        .comic-panel:hover {
+            transform: scale(1.02);
+            z-index: 5;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border: 4px solid black;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            position: relative;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+        
+        .tag {
+            padding: 3px 6px;
+            background: #000;
+            color: #fff;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        .category-selector {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: white;
+            border: 3px solid black;
+            padding: 5px;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: black;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        
+        .navigation-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: black;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 80px;
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .prev-button {
+            left: 0;
+        }
+        
+        .next-button {
+            right: 0;
+        }
+        
+        .info-panel {
+            width: 30%;
+            padding: 0.5rem;
+            border-left: 4px solid black;
+            overflow-y: auto;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.8), 12px 12px 0px rgba(0,0,0,0.2);
+        }
+        
+        .image-panel {
+            width: 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .panel-enter-active, .panel-leave-active {
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        .panel-enter-from, .panel-leave-to {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .filter-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 3px solid black;
+            padding: 5px;
+            gap: 0.5rem;
+            transition: opacity 0.5s ease;
+        }
+        
+        .search-container {
+            position: relative;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        
+        .clear-search {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: bold;
+        }
+        
+        .info-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: black;
+            color: white;
+            padding: 3px 8px;
+            font-size: 12px;
+        }
+        
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-left: 2px solid black;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #000;
+            border: 2px solid #f0f0f0;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333;
+        }
+        
+        .title-bar {
+            background: black;
+            color: white;
+            padding: 0.5rem;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .title-bar h3 {
+            margin: 0;
+            padding: 0;
+            font-size: 0.875rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        [v-cloak] {
+            display: none;
+        }
+        
+        .search-input {
+            padding: 0.5rem;
+            border: 2px solid black;
+        }
+        
+        .category-select {
+            padding: 0.5rem;
+            border: 2px solid black;
+        }
+        
+        .artwork-details {
+            padding: 1rem;
+            background: white;
+            border-radius: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .artwork-details .description {
+            margin-bottom: 1rem;
+            font-style: italic;
+            border-left: 3px solid #333;
+            padding-left: 10px;
+        }
+        
+        .technical-details {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-top: 2px solid black;
+            background: rgba(0,0,0,0.03);
+            border-radius: 0;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.6);
+        }
+        
+        .info-panel h2 {
+            color: #222;
+            border-bottom: 2px solid #000;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        
+        .info-panel h3 {
+            background: #000;
+            color: white;
+            padding: 0.5rem;
+            margin: 0 -1rem 1rem -1rem;
+            text-align: center;
+        }
+        
+        .info-panel strong {
+            color: #444;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 100px;
+        }
+        
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .artwork-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            color: #444;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .link-text {
+            flex-grow: 1;
+        }
+        
+        .external-link-icon {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <div class="filter-bar" :style="{ opacity: filterBarVisible ? 1 : 0 }">
+            <div class="search-container">
+                <input type="text" v-model="searchTerm" placeholder="Search..." class="search-input">
+                <button v-if="searchTerm" @click="clearSearch" class="clear-search">×</button>
+            </div>
+            <select v-model="selectedCategory" class="category-select">
+                <option value="">All Categories</option>
+                <option v-for="category in categories" :value="category">{{ category }}</option>
+            </select>
+        </div>
+        
+        <div class="grid-container">
+            <div class="artwork-grid">
+                <template v-for="(artwork, index) in filteredArtworks" :key="artwork.id">
+                    <div class="comic-panel"
+                         :ref="el => { if (el) panelRefs[index] = el }"
+                         :style="{ backgroundColor: artwork.color }"
+                         @click="openModal(artwork)">
+                        <div class="panel-content">
+                            <div class="title-bar">
+                                <h3>{{ artwork.title }}</h3>
+                            </div>
+                            <div class="image-container">
+                                <img :src="artwork.imageUrl" 
+                                     :alt="artwork.title"
+                                     @load="handleImageLoad(index)">
+                            </div>
+                            <div class="info-badge">{{ artwork.category }}</div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        
+        <transition name="panel">
+            <div v-if="modalOpen" class="modal-overlay" @click="closeModal">
+                <div class="modal-content" @click.stop>
+                    <button class="close-button" @click="closeModal">×</button>
+                    
+                    <button v-if="currentIndex > 0" class="navigation-button prev-button" @click="prevArtwork">←</button>
+                    <button v-if="currentIndex < filteredArtworks.length - 1" class="navigation-button next-button" @click="nextArtwork">→</button>
+                    
+                    <div class="image-panel">
+                        <img :src="currentArtwork.imageUrl" alt="Artwork image" class="modal-image">
+                    </div>
+                    
+                    <div class="info-panel">
+                        <h2>{{ currentArtwork.title }}</h2>
+                        <div class="artwork-details">
+                            <p class="description">{{ currentArtwork.description }}</p>
+                            <p><strong>Category:</strong> {{ currentArtwork.category }}</p>
+                            <p><strong>Year:</strong> {{ currentArtwork.year }}</p>
+                            <p><strong>Tags:</strong> {{ currentArtwork.tags.join(', ') }}</p>
+                            <div class="technical-details">
+                                <h3>Technical Details</h3>
+                                <p><strong>Medium:</strong> {{ currentArtwork.details.Medium }}</p>
+                                <p><strong>Dimensions:</strong> {{ currentArtwork.details.Dimensions }}</p>
+                                <p><strong>Creation Time:</strong> {{ currentArtwork.details['Creation Time'] }}</p>
+                            </div>
+                        </div>
+                        <div class="related-links" v-if="currentArtwork.links && currentArtwork.links.length > 0">
+                            <h3>Related Links</h3>
+                            <ul class="link-list">
+                                <li v-for="link in currentArtwork.links" :key="link.url">
+                                    <a :href="link.url" class="artwork-link">
+                                        <span class="link-text">{{ link.text }}</span>
+                                        <svg class="external-link-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                            <polyline points="15 3 21 3 21 9"></polyline>
+                                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+    
+    <script>
+        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+        
+        createApp({
+            setup() {
+                const artworks = ref([
+                    {
+                        id: 1,
+                        title: "Artwork #1",
+                        description: "Description for artwork #1. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Colorful"],
+                        year: 2020,
+                        color: "#FFD6D6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '30cm × 40cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 1 Placeholder link", url: "https://example.com/artwork1/1" },
+                            { text: "Artwork 1 Placeholder link", url: "https://example.com/artwork1/2" },
+                            { text: "Artwork 1 Placeholder link", url: "https://example.com/artwork1/3" },
+                            { text: "Artwork 1 Placeholder link", url: "https://example.com/artwork1/4" }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        title: "Artwork #2",
+                        description: "Description for artwork #2. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Sci-Fi", "Futuristic"],
+                        year: 2021,
+                        color: "#D6FFD6",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 2 Placeholder link", url: "https://example.com/artwork2/1" },
+                            { text: "Artwork 2 Placeholder link", url: "https://example.com/artwork2/2" },
+                            { text: "Artwork 2 Placeholder link", url: "https://example.com/artwork2/3" },
+                            { text: "Artwork 2 Placeholder link", url: "https://example.com/artwork2/4" }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        title: "Artwork #3",
+                        description: "Description for artwork #3. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Horror", "Dark"],
+                        year: 2019,
+                        color: "#D6D6FF",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '40cm × 60cm',
+                            'Creation Time': '50 hours'
+                        },
+                        links: [
+                            { text: "Artwork 3 Placeholder link", url: "https://example.com/artwork3/1" },
+                            { text: "Artwork 3 Placeholder link", url: "https://example.com/artwork3/2" },
+                            { text: "Artwork 3 Placeholder link", url: "https://example.com/artwork3/3" },
+                            { text: "Artwork 3 Placeholder link", url: "https://example.com/artwork3/4" }
+                        ]
+                    },
+                    {
+                        id: 4,
+                        title: "Artwork #4",
+                        description: "Description for artwork #4. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Cute", "Colorful"],
+                        year: 2022,
+                        color: "#FFFFD6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '25cm × 35cm',
+                            'Creation Time': '15 hours'
+                        },
+                        links: [
+                            { text: "Artwork 4 Placeholder link", url: "https://example.com/artwork4/1" },
+                            { text: "Artwork 4 Placeholder link", url: "https://example.com/artwork4/2" },
+                            { text: "Artwork 4 Placeholder link", url: "https://example.com/artwork4/3" },
+                            { text: "Artwork 4 Placeholder link", url: "https://example.com/artwork4/4" }
+                        ]
+                    },
+                    {
+                        id: 5,
+                        title: "Artwork #5",
+                        description: "Description for artwork #5. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Nature", "Realistic"],
+                        year: 2020,
+                        color: "#FFD6FF",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '70cm × 50cm',
+                            'Creation Time': '60 hours'
+                        },
+                       links: [
+                            { text: "Artwork 5 Placeholder link", url: "https://example.com/artwork5/1" },
+                            { text: "Artwork 5 Placeholder link", url: "https://example.com/artwork5/2" },
+                            { text: "Artwork 5 Placeholder link", url: "https://example.com/artwork5/3" },
+                            { text: "Artwork 5 Placeholder link", url: "https://example.com/artwork5/4" }
+                        ]
+                    },
+                    {
+                        id: 6,
+                        title: "Artwork #6",
+                        description: "Description for artwork #6. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Fantasy", "Vintage"],
+                        year: 2018,
+                        color: "#D6FFFF",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '30cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 6 Placeholder link", url: "https://example.com/artwork6/1" },
+                            { text: "Artwork 6 Placeholder link", url: "https://example.com/artwork6/2" },
+                            { text: "Artwork 6 Placeholder link", url: "https://example.com/artwork6/3" },
+                            { text: "Artwork 6 Placeholder link", url: "https://example.com/artwork6/4" }
+                        ]
+                    },
+                    {
+                        id: 7,
+                        title: "Artwork #7",
+                        description: "Description for artwork #7. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Abstract", "Minimalist"],
+                        year: 2021,
+                        color: "#F0F0F0",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '40cm × 40cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 7 Placeholder link", url: "https://example.com/artwork7/1" },
+                            { text: "Artwork 7 Placeholder link", url: "https://example.com/artwork7/2" },
+                            { text: "Artwork 7 Placeholder link", url: "https://example.com/artwork7/3" },
+                            { text: "Artwork 7 Placeholder link", url: "https://example.com/artwork7/4" }
+                        ]
+                    },
+                    {
+                        id: 8,
+                        title: "Artwork #8",
+                        description: "Description for artwork #8. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Cyberpunk", "Futuristic"],
+                        year: 2022,
+                        color: "#FFD6D6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 8 Placeholder link", url: "https://example.com/artwork8/1" },
+                            { text: "Artwork 8 Placeholder link", url: "https://example.com/artwork8/2" },
+                            { text: "Artwork 8 Placeholder link", url: "https://example.com/artwork8/3" },
+                            { text: "Artwork 8 Placeholder link", url: "https://example.com/artwork8/4" }
+                        ]
+                    },
+                    {
+                        id: 9,
+                        title: "Artwork #9",
+                        description: "Description for artwork #9. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Industrial"],
+                        year: 2019,
+                        color: "#D6FFD6",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 65cm',
+                            'Creation Time': '55 hours'
+                        },
+                       links: [
+                            { text: "Artwork 9 Placeholder link", url: "https://example.com/artwork9/1" },
+                            { text: "Artwork 9 Placeholder link", url: "https://example.com/artwork9/2" },
+                            { text: "Artwork 9 Placeholder link", url: "https://example.com/artwork9/3" },
+                            { text: "Artwork 9 Placeholder link", url: "https://example.com/artwork9/4" }
+                        ]
+                    },
+                    {
+                        id: 10,
+                        title: "Artwork #10",
+                        description: "Description for artwork #10. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Retro"],
+                        year: 2020,
+                        color: "#D6D6FF",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '35cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 10 Placeholder link", url: "https://example.com/artwork10/1" },
+                            { text: "Artwork 10 Placeholder link", url: "https://example.com/artwork10/2" },
+                            { text: "Artwork 10 Placeholder link", url: "https://example.com/artwork10/3" },
+                            { text: "Artwork 10 Placeholder link", url: "https://example.com/artwork10/4" }
+                        ]
+                    },
+                    {
+                        id: 11,
+                        title: "Artwork #11",
+                        description: "Description for artwork #11. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Urban", "Realistic"],
+                        year: 2021,
+                        color: "#FFFFD6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 40cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 11 Placeholder link", url: "https://example.com/artwork11/1" },
+                            { text: "Artwork 11 Placeholder link", url: "https://example.com/artwork11/2" },
+                            { text: "Artwork 11 Placeholder link", url: "https://example.com/artwork11/3" },
+                            { text: "Artwork 11 Placeholder link", url: "https://example.com/artwork11/4" }
+                        ]
+                    },
+                    {
+                        id: 12,
+                        title: "Artwork #12",
+                        description: "Description for artwork #12. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Horror", "Dark"],
+                        year: 2020,
+                        color: "#FFD6FF",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 60cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 12 Placeholder link", url: "https://example.com/artwork12/1" },
+                            { text: "Artwork 12 Placeholder link", url: "https://example.com/artwork12/2" },
+                            { text: "Artwork 12 Placeholder link", url: "https://example.com/artwork12/3" },
+                            { text: "Artwork 12 Placeholder link", url: "https://example.com/artwork12/4" }
+                        ]
+                    },
+                    {
+                        id: 13,
+                        title: "Artwork #13",
+                        description: "Description for artwork #13. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Steampunk", "Vintage"],
+                        year: 2019,
+                        color: "#D6FFFF",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 55cm',
+                            'Creation Time': '50 hours'
+                        },
+                       links: [
+                            { text: "Artwork 13 Placeholder link", url: "https://example.com/artwork13/1" },
+                            { text: "Artwork 13 Placeholder link", url: "https://example.com/artwork13/2" },
+                            { text: "Artwork 13 Placeholder link", url: "https://example.com/artwork13/3" },
+                            { text: "Artwork 13 Placeholder link", url: "https://example.com/artwork13/4" }
+                        ]
+                    },
+                    {
+                        id: 14,
+                        title: "Artwork #14",
+                        description: "Description for artwork #14. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Colorful"],
+                        year: 2022,
+                        color: "#F0F0F0",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '35cm × 35cm',
+                            'Creation Time': '20 hours'
+                        },
+                       links: [
+                            { text: "Artwork 14 Placeholder link", url: "https://example.com/artwork14/1" },
+                            { text: "Artwork 14 Placeholder link", url: "https://example.com/artwork14/2" },
+                            { text: "Artwork 14 Placeholder link", url: "https://example.com/artwork14/3" },
+                            { text: "Artwork 14 Placeholder link", url: "https://example.com/artwork14/4" }
+                        ]
+                    },
+                    {
+                        id: 15,
+                        title: "Artwork #15",
+                        description: "Description for artwork #15. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Nature"],
+                        year: 2021,
+                        color: "#FFD6D6",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '55cm × 40cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 15 Placeholder link", url: "https://example.com/artwork15/1" },
+                            { text: "Artwork 15 Placeholder link", url: "https://example.com/artwork15/2" },
+                            { text: "Artwork 15 Placeholder link", url: "https://example.com/artwork15/3" },
+                            { text: "Artwork 15 Placeholder link", url: "https://example.com/artwork15/4" }
+                        ]
+                    },
+                    {
+                        id: 16,
+                        title: "Artwork #16",
+                        description: "Description for artwork #16. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Anime", "Colorful"],
+                        year: 2020,
+                        color: "#D6FFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 16 Placeholder link", url: "https://example.com/artwork17/1" },
+                            { text: "Artwork 16 Placeholder link", url: "https://example.com/artwork17/2" },
+                            { text: "Artwork 16 Placeholder link", url: "https://example.com/artwork17/3" },
+                            { text: "Artwork 16 Placeholder link", url: "https://example.com/artwork17/4" }
+                        ]
+                    },
+                    {
+                        id: 17,
+                        title: "Artwork #17",
+                        description: "Description for artwork #17. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2021,
+                        color: "#FFDACC",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 17 Placeholder link", url: "https://example.com/artwork17/1" },
+                            { text: "Artwork 17 Placeholder link", url: "https://example.com/artwork17/2" },
+                            { text: "Artwork 17 Placeholder link", url: "https://example.com/artwork17/3" },
+                            { text: "Artwork 17 Placeholder link", url: "https://example.com/artwork17/4" }
+                        ]
+                    },
+                    {
+                        id: 18,
+                        title: "Artwork #18",
+                        description: "Description for artwork #18. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Minimalist", "Modern"],
+                        year: 2022,
+                        color: "#CCF5CC",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '15 hours'
+                        },
+                       links: [
+                            { text: "Artwork 18 Placeholder link", url: "https://example.com/artwork18/1" },
+                            { text: "Artwork 18 Placeholder link", url: "https://example.com/artwork18/2" },
+                            { text: "Artwork 18 Placeholder link", url: "https://example.com/artwork18/3" },
+                            { text: "Artwork 18 Placeholder link", url: "https://example.com/artwork18/4" }
+                        ]
+                    },
+                    {
+                        id: 19,
+                        title: "Artwork #19",
+                        description: "Description for artwork #19. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Futuristic"],
+                        year: 2019,
+                        color: "#CCCCFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 40cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 19 Placeholder link", url: "https://example.com/artwork19/1" },
+                            { text: "Artwork 19 Placeholder link", url: "https://example.com/artwork19/2" },
+                            { text: "Artwork 19 Placeholder link", url: "https://example.com/artwork19/3" },
+                            { text: "Artwork 19 Placeholder link", url: "https://example.com/artwork19/4" }
+                        ]
+                    },
+                    {
+                        id: 20,
+                        title: "Artwork #20",
+                        description: "Description for artwork #20. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Nature", "Peaceful"],
+                        year: 2020,
+                        color: "#FFCCCC",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 20 Placeholder link", url: "https://example.com/artwork20/1" },
+                            { text: "Artwork 20 Placeholder link", url: "https://example.com/artwork20/2" },
+                            { text: "Artwork 20 Placeholder link", url: "https://example.com/artwork20/3" },
+                            { text: "Artwork 20 Placeholder link", url: "https://example.com/artwork20/4" }
+                        ]
+                    },
+                    {
+                        id: 21,
+                        title: "Artwork #21",
+                        description: "Description for artwork #21. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Adventure", "Action"],
+                        year: 2021,
+                        color: "#F0FFF0",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '40cm × 60cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 21 Placeholder link", url: "https://example.com/artwork21/1" },
+                            { text: "Artwork 21 Placeholder link", url: "https://example.com/artwork21/2" },
+                            { text: "Artwork 21 Placeholder link", url: "https://example.com/artwork21/3" },
+                            { text: "Artwork 21 Placeholder link", url: "https://example.com/artwork21/4" }
+                        ]
+                    },
+                    {
+                        id: 22,
+                        title: "Artwork #22",
+                        description: "Description for artwork #22. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Warrior"],
+                        year: 2020,
+                        color: "#F0F8FF",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 55cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 22 Placeholder link", url: "https://example.com/artwork22/1" },
+                            { text: "Artwork 22 Placeholder link", url: "https://example.com/artwork22/2" },
+                            { text: "Artwork 22 Placeholder link", url: "https://example.com/artwork22/3" },
+                            { text: "Artwork 22 Placeholder link", url: "https://example.com/artwork22/4" }
+                        ]
+                    },
+                    {
+                        id: 23,
+                        title: "Artwork #23",
+                        description: "Description for artwork #23. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Whimsical", "Fantasy"],
+                        year: 2019,
+                        color: "#FFF0F5",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '35cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 23 Placeholder link", url: "https://example.com/artwork23/1" },
+                            { text: "Artwork 23 Placeholder link", url: "https://example.com/artwork23/2" },
+                            { text: "Artwork 23 Placeholder link", url: "https://example.com/artwork23/3" },
+                            { text: "Artwork 23 Placeholder link", url: "https://example.com/artwork23/4" }
+                        ]
+                    },
+                    {
+                        id: 24,
+                        title: "Artwork #24",
+                        description: "Description for artwork #24. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Geometric"],
+                        year: 2022,
+                        color: "#F0FFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '40cm × 40cm',
+                            'Creation Time': '20 hours'
+                        },
+                       links: [
+                            { text: "Artwork 24 Placeholder link", url: "https://example.com/artwork24/1" },
+                            { text: "Artwork 24 Placeholder link", url: "https://example.com/artwork24/2" },
+                            { text: "Artwork 24 Placeholder link", url: "https://example.com/artwork24/3" },
+                            { text: "Artwork 24 Placeholder link", url: "https://example.com/artwork24/4" }
+                        ]
+                    },
+                    {
+                        id: 25,
+                        title: "Artwork #25",
+                        description: "Description for artwork #25. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Medieval"],
+                        year: 2021,
+                        color: "#FFF5E1",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 65cm',
+                            'Creation Time': '50 hours'
+                        },
+                       links: [
+                            { text: "Artwork 25 Placeholder link", url: "https://example.com/artwork25/1" },
+                            { text: "Artwork 25 Placeholder link", url: "https://example.com/artwork25/2" },
+                            { text: "Artwork 25 Placeholder link", url: "https://example.com/artwork25/3" },
+                            { text: "Artwork 25 Placeholder link", url: "https://example.com/artwork25/4" }
+                        ]
+                    },
+                    {
+                        id: 26,
+                        title: "Artwork #26",
+                        description: "Description for artwork #26. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Urban", "Night"],
+                        year: 2020,
+                        color: "#E6E6FA",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 60cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 26 Placeholder link", url: "https://example.com/artwork26/1" },
+                            { text: "Artwork 26 Placeholder link", url: "https://example.com/artwork26/2" },
+                            { text: "Artwork 26 Placeholder link", url: "https://example.com/artwork26/3" },
+                            { text: "Artwork 26 Placeholder link", url: "https://example.com/artwork26/4" }
+                        ]
+                    },
+                    {
+                        id: 27,
+                        title: "Artwork #27",
+                        description: "Description for artwork #27. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Drama", "Emotional"],
+                        year: 2019,
+                        color: "#FFE4E1",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 60cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 27 Placeholder link", url: "https://example.com/artwork27/1" },
+                            { text: "Artwork 27 Placeholder link", url: "https://example.com/artwork27/2" },
+                            { text: "Artwork 27 Placeholder link", url: "https://example.com/artwork27/3" },
+                            { text: "Artwork 27 Placeholder link", url: "https://example.com/artwork27/4" }
+                        ]
+                    },
+                    {
+                        id: 28,
+                        title: "Artwork #28",
+                        description: "Description for artwork #28. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Superhero", "Action"],
+                        year: 2022,
+                        color: "#F0E68C",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 28 Placeholder link", url: "https://example.com/artwork28/1" },
+                            { text: "Artwork 28 Placeholder link", url: "https://example.com/artwork28/2" },
+                            { text: "Artwork 28 Placeholder link", url: "https://example.com/artwork28/3" },
+                            { text: "Artwork 28 Placeholder link", url: "https://example.com/artwork28/4" }
+                        ]
+                    },
+                    {
+                        id: 29,
+                        title: "Artwork #29",
+                        description: "Description for artwork #29. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Whimsical", "Fantasy"],
+                        year: 2021,
+                        color: "#E0FFFF",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 55cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 29 Placeholder link", url: "https://example.com/artwork29/1" },
+                            { text: "Artwork 29 Placeholder link", url: "https://example.com/artwork29/2" },
+                            { text: "Artwork 29 Placeholder link", url: "https://example.com/artwork29/3" },
+                            { text: "Artwork 29 Placeholder link", url: "https://example.com/artwork29/4" }
+                        ]
+                    },
+                    {
+                        id: 30,
+                        title: "Artwork #30",
+                        description: "Description for artwork #30. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Cyberpunk", "Neon"],
+                        year: 2020,
+                        color: "#98FB98",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 30 Placeholder link", url: "https://example.com/artwork30/1" },
+                            { text: "Artwork 30 Placeholder link", url: "https://example.com/artwork30/2" },
+                            { text: "Artwork 30 Placeholder link", url: "https://example.com/artwork30/3" },
+                            { text: "Artwork 30 Placeholder link", url: "https://example.com/artwork30/4" }
+                        ]
+                    },
+                    {
+                        id: 31,
+                        title: "Artwork #31",
+                        description: "Description for artwork #31. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Alien"],
+                        year: 2019,
+                        color: "#FFDEAD",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 31 Placeholder link", url: "https://example.com/artwork31/1" },
+                            { text: "Artwork 31 Placeholder link", url: "https://example.com/artwork31/2" },
+                            { text: "Artwork 31 Placeholder link", url: "https://example.com/artwork31/3" },
+                            { text: "Artwork 31 Placeholder link", url: "https://example.com/artwork31/4" }
+                        ]
+                    },
+                    {
+                        id: 32,
+                        title: "Artwork #32",
+                        description: "Description for artwork #32. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Desert", "Landscape"],
+                        year: 2022,
+                        color: "#F5DEB3",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '60cm × 40cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 32 Placeholder link", url: "https://example.com/artwork32/1" },
+                            { text: "Artwork 32 Placeholder link", url: "https://example.com/artwork32/2" },
+                            { text: "Artwork 32 Placeholder link", url: "https://example.com/artwork32/3" },
+                            { text: "Artwork 32 Placeholder link", url: "https://example.com/artwork32/4" }
+                        ]
+                    },
+                    {
+                        id: 33,
+                        title: "Artwork #33",
+                        description: "Description for artwork #33. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Action", "Suspense"],
+                        year: 2021,
+                        color: "#DDA0DD",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 33 Placeholder link", url: "https://example.com/artwork33/1" },
+                            { text: "Artwork 33 Placeholder link", url: "https://example.com/artwork33/2" },
+                            { text: "Artwork 33 Placeholder link", url: "https://example.com/artwork33/3" },
+                            { text: "Artwork 33 Placeholder link", url: "https://example.com/artwork33/4" }
+                        ]
+                    },
+                    {
+                        id: 34,
+                        title: "Artwork #34",
+                        description: "Description for artwork #34. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Creature"],
+                        year: 2020,
+                        color: "#B0E0E6",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 55cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 34 Placeholder link", url: "https://example.com/artwork34/1" },
+                            { text: "Artwork 34 Placeholder link", url: "https://example.com/artwork34/2" },
+                            { text: "Artwork 34 Placeholder link", url: "https://example.com/artwork34/3" },
+                            { text: "Artwork 34 Placeholder link", url: "https://example.com/artwork34/4" }
+                        ]
+                    },
+                    {
+                        id: 35,
+                        title: "Artwork #35",
+                        description: "Description for artwork #35. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Historical", "Vintage"],
+                        year: 2019,
+                        color: "#FFE4B5",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 35 Placeholder link", url: "https://example.com/artwork35/1" },
+                            { text: "Artwork 35 Placeholder link", url: "https://example.com/artwork35/2" },
+                            { text: "Artwork 35 Placeholder link", url: "https://example.com/artwork35/3" },
+                            { text: "Artwork 35 Placeholder link", url: "https://example.com/artwork35/4" }
+                        ]
+                    },
+                    {
+                        id: 36,
+                        title: "Artwork #36",
+                        description: "Description for artwork #36. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Vibrant"],
+                        year: 2022,
+                        color: "#87CEEB",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '20 hours'
+                        },
+                       links: [
+                            { text: "Artwork 36 Placeholder link", url: "https://example.com/artwork36/1" },
+                            { text: "Artwork 36 Placeholder link", url: "https://example.com/artwork36/2" },
+                            { text: "Artwork 36 Placeholder link", url: "https://example.com/artwork36/3" },
+                            { text: "Artwork 36 Placeholder link", url: "https://example.com/artwork36/4" }
+                        ]
+                    },
+                    {
+                        id: 37,
+                        title: "Artwork #37",
+                        description: "Description for artwork #37. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2020,
+                        color: "#E6E6FA",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '55cm × 60cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 37 Placeholder link", url: "https://example.com/artwork37/1" },
+                            { text: "Artwork 37 Placeholder link", url: "https://example.com/artwork37/2" },
+                            { text: "Artwork 37 Placeholder link", url: "https://example.com/artwork37/3" },
+                            { text: "Artwork 37 Placeholder link", url: "https://example.com/artwork37/4" }
+                        ]
+                    },
+                    {
+                        id: 38,
+                        title: "Artwork #38",
+                        description: "Description for artwork #38. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Space", "Cosmic"],
+                        year: 2021,
+                        color: "#000033",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 60cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 38 Placeholder link", url: "https://example.com/artwork38/1" },
+                            { text: "Artwork 38 Placeholder link", url: "https://example.com/artwork38/2" },
+                            { text: "Artwork 38 Placeholder link", url: "https://example.com/artwork38/3" },
+                            { text: "Artwork 38 Placeholder link", url: "https://example.com/artwork38/4" }
+                        ]
+                    },
+                    {
+                        id: 39,
+                        title: "Artwork #39",
+                        description: "Description for artwork #39. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Drama", "Noir"],
+                        year: 2019,
+                        color: "#DCDCDC",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 65cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 39 Placeholder link", url: "https://example.com/artwork39/1" },
+                            { text: "Artwork 39 Placeholder link", url: "https://example.com/artwork39/2" },
+                            { text: "Artwork 39 Placeholder link", url: "https://example.com/artwork39/3" },
+                            { text: "Artwork 39 Placeholder link", url: "https://example.com/artwork39/4" }
+                        ]
+                    },
+                    {
+                        id: 40,
+                        title: "Artwork #40",
+                        description: "Description for artwork #40. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Steampunk", "Mechanical"],
+                        year: 2022,
+                        color: "#D2B48C",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 55cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 40 Placeholder link", url: "https://example.com/artwork40/1" },
+                            { text: "Artwork 40 Placeholder link", url: "https://example.com/artwork40/2" },
+                            { text: "Artwork 40 Placeholder link", url: "https://example.com/artwork40/3" },
+                            { text: "Artwork 40 Placeholder link", url: "https://example.com/artwork40/4" }
+                        ]
+                    },
+                    {
+                        id: 41,
+                        title: "Artwork #41",
+                        description: "Description for artwork #41. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Whimsical"],
+                        year: 2020,
+                        color: "#FFFACD",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 41 Placeholder link", url: "https://example.com/artwork41/1" },
+                            { text: "Artwork 41 Placeholder link", url: "https://example.com/artwork41/2" },
+                            { text: "Artwork 41 Placeholder link", url: "https://example.com/artwork41/3" },
+                            { text: "Artwork 41 Placeholder link", url: "https://example.com/artwork41/4" }
+                        ]
+                    },
+                    {
+                        id: 42,
+                        title: "Artwork #42",
+                        description: "Description for artwork #42. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Minimalist", "Geometric"],
+                        year: 2021,
+                        color: "#F5F5DC",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '15 hours'
+                        },
+                       links: [
+                            { text: "Artwork 42 Placeholder link", url: "https://example.com/artwork42/1" },
+                            { text: "Artwork 42 Placeholder link", url: "https://example.com/artwork42/2" },
+                            { text: "Artwork 42 Placeholder link", url: "https://example.com/artwork42/3" },
+                            { text: "Artwork 42 Placeholder link", url: "https://example.com/artwork42/4" }
+                        ]
+                    },
+                    {
+                        id: 43,
+                        title: "Artwork #43",
+                        description: "Description for artwork #43. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Technology"],
+                        year: 2019,
+                        color: "#ADD8E6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 43 Placeholder link", url: "https://example.com/artwork43/1" },
+                            { text: "Artwork 43 Placeholder link", url: "https://example.com/artwork43/2" },
+                            { text: "Artwork 43 Placeholder link", url: "https://example.com/artwork43/3" },
+                            { text: "Artwork 43 Placeholder link", url: "https://example.com/artwork43/4" }
+                        ]
+                    },
+                    {
+                        id: 44,
+                        title: "Artwork #44",
+                        description: "Description for artwork #44. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Nature", "Surreal"],
+                        year: 2022,
+                        color: "#98FB98",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '60cm × 40cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 44 Placeholder link", url: "https://example.com/artwork44/1" },
+                            { text: "Artwork 44 Placeholder link", url: "https://example.com/artwork44/2" },
+                            { text: "Artwork 44 Placeholder link", url: "https://example.com/artwork44/3" },
+                            { text: "Artwork 44 Placeholder link", url: "https://example.com/artwork44/4" }
+                        ]
+                    },
+                    {
+                        id: 45,
+                        title: "Artwork #45",
+                        description: "Description for artwork #45. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Adventure", "Fantasy"],
+                        year: 2020,
+                        color: "#FFA07A",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 60cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 45 Placeholder link", url: "https://example.com/artwork45/1" },
+                            { text: "Artwork 45 Placeholder link", url: "https://example.com/artwork45/2" },
+                            { text: "Artwork 45 Placeholder link", url: "https://example.com/artwork45/3" },
+                            { text: "Artwork 45 Placeholder link", url: "https://example.com/artwork45/4" }
+                        ]
+                    },
+                    {
+                        id: 46,
+                        title: "Artwork #46",
+                        description: "Description for artwork #46. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Warrior"],
+                        year: 2021,
+                        color: "#CD5C5C",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 65cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 46 Placeholder link", url: "https://example.com/artwork46/1" },
+                            { text: "Artwork 46 Placeholder link", url: "https://example.com/artwork46/2" },
+                            { text: "Artwork 46 Placeholder link", url: "https://example.com/artwork46/3" },
+                            { text: "Artwork 46 Placeholder link", url: "https://example.com/artwork46/4" }
+                        ]
+                    },
+                    {
+                        id: 47,
+                        title: "Artwork #47",
+                        description: "Description for artwork #47. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Urban", "Contemporary"],
+                        year: 2019,
+                        color: "#E0FFFF",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 55cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 47 Placeholder link", url: "https://example.com/artwork47/1" },
+                            { text: "Artwork 47 Placeholder link", url: "https://example.com/artwork47/2" },
+                            { text: "Artwork 47 Placeholder link", url: "https://example.com/artwork47/3" },
+                            { text: "Artwork 47 Placeholder link", url: "https://example.com/artwork47/4" }
+                        ]
+                    },
+                    {
+                        id: 48,
+                        title: "Artwork #48",
+                        description: "Description for artwork #48. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Futuristic", "Neon"],
+                        year: 2022,
+                        color: "#000000",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 55cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 48 Placeholder link", url: "https://example.com/artwork48/1" },
+                            { text: "Artwork 48 Placeholder link", url: "https://example.com/artwork48/2" },
+                            { text: "Artwork 48 Placeholder link", url: "https://example.com/artwork48/3" },
+                            { text: "Artwork 48 Placeholder link", url: "https://example.com/artwork48/4" }
+                        ]
+                    },
+                    {
+                        id: 49,
+                        title: "Artwork #49",
+                        description: "Description for artwork #49. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2020,
+                        color: "#DDA0DD",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 49 Placeholder link", url: "https://example.com/artwork49/1" },
+                            { text: "Artwork 49 Placeholder link", url: "https://example.com/artwork49/2" },
+                            { text: "Artwork 49 Placeholder link", url: "https://example.com/artwork49/3" },
+                            { text: "Artwork 49 Placeholder link", url: "https://example.com/artwork49/4" }
+                        ]
+                    },
+                    {
+                        id: 50,
+                        title: "Artwork #50",
+                        description: "Description for artwork #50. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Underwater", "Mystical"],
+                        year: 2021,
+                        color: "#B0E0E6",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 50 Placeholder link", url: "https://example.com/artwork50/1" },
+                            { text: "Artwork 50 Placeholder link", url: "https://example.com/artwork50/2" },
+                            { text: "Artwork 50 Placeholder link", url: "https://example.com/artwork50/3" },
+                            { text: "Artwork 50 Placeholder link", url: "https://example.com/artwork50/4" }
+                        ]
+                    },
+                    {
+                        id: 51,
+                        title: "Artwork #51",
+                        description: "Description for artwork #51. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Mystery", "Suspense"],
+                        year: 2019,
+                        color: "#F5F5F5",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                       links: [
+                            { text: "Artwork 51 Placeholder link", url: "https://example.com/artwork51/1" },
+                            { text: "Artwork 51 Placeholder link", url: "https://example.com/artwork51/2" },
+                            { text: "Artwork 51 Placeholder link", url: "https://example.com/artwork51/3" },
+                            { text: "Artwork 51 Placeholder link", url: "https://example.com/artwork51/4" }
+                        ]
+                    },
+                    {
+                        id: 52,
+                        title: "Artwork #52",
+                        description: "Description for artwork #52. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Sci-Fi", "Robot"],
+                        year: 2022,
+                        color: "#A9A9A9",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 52 Placeholder link", url: "https://example.com/artwork52/1" },
+                            { text: "Artwork 52 Placeholder link", url: "https://example.com/artwork52/2" },
+                            { text: "Artwork 52 Placeholder link", url: "https://example.com/artwork52/3" },
+                            { text: "Artwork 52 Placeholder link", url: "https://example.com/artwork52/4" }
+                        ]
+                    },
+                    {
+                        id: 53,
+                        title: "Artwork #53",
+                        description: "Description for artwork #53. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Dragon"],
+                        year: 2020,
+                        color: "#FFB6C1",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 53 Placeholder link", url: "https://example.com/artwork53/1" },
+                            { text: "Artwork 53 Placeholder link", url: "https://example.com/artwork53/2" },
+                            { text: "Artwork 53 Placeholder link", url: "https://example.com/artwork53/3" },
+                            { text: "Artwork 53 Placeholder link", url: "https://example.com/artwork53/4" }
+                        ]
+                    },
+                    {
+                        id: 54,
+                        title: "Artwork #54",
+                        description: "Description for artwork #54. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Vibrant"],
+                        year: 2021,
+                        color: "#00CED1",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '40cm × 40cm',
+                            'Creation Time': '20 hours'
+                        },
+                       links: [
+                            { text: "Artwork 54 Placeholder link", url: "https://example.com/artwork54/1" },
+                            { text: "Artwork 54 Placeholder link", url: "https://example.com/artwork54/2" },
+                            { text: "Artwork 54 Placeholder link", url: "https://example.com/artwork54/3" },
+                            { text: "Artwork 54 Placeholder link", url: "https://example.com/artwork54/4" }
+                        ]
+                    },
+                    {
+                        id: 55,
+                        title: "Artwork #55",
+                        description: "Description for artwork #55. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Creature"],
+                        year: 2019,
+                        color: "#FFA07A",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 70cm',
+                            'Creation Time': '50 hours'
+                        },
+                       links: [
+                            { text: "Artwork 55 Placeholder link", url: "https://example.com/artwork55/1" },
+                            { text: "Artwork 55 Placeholder link", url: "https://example.com/artwork55/2" },
+                            { text: "Artwork 55 Placeholder link", url: "https://example.com/artwork55/3" },
+                            { text: "Artwork 55 Placeholder link", url: "https://example.com/artwork55/4" }
+                        ]
+                    },
+                    {
+                        id: 56,
+                        title: "Artwork #56",
+                        description: "Description for artwork #56. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Mountains", "Scenic"],
+                        year: 2022,
+                        color: "#F0F8FF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 56 Placeholder link", url: "https://example.com/artwork56/1" },
+                            { text: "Artwork 56 Placeholder link", url: "https://example.com/artwork56/2" },
+                            { text: "Artwork 56 Placeholder link", url: "https://example.com/artwork56/3" },
+                            { text: "Artwork 56 Placeholder link", url: "https://example.com/artwork56/4" }
+                        ]
+                    },
+                    {
+                        id: 57,
+                        title: "Artwork #57",
+                        description: "Description for artwork #57. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Action", "Dynamic"],
+                        year: 2020,
+                        color: "#FFE4C4",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 57 Placeholder link", url: "https://example.com/artwork57/1" },
+                            { text: "Artwork 57 Placeholder link", url: "https://example.com/artwork57/2" },
+                            { text: "Artwork 57 Placeholder link", url: "https://example.com/artwork57/3" },
+                            { text: "Artwork 57 Placeholder link", url: "https://example.com/artwork57/4" }
+                        ]
+                    },
+                    {
+                        id: 58,
+                        title: "Artwork #58",
+                        description: "Description for artwork #58. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Elf"],
+                        year: 2021,
+                        color: "#90EE90",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 58 Placeholder link", url: "https://example.com/artwork58/1" },
+                            { text: "Artwork 58 Placeholder link", url: "https://example.com/artwork58/2" },
+                            { text: "Artwork 58 Placeholder link", url: "https://example.com/artwork58/3" },
+                            { text: "Artwork 58 Placeholder link", url: "https://example.com/artwork58/4" }
+                        ]
+                    },
+                    {
+                        id: 59,
+                        title: "Artwork #59",
+                        description: "Description for artwork #59. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Steampunk", "Victorian"],
+                        year: 2019,
+                        color: "#D2B48C",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 40cm',
+                            'Creation Time': '35 hours'
+                        },
+                       links: [
+                            { text: "Artwork 59 Placeholder link", url: "https://example.com/artwork59/1" },
+                            { text: "Artwork 59 Placeholder link", url: "https://example.com/artwork59/2" },
+                            { text: "Artwork 59 Placeholder link", url: "https://example.com/artwork59/3" },
+                            { text: "Artwork 59 Placeholder link", url: "https://example.com/artwork59/4" }
+                        ]
+                    },
+                    {
+                        id: 60,
+                        title: "Artwork #60",
+                        description: "Description for artwork #60. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Patterns"],
+                        year: 2022,
+                        color: "#E0FFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                       links: [
+                            { text: "Artwork 60 Placeholder link", url: "https://example.com/artwork60/1" },
+                            { text: "Artwork 60 Placeholder link", url: "https://example.com/artwork60/2" },
+                            { text: "Artwork 60 Placeholder link", url: "https://example.com/artwork60/3" },
+                            { text: "Artwork 60 Placeholder link", url: "https://example.com/artwork60/4" }
+                        ]
+                    },
+                    {
+                        id: 61,
+                        title: "Artwork #61",
+                        description: "Description for artwork #61. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Landscape"],
+                        year: 2020,
+                        color: "#FFDAB9",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '55cm × 40cm',
+                            'Creation Time': '30 hours'
+                        },
+                       links: [
+                            { text: "Artwork 61 Placeholder link", url: "https://example.com/artwork61/1" },
+                            { text: "Artwork 61 Placeholder link", url: "https://example.com/artwork61/2" },
+                            { text: "Artwork 61 Placeholder link", url: "https://example.com/artwork61/3" },
+                            { text: "Artwork 61 Placeholder link", url: "https://example.com/artwork61/4" }
+                        ]
+                    },
+                    {
+                        id: 62,
+                        title: "Artwork #62",
+                        description: "Description for artwork #62. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["City", "Futuristic"],
+                        year: 2021,
+                        color: "#708090",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 50cm',
+                            'Creation Time': '40 hours'
+                        },
+                       links: [
+                            { text: "Artwork 62 Placeholder link", url: "https://example.com/artwork62/1" },
+                            { text: "Artwork 62 Placeholder link", url: "https://example.com/artwork62/2" },
+                            { text: "Artwork 62 Placeholder link", url: "https://example.com/artwork62/3" },
+                            { text: "Artwork 62 Placeholder link", url: "https://example.com/artwork62/4" }
+                        ]
+                    },
+                    {
+                        id: 63,
+                        title: "Artwork #63",
+                        description: "Description for artwork #63. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Fantasy", "Epic"],
+                        year: 2019,
+                        color: "#F5DEB3",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 75cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 63 Placeholder link", url: "https://example.com/artwork63/1" },
+                            { text: "Artwork 63 Placeholder link", url: "https://example.com/artwork63/2" },
+                            { text: "Artwork 63 Placeholder link", url: "https://example.com/artwork63/3" },
+                            { text: "Artwork 63 Placeholder link", url: "https://example.com/artwork63/4" }
+                        ]
+                    },
+                    {
+                        id: 64,
+                        title: "Artwork #64",
+                        description: "Description for artwork #64. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Sci-Fi", "Astronaut"],
+                        year: 2022,
+                        color: "#E6E6FA",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 60cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 64 Placeholder link", url: "https://example.com/artwork64/1" },
+                            { text: "Artwork 64 Placeholder link", url: "https://example.com/artwork64/2" },
+                            { text: "Artwork 64 Placeholder link", url: "https://example.com/artwork64/3" },
+                            { text: "Artwork 64 Placeholder link", url: "https://example.com/artwork64/4" }
+                        ]
+                    },
+                    {
+                        id: 65,
+                        title: "Artwork #65",
+                        description: "Description for artwork #65. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Mystical"],
+                        year: 2020,
+                        color: "#FFE4E1",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '40cm × 55cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 65 Placeholder link", url: "https://example.com/artwork65/1" },
+                            { text: "Artwork 65 Placeholder link", url: "https://example.com/artwork65/2" },
+                            { text: "Artwork 65 Placeholder link", url: "https://example.com/artwork65/3" },
+                            { text: "Artwork 65 Placeholder link", url: "https://example.com/artwork65/4" }
+                        ]
+                    },
+                    {
+                        id: 66,
+                        title: "Artwork #66",
+                        description: "Description for artwork #66. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Minimalist", "Geometric"],
+                        year: 2021,
+                        color: "#FFFFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '15 hours'
+                        },
+                        links: [
+                            { text: "Artwork 66 Placeholder link", url: "https://example.com/artwork66/1" },
+                            { text: "Artwork 66 Placeholder link", url: "https://example.com/artwork66/2" },
+                            { text: "Artwork 66 Placeholder link", url: "https://example.com/artwork66/3" },
+                            { text: "Artwork 66 Placeholder link", url: "https://example.com/artwork66/4" }
+                        ]
+                    },
+                    {
+                        id: 67,
+                        title: "Artwork #67",
+                        description: "Description for artwork #67. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Creature"],
+                        year: 2019,
+                        color: "#98FB98",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '55cm × 65cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 67 Placeholder link", url: "https://example.com/artwork67/1" },
+                            { text: "Artwork 67 Placeholder link", url: "https://example.com/artwork67/2" },
+                            { text: "Artwork 67 Placeholder link", url: "https://example.com/artwork67/3" },
+                            { text: "Artwork 67 Placeholder link", url: "https://example.com/artwork67/4" }
+                        ]
+                    },
+                    {
+                        id: 68,
+                        title: "Artwork #68",
+                        description: "Description for artwork #68. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Underwater", "Coral"],
+                        year: 2022,
+                        color: "#00FFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 68 Placeholder link", url: "https://example.com/artwork68/1" },
+                            { text: "Artwork 68 Placeholder link", url: "https://example.com/artwork68/2" },
+                            { text: "Artwork 68 Placeholder link", url: "https://example.com/artwork68/3" },
+                            { text: "Artwork 68 Placeholder link", url: "https://example.com/artwork68/4" }
+                        ]
+                    },
+                    {
+                        id: 69,
+                        title: "Artwork #69",
+                        description: "Description for artwork #69. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Mystery", "Thriller"],
+                        year: 2020,
+                        color: "#D3D3D3",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 69 Placeholder link", url: "https://example.com/artwork69/1" },
+                            { text: "Artwork 69 Placeholder link", url: "https://example.com/artwork69/2" },
+                            { text: "Artwork 69 Placeholder link", url: "https://example.com/artwork69/3" },
+                            { text: "Artwork 69 Placeholder link", url: "https://example.com/artwork69/4" }
+                        ]
+                    },
+                    {
+                        id: 70,
+                        title: "Artwork #70",
+                        description: "Description for artwork #70. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Warrior"],
+                        year: 2021,
+                        color: "#FF6347",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 70 Placeholder link", url: "https://example.com/artwork70/1" },
+                            { text: "Artwork 70 Placeholder link", url: "https://example.com/artwork70/2" },
+                            { text: "Artwork 70 Placeholder link", url: "https://example.com/artwork70/3" },
+                            { text: "Artwork 70 Placeholder link", url: "https://example.com/artwork70/4" }
+                        ]
+                    },
+                    {
+                        id: 71,
+                        title: "Artwork #71",
+                        description: "Description for artwork #71. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Vintage", "Retro"],
+                        year: 2019,
+                        color: "#FAEBD7",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 71 Placeholder link", url: "https://example.com/artwork71/1" },
+                            { text: "Artwork 71 Placeholder link", url: "https://example.com/artwork71/2" },
+                            { text: "Artwork 71 Placeholder link", url: "https://example.com/artwork71/3" },
+                            { text: "Artwork 71 Placeholder link", url: "https://example.com/artwork71/4" }
+                        ]
+                    },
+                    {
+                        id: 72,
+                        title: "Artwork #72",
+                        description: "Description for artwork #72. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Colorful"],
+                        year: 2022,
+                        color: "#FFD700",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 72 Placeholder link", url: "https://example.com/artwork72/1" },
+                            { text: "Artwork 72 Placeholder link", url: "https://example.com/artwork72/2" },
+                            { text: "Artwork 72 Placeholder link", url: "https://example.com/artwork72/3" },
+                            { text: "Artwork 72 Placeholder link", url: "https://example.com/artwork72/4" }
+                        ]
+                    },
+                    {
+                        id: 73,
+                        title: "Artwork #73",
+                        description: "Description for artwork #73. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Robot"],
+                        year: 2020,
+                        color: "#C0C0C0",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 65cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/1" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/2" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/3" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/4" }
+                        ]
+                    },
+                    {
+                        id: 74,
+                        title: "Artwork #74",
+                        description: "Description for artwork #74. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Forest", "Magical"],
+                        year: 2021,
+                        color: "#8FBC8F",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '60cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/1" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/2" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/3" },
+                            { text: "Artwork 74 Placeholder link", url: "https://example.com/artwork74/4" }
+                        ]
+                    },
+                    {
+                        id: 75,
+                        title: "Artwork #75",
+                        description: "Description for artwork #75. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Drama", "Emotional"],
+                        year: 2019,
+                        color: "#F5F5F5",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 75 Placeholder link", url: "https://example.com/artwork75/1" },
+                            { text: "Artwork 75 Placeholder link", url: "https://example.com/artwork75/2" },
+                            { text: "Artwork 75 Placeholder link", url: "https://example.com/artwork75/3" },
+                            { text: "Artwork 75 Placeholder link", url: "https://example.com/artwork75/4" }
+                        ]
+                    },
+                    {
+                        id: 76,
+                        title: "Artwork #76",
+                        description: "Description for artwork #76. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Elf"],
+                        year: 2022,
+                        color: "#E6E6FA",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 76 Placeholder link", url: "https://example.com/artwork76/1" },
+                            { text: "Artwork 76 Placeholder link", url: "https://example.com/artwork76/2" },
+                            { text: "Artwork 76 Placeholder link", url: "https://example.com/artwork76/3" },
+                            { text: "Artwork 76 Placeholder link", url: "https://example.com/artwork76/4" }
+                        ]
+                    },
+                    {
+                        id: 77,
+                        title: "Artwork #77",
+                        description: "Description for artwork #77. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Whimsical", "Cute"],
+                        year: 2020,
+                        color: "#FFB6C1",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 40cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 77 Placeholder link", url: "https://example.com/artwork77/1" },
+                            { text: "Artwork 77 Placeholder link", url: "https://example.com/artwork77/2" },
+                            { text: "Artwork 77 Placeholder link", url: "https://example.com/artwork77/3" },
+                            { text: "Artwork 77 Placeholder link", url: "https://example.com/artwork77/4" }
+                        ]
+                    },
+                    {
+                        id: 78,
+                        title: "Artwork #78",
+                        description: "Description for artwork #78. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Minimalist", "Modern"],
+                        year: 2021,
+                        color: "#FFFFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '15 hours'
+                        },
+                        links: [
+                            { text: "Artwork 78 Placeholder link", url: "https://example.com/artwork78/1" },
+                            { text: "Artwork 78 Placeholder link", url: "https://example.com/artwork78/2" },
+                            { text: "Artwork 78 Placeholder link", url: "https://example.com/artwork78/3" },
+                            { text: "Artwork 78 Placeholder link", url: "https://example.com/artwork78/4" }
+                        ]
+                    },
+                    {
+                        id: 79,
+                        title: "Artwork #79",
+                        description: "Description for artwork #79. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Dragon"],
+                        year: 2019,
+                        color: "#FF4500",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 70cm',
+                            'Creation Time': '50 hours'
+                        },
+                        links: [
+                            { text: "Artwork 79 Placeholder link", url: "https://example.com/artwork79/1" },
+                            { text: "Artwork 79 Placeholder link", url: "https://example.com/artwork79/2" },
+                            { text: "Artwork 79 Placeholder link", url: "https://example.com/artwork79/3" },
+                            { text: "Artwork 79 Placeholder link", url: "https://example.com/artwork79/4" }
+                        ]
+                    },
+                    {
+                        id: 80,
+                        title: "Artwork #80",
+                        description: "Description for artwork #80. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Space", "Cosmic"],
+                        year: 2022,
+                        color: "#000033",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '60cm × 60cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 80 Placeholder link", url: "https://example.com/artwork80/1" },
+                            { text: "Artwork 80 Placeholder link", url: "https://example.com/artwork80/2" },
+                            { text: "Artwork 80 Placeholder link", url: "https://example.com/artwork80/3" },
+                            { text: "Artwork 80 Placeholder link", url: "https://example.com/artwork80/4" }
+                        ]
+                    },
+                    {
+                        id: 81,
+                        title: "Artwork #81",
+                        description: "Description for artwork #81. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Adventure", "Fantasy"],
+                        year: 2020,
+                        color: "#F0E68C",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 81 Placeholder link", url: "https://example.com/artwork81/1" },
+                            { text: "Artwork 81 Placeholder link", url: "https://example.com/artwork81/2" },
+                            { text: "Artwork 81 Placeholder link", url: "https://example.com/artwork81/3" },
+                            { text: "Artwork 81 Placeholder link", url: "https://example.com/artwork81/4" }
+                        ]
+                    },
+                    {
+                        id: 82,
+                        title: "Artwork #82",
+                        description: "Description for artwork #82. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Sci-Fi", "Alien"],
+                        year: 2021,
+                        color: "#7CFC00",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 82 Placeholder link", url: "https://example.com/artwork82/1" },
+                            { text: "Artwork 82 Placeholder link", url: "https://example.com/artwork82/2" },
+                            { text: "Artwork 82 Placeholder link", url: "https://example.com/artwork82/3" },
+                            { text: "Artwork 82 Placeholder link", url: "https://example.com/artwork82/4" }
+                        ]
+                    },
+                    {
+                        id: 83,
+                        title: "Artwork #83",
+                        description: "Description for artwork #83. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Surreal", "Abstract"],
+                        year: 2019,
+                        color: "#FFA500",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 83 Placeholder link", url: "https://example.com/artwork83/1" },
+                            { text: "Artwork 83 Placeholder link", url: "https://example.com/artwork83/2" },
+                            { text: "Artwork 83 Placeholder link", url: "https://example.com/artwork83/3" },
+                            { text: "Artwork 83 Placeholder link", url: "https://example.com/artwork83/4" }
+                        ]
+                    },
+                    {
+                        id: 84,
+                        title: "Artwork #84",
+                        description: "Description for artwork #84. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Cyberpunk", "Futuristic"],
+                        year: 2022,
+                        color: "#0000CD",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 84 Placeholder link", url: "https://example.com/artwork84/1" },
+                            { text: "Artwork 84 Placeholder link", url: "https://example.com/artwork84/2" },
+                            { text: "Artwork 84 Placeholder link", url: "https://example.com/artwork84/3" },
+                            { text: "Artwork 84 Placeholder link", url: "https://example.com/artwork84/4" }
+                        ]
+                    },
+                    {
+                        id: 85,
+                        title: "Artwork #85",
+                        description: "Description for artwork #85. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2020,
+                        color: "#9370DB",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '55cm × 65cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 85 Placeholder link", url: "https://example.com/artwork85/1" },
+                            { text: "Artwork 85 Placeholder link", url: "https://example.com/artwork85/2" },
+                            { text: "Artwork 85 Placeholder link", url: "https://example.com/artwork85/3" },
+                            { text: "Artwork 85 Placeholder link", url: "https://example.com/artwork85/4" }
+                        ]
+                    },
+                    {
+                        id: 86,
+                        title: "Artwork #86",
+                        description: "Description for artwork #86. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Ocean", "Seascape"],
+                        year: 2021,
+                        color: "#1E90FF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 86 Placeholder link", url: "https://example.com/artwork86/1" },
+                            { text: "Artwork 86 Placeholder link", url: "https://example.com/artwork86/2" },
+                            { text: "Artwork 86 Placeholder link", url: "https://example.com/artwork86/3" },
+                            { text: "Artwork 86 Placeholder link", url: "https://example.com/artwork86/4" }
+                        ]
+                    },
+                    {
+                        id: 87,
+                        title: "Artwork #87",
+                        description: "Description for artwork #87. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Drama", "Thriller"],
+                        year: 2019,
+                        color: "#708090",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 87 Placeholder link", url: "https://example.com/artwork87/1" },
+                            { text: "Artwork 87 Placeholder link", url: "https://example.com/artwork87/2" },
+                            { text: "Artwork 87 Placeholder link", url: "https://example.com/artwork87/3" },
+                            { text: "Artwork 87 Placeholder link", url: "https://example.com/artwork87/4" }
+                        ]
+                    },
+                    {
+                        id: 88,
+                        title: "Artwork #88",
+                        description: "Description for artwork #88. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Wizard"],
+                        year: 2022,
+                        color: "#800080",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 88 Placeholder link", url: "https://example.com/artwork88/1" },
+                            { text: "Artwork 88 Placeholder link", url: "https://example.com/artwork88/2" },
+                            { text: "Artwork 88 Placeholder link", url: "https://example.com/artwork88/3" },
+                            { text: "Artwork 88 Placeholder link", url: "https://example.com/artwork88/4" }
+                        ]
+                    },
+                    {
+                        id: 89,
+                        title: "Artwork #89",
+                        description: "Description for artwork #89. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Art Nouveau", "Decorative"],
+                        year: 2020,
+                        color: "#DDA0DD",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '40cm × 55cm',
+                            'Creation Time': '50 hours'
+                        },
+                        links: [
+                            { text: "Artwork 89 Placeholder link", url: "https://example.com/artwork89/1" },
+                            { text: "Artwork 89 Placeholder link", url: "https://example.com/artwork89/2" },
+                            { text: "Artwork 89 Placeholder link", url: "https://example.com/artwork89/3" },
+                            { text: "Artwork 89 Placeholder link", url: "https://example.com/artwork89/4" }
+                        ]
+                    },
+                    {
+                        id: 90,
+                        title: "Artwork #90",
+                        description: "Description for artwork #90. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Geometric", "Colorful"],
+                        year: 2021,
+                        color: "#40E0D0",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 90 Placeholder link", url: "https://example.com/artwork90/1" },
+                            { text: "Artwork 90 Placeholder link", url: "https://example.com/artwork90/2" },
+                            { text: "Artwork 90 Placeholder link", url: "https://example.com/artwork90/3" },
+                            { text: "Artwork 90 Placeholder link", url: "https://example.com/artwork90/4" }
+                        ]
+                    },
+                    {
+                        id: 91,
+                        title: "Artwork #91",
+                        description: "Description for artwork #91. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Castle"],
+                        year: 2019,
+                        color: "#D3D3D3",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '55cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 91 Placeholder link", url: "https://example.com/artwork91/1" },
+                            { text: "Artwork 91 Placeholder link", url: "https://example.com/artwork91/2" },
+                            { text: "Artwork 91 Placeholder link", url: "https://example.com/artwork91/3" },
+                            { text: "Artwork 91 Placeholder link", url: "https://example.com/artwork91/4" }
+                        ]
+                    },
+                    {
+                        id: 92,
+                        title: "Artwork #92",
+                        description: "Description for artwork #92. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Snowy", "Winter"],
+                        year: 2022,
+                        color: "#F0F8FF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 92 Placeholder link", url: "https://example.com/artwork92/1" },
+                            { text: "Artwork 92 Placeholder link", url: "https://example.com/artwork92/2" },
+                            { text: "Artwork 92 Placeholder link", url: "https://example.com/artwork92/3" },
+                            { text: "Artwork 92 Placeholder link", url: "https://example.com/artwork92/4" }
+                        ]
+                    },
+                    {
+                        id: 93,
+                        title: "Artwork #93",
+                        description: "Description for artwork #93. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Action", "Adventure"],
+                        year: 2020,
+                        color: "#F5DEB3",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 93 Placeholder link", url: "https://example.com/artwork93/1" },
+                            { text: "Artwork 93 Placeholder link", url: "https://example.com/artwork93/2" },
+                            { text: "Artwork 93 Placeholder link", url: "https://example.com/artwork93/3" },
+                            { text: "Artwork 93 Placeholder link", url: "https://example.com/artwork93/4" }
+                        ]
+                    },
+                    {
+                        id: 94,
+                        title: "Artwork #94",
+                        description: "Description for artwork #94. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Dwarf"],
+                        year: 2021,
+                        color: "#CD853F",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 60cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 94 Placeholder link", url: "https://example.com/artwork94/1" },
+                            { text: "Artwork 94 Placeholder link", url: "https://example.com/artwork94/2" },
+                            { text: "Artwork 94 Placeholder link", url: "https://example.com/artwork94/3" },
+                            { text: "Artwork 94 Placeholder link", url: "https://example.com/artwork94/4" }
+                        ]
+                    },
+                    {
+                        id: 95,
+                        title: "Artwork #95",
+                        description: "Description for artwork #95. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2019,
+                        color: "#FFD700",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 95 Placeholder link", url: "https://example.com/artwork95/1" },
+                            { text: "Artwork 95 Placeholder link", url: "https://example.com/artwork95/2" },
+                            { text: "Artwork 95 Placeholder link", url: "https://example.com/artwork95/3" },
+                            { text: "Artwork 95 Placeholder link", url: "https://example.com/artwork95/4" }
+                        ]
+                    },
+                    {
+                        id: 96,
+                        title: "Artwork #96",
+                        description: "Description for artwork #96. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Modern"],
+                        year: 2022,
+                        color: "#FF69B4",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 96 Placeholder link", url: "https://example.com/artwork96/1" },
+                            { text: "Artwork 96 Placeholder link", url: "https://example.com/artwork96/2" },
+                            { text: "Artwork 96 Placeholder link", url: "https://example.com/artwork96/3" },
+                            { text: "Artwork 96 Placeholder link", url: "https://example.com/artwork96/4" }
+                        ]
+                    },
+                    {
+                        id: 97,
+                        title: "Artwork #97",
+                        description: "Description for artwork #97. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Spaceship"],
+                        year: 2020,
+                        color: "#4682B4",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 65cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 97 Placeholder link", url: "https://example.com/artwork97/1" },
+                            { text: "Artwork 97 Placeholder link", url: "https://example.com/artwork97/2" },
+                            { text: "Artwork 97 Placeholder link", url: "https://example.com/artwork97/3" },
+                            { text: "Artwork 97 Placeholder link", url: "https://example.com/artwork97/4" }
+                        ]
+                    },
+                    {
+                        id: 98,
+                        title: "Artwork #98",
+                        description: "Description for artwork #98. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Desert", "Sunset"],
+                        year: 2021,
+                        color: "#FFA07A",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '60cm × 50cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 98 Placeholder link", url: "https://example.com/artwork98/1" },
+                            { text: "Artwork 98 Placeholder link", url: "https://example.com/artwork98/2" },
+                            { text: "Artwork 98 Placeholder link", url: "https://example.com/artwork98/3" },
+                            { text: "Artwork 98 Placeholder link", url: "https://example.com/artwork98/4" }
+                        ]
+                    },
+                    {
+                        id: 99,
+                        title: "Artwork #99",
+                        description: "Description for artwork #99. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Mystery", "Noir"],
+                        year: 2019,
+                        color: "#2F4F4F",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 99 Placeholder link", url: "https://example.com/artwork99/1" },
+                            { text: "Artwork 99 Placeholder link", url: "https://example.com/artwork99/2" },
+                            { text: "Artwork 99 Placeholder link", url: "https://example.com/artwork99/3" },
+                            { text: "Artwork 99 Placeholder link", url: "https://example.com/artwork99/4" }
+                        ]
+                    },
+                    {
+                        id: 100,
+                        title: "Artwork #100",
+                        description: "Description for artwork #100. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Hero"],
+                        year: 2022,
+                        color: "#FFFF00",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 75cm',
+                            'Creation Time': '50 hours'
+                        },
+                        links: [
+                            { text: "Artwork 100 Placeholder link", url: "https://example.com/artwork100/1" },
+                            { text: "Artwork 100 Placeholder link", url: "https://example.com/artwork100/2" },
+                            { text: "Artwork 100 Placeholder link", url: "https://example.com/artwork100/3" },
+                            { text: "Artwork 100 Placeholder link", url: "https://example.com/artwork100/4" }
+                        ]
+                    },
+                    {
+                        id: 101,
+                        title: "Artwork #101",
+                        description: "Description for artwork #101. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Vintage", "Nostalgic"],
+                        year: 2020,
+                        color: "#F5F5DC",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 101 Placeholder link", url: "https://example.com/artwork101/1" },
+                            { text: "Artwork 101 Placeholder link", url: "https://example.com/artwork101/2" },
+                            { text: "Artwork 101 Placeholder link", url: "https://example.com/artwork101/3" },
+                            { text: "Artwork 101 Placeholder link", url: "https://example.com/artwork101/4" }
+                        ]
+                    },
+                    {
+                        id: 102,
+                        title: "Artwork #102",
+                        description: "Description for artwork #102. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Minimalist", "Clean"],
+                        year: 2021,
+                        color: "#FFFFFF",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '15 hours'
+                        },
+                        links: [
+                            { text: "Artwork 102 Placeholder link", url: "https://example.com/artwork102/1" },
+                            { text: "Artwork 102 Placeholder link", url: "https://example.com/artwork102/2" },
+                            { text: "Artwork 102 Placeholder link", url: "https://example.com/artwork102/3" },
+                            { text: "Artwork 102 Placeholder link", url: "https://example.com/artwork102/4" }
+                        ]
+                    },
+                    {
+                        id: 103,
+                        title: "Artwork #103",
+                        description: "Description for artwork #103. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Dragon"],
+                        year: 2019,
+                        color: "#B22222",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 103 Placeholder link", url: "https://example.com/artwork103/1" },
+                            { text: "Artwork 103 Placeholder link", url: "https://example.com/artwork103/2" },
+                            { text: "Artwork 103 Placeholder link", url: "https://example.com/artwork103/3" },
+                            { text: "Artwork 103 Placeholder link", url: "https://example.com/artwork103/4" }
+                        ]
+                    },
+                    {
+                        id: 104,
+                        title: "Artwork #104",
+                        description: "Description for artwork #104. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["City", "Night"],
+                        year: 2022,
+                        color: "#191970",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 104 Placeholder link", url: "https://example.com/artwork104/1" },
+                            { text: "Artwork 104 Placeholder link", url: "https://example.com/artwork104/2" },
+                            { text: "Artwork 104 Placeholder link", url: "https://example.com/artwork104/3" },
+                            { text: "Artwork 104 Placeholder link", url: "https://example.com/artwork104/4" }
+                        ]
+                    },
+                    {
+                        id: 105,
+                        title: "Artwork #105",
+                        description: "Description for artwork #105. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Fantasy", "Epic"],
+                        year: 2020,
+                        color: "#F5DEB3",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 105 Placeholder link", url: "https://example.com/artwork105/1" },
+                            { text: "Artwork 105 Placeholder link", url: "https://example.com/artwork105/2" },
+                            { text: "Artwork 105 Placeholder link", url: "https://example.com/artwork105/3" },
+                            { text: "Artwork 105 Placeholder link", url: "https://example.com/artwork105/4" }
+                        ]
+                    },
+                    {
+                        id: 106,
+                        title: "Artwork #106",
+                        description: "Description for artwork #106. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Warrior"],
+                        year: 2021,
+                        color: "#8B4513",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 106 Placeholder link", url: "https://example.com/artwork106/1" },
+                            { text: "Artwork 106 Placeholder link", url: "https://example.com/artwork106/2" },
+                            { text: "Artwork 106 Placeholder link", url: "https://example.com/artwork106/3" },
+                            { text: "Artwork 106 Placeholder link", url: "https://example.com/artwork106/4" }
+                        ]
+                    },
+                    {
+                        id: 107,
+                        title: "Artwork #107",
+                        description: "Description for artwork #107. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Whimsical", "Fantasy"],
+                        year: 2019,
+                        color: "#FF69B4",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 45cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 107 Placeholder link", url: "https://example.com/artwork107/1" },
+                            { text: "Artwork 107 Placeholder link", url: "https://example.com/artwork107/2" },
+                            { text: "Artwork 107 Placeholder link", url: "https://example.com/artwork107/3" },
+                            { text: "Artwork 107 Placeholder link", url: "https://example.com/artwork107/4" }
+                        ]
+                    },
+                    {
+                        id: 108,
+                        title: "Artwork #108",
+                        description: "Description for artwork #108. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Cyberpunk", "Neon"],
+                        year: 2022,
+                        color: "#000000",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 55cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 108 Placeholder link", url: "https://example.com/artwork108/1" },
+                            { text: "Artwork 108 Placeholder link", url: "https://example.com/artwork108/2" },
+                            { text: "Artwork 108 Placeholder link", url: "https://example.com/artwork108/3" },
+                            { text: "Artwork 108 Placeholder link", url: "https://example.com/artwork108/4" }
+                        ]
+                    },
+                    {
+                        id: 109,
+                        title: "Artwork #109",
+                        description: "Description for artwork #109. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Sci-Fi", "Futuristic"],
+                        year: 2020,
+                        color: "#4169E1",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '60cm × 65cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 109 Placeholder link", url: "https://example.com/artwork109/1" },
+                            { text: "Artwork 109 Placeholder link", url: "https://example.com/artwork109/2" },
+                            { text: "Artwork 109 Placeholder link", url: "https://example.com/artwork109/3" },
+                            { text: "Artwork 109 Placeholder link", url: "https://example.com/artwork109/4" }
+                        ]
+                    },
+                    {
+                        id: 110,
+                        title: "Artwork #110",
+                        description: "Description for artwork #110. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Jungle", "Tropical"],
+                        year: 2021,
+                        color: "#32CD32",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '50cm × 60cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 110 Placeholder link", url: "https://example.com/artwork110/1" },
+                            { text: "Artwork 110 Placeholder link", url: "https://example.com/artwork110/2" },
+                            { text: "Artwork 110 Placeholder link", url: "https://example.com/artwork110/3" },
+                            { text: "Artwork 110 Placeholder link", url: "https://example.com/artwork110/4" }
+                        ]
+                    },
+                    {
+                        id: 111,
+                        title: "Artwork #111",
+                        description: "Description for artwork #111. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Drama", "Emotional"],
+                        year: 2019,
+                        color: "#B0C4DE",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 111 Placeholder link", url: "https://example.com/artwork111/1" },
+                            { text: "Artwork 111 Placeholder link", url: "https://example.com/artwork111/2" },
+                            { text: "Artwork 111 Placeholder link", url: "https://example.com/artwork111/3" },
+                            { text: "Artwork 111 Placeholder link", url: "https://example.com/artwork111/4" }
+                        ]
+                    },
+                    {
+                        id: 112,
+                        title: "Artwork #112",
+                        description: "Description for artwork #112. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Mage"],
+                        year: 2022,
+                        color: "#9932CC",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 112 Placeholder link", url: "https://example.com/artwork112/1" },
+                            { text: "Artwork 112 Placeholder link", url: "https://example.com/artwork112/2" },
+                            { text: "Artwork 112 Placeholder link", url: "https://example.com/artwork112/3" },
+                            { text: "Artwork 112 Placeholder link", url: "https://example.com/artwork112/4" }
+                        ]
+                    },
+                    {
+                        id: 113,
+                        title: "Artwork #113",
+                        description: "Description for artwork #113. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Magical"],
+                        year: 2020,
+                        color: "#FFD700",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '40cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 113 Placeholder link", url: "https://example.com/artwork113/1" },
+                            { text: "Artwork 113 Placeholder link", url: "https://example.com/artwork113/2" },
+                            { text: "Artwork 113 Placeholder link", url: "https://example.com/artwork113/3" },
+                            { text: "Artwork 113 Placeholder link", url: "https://example.com/artwork113/4" }
+                        ]
+                    },
+                    {
+                        id: 114,
+                        title: "Artwork #114",
+                        description: "Description for artwork #114. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Abstract", "Geometric"],
+                        year: 2021,
+                        color: "#66CDAA",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '20 hours'
+                        },
+                        links: [
+                            { text: "Artwork 114 Placeholder link", url: "https://example.com/artwork114/1" },
+                            { text: "Artwork 114 Placeholder link", url: "https://example.com/artwork114/2" },
+                            { text: "Artwork 114 Placeholder link", url: "https://example.com/artwork114/3" },
+                            { text: "Artwork 114 Placeholder link", url: "https://example.com/artwork114/4" }
+                        ]
+                    },
+                    {
+                        id: 115,
+                        title: "Artwork #115",
+                        description: "Description for artwork #115. Replace this with your own description.",
+                        category: "Concept Art",
+                        tags: ["Fantasy", "Creature"],
+                        year: 2019,
+                        color: "#228B22",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '55cm × 70cm',
+                            'Creation Time': '45 hours'
+                        },
+                        links: [
+                            { text: "Artwork 115 Placeholder link", url: "https://example.com/artwork115/1" },
+                            { text: "Artwork 115 Placeholder link", url: "https://example.com/artwork115/2" },
+                            { text: "Artwork 115 Placeholder link", url: "https://example.com/artwork115/3" },
+                            { text: "Artwork 115 Placeholder link", url: "https://example.com/artwork115/4" }
+                        ]
+                    },
+                    {
+                        id: 116,
+                        title: "Artwork #116",
+                        description: "Description for artwork #116. Replace this with your own description.",
+                        category: "Environment",
+                        tags: ["Mountains", "Sunset"],
+                        year: 2022,
+                        color: "#FF4500",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '60cm × 45cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 116 Placeholder link", url: "https://example.com/artwork116/1" },
+                            { text: "Artwork 116 Placeholder link", url: "https://example.com/artwork116/2" },
+                            { text: "Artwork 116 Placeholder link", url: "https://example.com/artwork116/3" },
+                            { text: "Artwork 116 Placeholder link", url: "https://example.com/artwork116/4" }
+                        ]
+                    },
+                    {
+                        id: 117,
+                        title: "Artwork #117",
+                        description: "Description for artwork #117. Replace this with your own description.",
+                        category: "Storyboard",
+                        tags: ["Adventure", "Fantasy"],
+                        year: 2020,
+                        color: "#DEB887",
+                        details: {
+                            'Medium': 'Traditional',
+                            'Dimensions': '45cm × 65cm',
+                            'Creation Time': '30 hours'
+                        },
+                        links: [
+                            { text: "Artwork 117 Placeholder link", url: "https://example.com/artwork117/1" },
+                            { text: "Artwork 117 Placeholder link", url: "https://example.com/artwork117/2" },
+                            { text: "Artwork 117 Placeholder link", url: "https://example.com/artwork117/3" },
+                            { text: "Artwork 117 Placeholder link", url: "https://example.com/artwork117/4" }
+                        ]
+                    },
+                    {
+                        id: 118,
+                        title: "Artwork #118",
+                        description: "Description for artwork #118. Replace this with your own description.",
+                        category: "Character Design",
+                        tags: ["Fantasy", "Knight"],
+                        year: 2021,
+                        color: "#708090",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 70cm',
+                            'Creation Time': '40 hours'
+                        },
+                        links: [
+                            { text: "Artwork 118 Placeholder link", url: "https://example.com/artwork118/1" },
+                            { text: "Artwork 118 Placeholder link", url: "https://example.com/artwork118/2" },
+                            { text: "Artwork 118 Placeholder link", url: "https://example.com/artwork118/3" },
+                            { text: "Artwork 118 Placeholder link", url: "https://example.com/artwork118/4" }
+                        ]
+                    },
+                    {
+                        id: 119,
+                        title: "Artwork #119",
+                        description: "Description for artwork #119. Replace this with your own description.",
+                        category: "Illustration",
+                        tags: ["Fantasy", "Fairy"],
+                        year: 2019,
+                        color: "#98FB98",
+                        details: {
+                            'Medium': 'Mixed Media',
+                            'Dimensions': '45cm × 55cm',
+                            'Creation Time': '35 hours'
+                        },
+                        links: [
+                            { text: "Artwork 119 Placeholder link", url: "https://example.com/artwork119/1" },
+                            { text: "Artwork 119 Placeholder link", url: "https://example.com/artwork119/2" },
+                            { text: "Artwork 119 Placeholder link", url: "https://example.com/artwork119/3" },
+                            { text: "Artwork 119 Placeholder link", url: "https://example.com/artwork119/4" }
+                        ]
+                    },
+                    {
+                        id: 120,
+                        title: "Artwork #120",
+                        description: "Description for artwork #120. Replace this with your own description.",
+                        category: "Digital Art",
+                        tags: ["Cyberpunk", "Futuristic"],
+                        year: 2022,
+                        color: "#4B0082",
+                        details: {
+                            'Medium': 'Digital',
+                            'Dimensions': '50cm × 50cm',
+                            'Creation Time': '25 hours'
+                        },
+                        links: [
+                            { text: "Artwork 120 Placeholder link", url: "https://example.com/artwork120/1" },
+                            { text: "Artwork 120 Placeholder link", url: "https://example.com/artwork120/2" },
+                            { text: "Artwork 120 Placeholder link", url: "https://example.com/artwork120/3" },
+                            { text: "Artwork 120 Placeholder link", url: "https://example.com/artwork120/4" }
+                        ]
+                    }
+                ]);
+                
+                const imageFormats = [
+                    { width: 400, height: 300, desc: 'Landscape' },
+                    { width: 300, height: 400, desc: 'Portrait' },
+                    { width: 350, height: 350, desc: 'Square' }
+                ];
+
+                // Update each artwork's imageUrl
+                artworks.value.forEach((artwork, i) => {
+                    const format = imageFormats[i % imageFormats.length];
+                    artwork.imageUrl = `https://placehold.co/${format.width}x${format.height}/png`;
+                });
+
+                const modalOpen = ref(false);
+                const currentArtwork = ref(null);
+                const currentIndex = ref(0);
+                const searchTerm = ref('');
+                const selectedCategory = ref('');
+                
+                const panelRefs = ref({});
+                const loadedImages = ref(new Set());
+
+                const handleImageLoad = (index) => {
+                    loadedImages.value.add(index);
+                    if (loadedImages.value.size === artworks.value.length) {
+                        nextTick(() => {
+                            const grid = document.querySelector('.artwork-grid');
+                            if (grid) {
+                                // Force grid recalculation without affecting height
+                                grid.style.opacity = '0';
+                                void grid.offsetHeight;
+                                grid.style.opacity = '1';
+                            }
+                        });
+                    }
+                };
+
+                const filteredArtworks = computed(() => {
+                    return artworks.value.filter(artwork => {
+                        const searchValue = searchTerm.value.toLowerCase();
+                        const searchMatch = searchValue === '' || 
+                            artwork.title.toLowerCase().includes(searchValue) ||
+                            artwork.description.toLowerCase().includes(searchValue) ||
+                            artwork.category.toLowerCase().includes(searchValue) ||
+                            artwork.tags.some(tag => tag.toLowerCase().includes(searchValue)) ||
+                            (artwork.year && artwork.year.toString().includes(searchValue)) ||
+                            (artwork.details && Object.values(artwork.details).some(detail => 
+                                detail && detail.toString().toLowerCase().includes(searchValue)
+                            )) ||
+                            (artwork.links && artwork.links.some(link => 
+                                (link.text && link.text.toLowerCase().includes(searchValue)) || 
+                                (link.url && link.url.toLowerCase().includes(searchValue))
+                            ));
+                        
+                        const categoryMatch = selectedCategory.value === '' || 
+                            artwork.category === selectedCategory.value;
+                        
+                        return searchMatch && categoryMatch;
+                    });
+                });
+                
+                const categoriesList = computed(() => {
+                    const uniqueCategories = new Set();
+                    artworks.value.forEach(artwork => uniqueCategories.add(artwork.category));
+                    return Array.from(uniqueCategories);
+                });
+                
+                function openModal(artwork) {
+                    currentArtwork.value = artwork;
+                    currentIndex.value = filteredArtworks.value.findIndex(a => a.id === artwork.id);
+                    modalOpen.value = true;
+                    
+                    gsap.from(".modal-content", {
+                        duration: 0.5,
+                        scale: 0.8,
+                        opacity: 0,
+                        ease: "back.out(1.7)"
+                    });
+                    
+                    gsap.from(".info-panel", {
+                        duration: 0.7,
+                        x: 100,
+                        opacity: 0,
+                        delay: 0.2,
+                        ease: "power3.out"
+                    });
+                }
+                
+                function closeModal() {
+                    gsap.to(".modal-content", {
+                        duration: 0.3,
+                        scale: 0.8,
+                        opacity: 0,
+                        onComplete: () => {
+                            modalOpen.value = false;
+                        }
+                    });
+                }
+                
+                function nextArtwork() {
+                    if (currentIndex.value < filteredArtworks.value.length - 1) {
+                        gsap.to(".image-panel, .info-panel", {
+                            duration: 0.3,
+                            opacity: 0,
+                            onComplete: () => {
+                                currentIndex.value++;
+                                currentArtwork.value = filteredArtworks.value[currentIndex.value];
+                                gsap.to(".image-panel, .info-panel", {
+                                    duration: 0.3,
+                                    opacity: 1
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                function prevArtwork() {
+                    if (currentIndex.value > 0) {
+                        gsap.to(".image-panel, .info-panel", {
+                            duration: 0.3,
+                            opacity: 0,
+                            onComplete: () => {
+                                currentIndex.value--;
+                                currentArtwork.value = filteredArtworks.value[currentIndex.value];
+                                gsap.to(".image-panel, .info-panel", {
+                                    duration: 0.3,
+                                    opacity: 1
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                function clearSearch() {
+                    searchTerm.value = '';
+                }
+                
+                const filterBarVisible = ref(true);
+                let cursorTimeout = null;
+                
+                function handleCursorMovement() {
+                    // Clear any existing timeout
+                    if (cursorTimeout) {
+                        clearTimeout(cursorTimeout);
+                    }
+                    
+                    // Make filter bar visible
+                    filterBarVisible.value = true;
+                    
+                    // Set a new timeout to hide the filter bar after 2 seconds
+                    cursorTimeout = setTimeout(() => {
+                        filterBarVisible.value = false;
+                    }, 2000);
+                }
+                
+                onMounted(() => {
+                    nextTick(() => {
+                        const grid = document.querySelector('.artwork-grid');
+                        if (grid) {
+                            // Initial setup without affecting height
+                            grid.style.opacity = '0';
+                            void grid.offsetHeight;
+                            grid.style.opacity = '1';
+                        }
+                    });
+                    
+                    window.addEventListener('keydown', (e) => {
+                        if (!modalOpen.value) return;
+                        
+                        if (e.key === 'Escape') {
+                            closeModal();
+                        } else if (e.key === 'ArrowRight') {
+                            nextArtwork();
+                        } else if (e.key === 'ArrowLeft') {
+                            prevArtwork();
+                        }
+                    });
+                    
+                    gsap.from(".comic-panel", {
+                        duration: 0.6,
+                        opacity: 0,
+                        y: 20,
+                        stagger: 0.05,
+                        ease: "power3.out"
+                    });
+                    
+                    document.addEventListener('mousemove', handleCursorMovement);
+                    
+                    handleCursorMovement();
+                });
+                
+                return {
+                    artworks,
+                    filteredArtworks,
+                    modalOpen,
+                    currentArtwork,
+                    currentIndex,
+                    searchTerm,
+                    selectedCategory,
+                    categories: categoriesList,
+                    openModal,
+                    closeModal,
+                    nextArtwork,
+                    prevArtwork,
+                    clearSearch,
+                    panelRefs,
+                    handleImageLoad,
+                    filterBarVisible
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
