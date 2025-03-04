@@ -3074,6 +3074,9 @@
                     });
                     
                     document.addEventListener('mousemove', handleCursorMovement);
+                    // Add touch event listeners for mobile devices
+                    document.addEventListener('touchstart', handleCursorMovement);
+                    document.addEventListener('touchmove', handleCursorMovement);
                     
                     handleCursorMovement();
                     
