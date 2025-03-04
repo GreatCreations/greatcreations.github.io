@@ -102,6 +102,7 @@
             position: relative;
             padding: 0.5rem;
             box-sizing: border-box;
+            flex-direction: row;
         }
         
         .tag {
@@ -356,6 +357,40 @@
         
         .external-link-icon {
             margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                flex-direction: column-reverse;
+                overflow-y: auto;
+            }
+            
+            .image-panel {
+                width: 100%;
+                height: auto;
+                min-height: 200px;
+            }
+            
+            .info-panel {
+                width: 100%;
+                border-left: none;
+                border-bottom: 4px solid black;
+                margin-bottom: 0.5rem;
+            }
+            
+            .navigation-button {
+                height: 50px;
+                top: auto;
+                bottom: 10px;
+            }
+            
+            .prev-button {
+                left: 10px;
+            }
+            
+            .next-button {
+                right: 10px;
+            }
         }
     </style>
 </head>
