@@ -3033,10 +3033,13 @@
                     // Make filter bar visible
                     filterBarVisible.value = true;
                     
-                    // Set a new timeout to hide the filter bar after 2 seconds
-                    cursorTimeout = setTimeout(() => {
-                        filterBarVisible.value = false;
-                    }, 2000);
+                    // Only set timeout to hide if search input doesn't have focus
+                    const searchInput = document.querySelector('.search-input');
+                    if (!searchInput || !searchInput.matches(':focus')) {
+                        cursorTimeout = setTimeout(() => {
+                            filterBarVisible.value = false;
+                        }, 2000);
+                    }
                 }
                 
                 onMounted(() => {
@@ -3073,6 +3076,22 @@
                     document.addEventListener('mousemove', handleCursorMovement);
                     
                     handleCursorMovement();
+                    
+                    const searchInput = document.querySelector('.search-input');
+                    if (searchInput) {
+                        searchInput.addEventListener('focus', () => {
+                            filterBarVisible.value = true;
+                            if (cursorTimeout) {
+                                clearTimeout(cursorTimeout);
+                                cursorTimeout = null;
+                            }
+                        });
+                        
+                        searchInput.addEventListener('blur', () => {
+                            // Reset the timeout when focus is lost
+                            handleCursorMovement();
+                        });
+                    }
                 });
                 
                 return {
