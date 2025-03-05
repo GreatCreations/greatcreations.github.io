@@ -4,14 +4,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            overflow-y: auto;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background: #1a1a1a;
+            position: relative;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .grid-container {
@@ -49,12 +51,73 @@
             padding: 0;
         }
         
+        .shine {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(255, 166, 0, 0.4) 40%,
+                rgba(0, 255, 255, 0.4) 60%,
+                transparent 100%
+            );
+            height: 200%;
+            width: 100%;
+            pointer-events: none;
+            transform: translateY(-100%);
+        }
+        
+        .title-bar {
+            position: relative;
+            overflow: hidden;
+            background: black;
+            color: white;
+            padding: 0.5rem;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+            --shine-y: -100%;
+        }
+
+        .title-bar::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            right: 0;
+            bottom: -100%;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(255, 166, 0, 0.5) 40%,
+                rgba(0, 255, 255, 0.5) 60%,
+                transparent 100%
+            );
+            pointer-events: none;
+            transform: translateY(var(--shine-y));
+            z-index: 1;
+            height: 400%;
+        }
+        
+        .title-bar h3 {
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            padding: 0;
+            font-size: 0.875rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
         .panel-content {
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 100%;
-            background: inherit;
+            position: relative;
+            background: transparent;
         }
         
         .image-container {
@@ -65,7 +128,7 @@
             overflow: hidden;
             position: relative;
             width: 100%;
-            background: inherit;
+            background: transparent;
         }
         
         .image-container img {
@@ -77,7 +140,6 @@
         
         .comic-panel:hover {
             transform: scale(1.02);
-            z-index: 5;
         }
         
         .modal-overlay {
@@ -87,7 +149,6 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.85);
-            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,7 +258,7 @@
         }
         
         .filter-bar {
-            position: absolute;
+            position: fixed;
             top: 10px;
             right: 10px;
             z-index: 10;
@@ -208,6 +269,14 @@
             padding: 5px;
             gap: 0.5rem;
             transition: opacity 0.5s ease;
+            transform: translateY(var(--filter-y, 0));
+        }
+
+        .filter-bar-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(var(--filter-content-y, 0));
         }
         
         .search-container {
@@ -256,25 +325,6 @@
             background: #333;
         }
         
-        .title-bar {
-            background: black;
-            color: white;
-            padding: 0.5rem;
-            margin: 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .title-bar h3 {
-            margin: 0;
-            padding: 0;
-            font-size: 0.875rem;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
         [v-cloak] {
             display: none;
         }
@@ -293,7 +343,7 @@
             padding: 1rem;
             background: white;
             border-radius: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 12px 12px 0px rgba(0,0,0,0.2);
             margin-bottom: 1rem;
         }
         
@@ -392,19 +442,109 @@
                 right: 10px;
             }
         }
+        
+        .halftone-layer {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            pointer-events: none;
+            z-index: 1;
+            background-image: 
+                radial-gradient(circle at center, rgba(0, 255, 255, 0.25) 1.5px, transparent 1.5px),
+                radial-gradient(circle at center, rgba(255, 166, 0, 0.25) 1.5px, transparent 1.5px);
+            background-size: 24px 24px, 24px 24px;
+            background-position: 0 0, 12px 12px;
+            transform: translate(var(--halftone-x, 0%), var(--halftone-y, 0%)) scale(1.5);
+            transform-origin: center;
+            mix-blend-mode: plus-lighter;
+        }
+        
+        .page-gradient {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: 
+                linear-gradient(
+                    180deg,
+                    transparent 0%,
+                    rgba(0, 255, 255, 0.2) 40%,
+                    rgba(255, 166, 0, 0.2) 60%,
+                    transparent 100%
+                ),
+                linear-gradient(
+                    45deg,
+                    transparent 0%,
+                    rgba(0, 255, 255, 0.15) 30%,
+                    rgba(255, 166, 0, 0.15) 70%,
+                    transparent 100%
+                ),
+                linear-gradient(
+                    -45deg,
+                    transparent 0%,
+                    rgba(255, 166, 0, 0.15) 30%,
+                    rgba(0, 255, 255, 0.15) 70%,
+                    transparent 100%
+                );
+            pointer-events: none;
+            z-index: 1;
+            transform: translateY(var(--page-shine-y, 0%)) rotate(var(--page-rotate-main, 0deg));
+            transform-origin: center;
+        }
+
+        .page-gradient::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 166, 0, 0.2),
+                rgba(0, 255, 255, 0.2),
+                transparent 70%
+            );
+            transform: translateY(var(--page-shine-y-reverse, 0%)) rotate(var(--page-rotate, 0deg));
+            transform-origin: center;
+        }
+
+        .page-gradient::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(255, 166, 0, 0.1) 25%,
+                    rgba(0, 255, 255, 0.1) 75%,
+                    transparent 100%
+                );
+            transform: translateX(var(--page-shine-x, 0%));
+        }
+        
+        #app {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 <body>
+    <div class="halftone-layer"></div>
+    <div class="page-gradient"></div>
     <div id="app" v-cloak>
         <div class="filter-bar" :style="{ opacity: filterBarVisible ? 1 : 0 }">
-            <div class="search-container">
-                <input type="text" v-model="searchTerm" placeholder="Search..." class="search-input">
-                <button v-if="searchTerm" @click="clearSearch" class="clear-search">×</button>
+            <div class="filter-bar-content">
+                <div class="search-container">
+                    <input type="text" v-model="searchTerm" placeholder="Search..." class="search-input">
+                    <button v-if="searchTerm" @click="clearSearch" class="clear-search">×</button>
+                </div>
+                <select v-model="selectedCategory" class="category-select">
+                    <option value="">All Categories</option>
+                    <option v-for="category in categories" :value="category">{{ category }}</option>
+                </select>
             </div>
-            <select v-model="selectedCategory" class="category-select">
-                <option value="">All Categories</option>
-                <option v-for="category in categories" :value="category">{{ category }}</option>
-            </select>
         </div>
         
         <div class="grid-container">
@@ -414,6 +554,7 @@
                          :ref="el => { if (el) panelRefs[index] = el }"
                          :style="{ backgroundColor: artwork.color }"
                          @click="openModal(artwork)">
+                        <div class="shine"></div>
                         <div class="panel-content">
                             <div class="title-bar">
                                 <h3>{{ artwork.title }}</h3>
@@ -2150,7 +2291,7 @@
                         category: "Digital Art",
                         tags: ["Cyberpunk", "Futuristic"],
                         year: 2022,
-                        color: "#0000CD",
+                        color: "#000000",
                         details: {
                             'Medium': 'Digital',
                             'Dimensions': '50cm × 50cm',
@@ -3095,6 +3236,107 @@
                             handleCursorMovement();
                         });
                     }
+                });
+                
+                window.addEventListener('load', () => {
+                    // Register ScrollTrigger plugin
+                    gsap.registerPlugin(ScrollTrigger);
+
+                    // Main shine effect
+                    gsap.to('.shine', {
+                        y: '300%',
+                        duration: 5,
+                        repeat: -1,
+                        ease: 'none',
+                        stagger: {
+                            each: 0.5,
+                            repeat: -1
+                        }
+                    });
+
+                    // Title shine effect
+                    const titles = document.querySelectorAll('.title-bar');
+                    titles.forEach(title => {
+                        gsap.fromTo(title,
+                            { '--shine-y': '-100%' },
+                            {
+                                '--shine-y': '100%',
+                                scrollTrigger: {
+                                    trigger: title,
+                                    start: 'top 90%',
+                                    end: 'bottom 10%',
+                                    scrub: 1.5,
+                                    ease: "power1.inOut"
+                                }
+                            }
+                        );
+                    });
+                    
+                    // Enhanced page background parallax with multiple effects
+                    gsap.to('.page-gradient', {
+                        '--page-shine-y': '25%',
+                        '--page-rotate-main': '-5',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 3
+                        }
+                    });
+
+                    gsap.to('.page-gradient', {
+                        '--page-shine-y-reverse': '-25%',
+                        '--page-rotate': '10',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 4
+                        }
+                    });
+
+                    gsap.to('.page-gradient', {
+                        '--page-shine-x': '25%',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 2
+                        }
+                    });
+                    
+                    // Halftone parallax effect (faster movement)
+                    gsap.to('.halftone-layer', {
+                        '--halftone-x': '15%',
+                        '--halftone-y': '15%',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 1
+                        }
+                    });
+                    
+                    // Filter bar parallax effect
+                    gsap.to('.filter-bar', {
+                        '--filter-y': '5px',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 3
+                        }
+                    });
+
+                    gsap.to('.filter-bar-content', {
+                        '--filter-content-y': '3px',
+                        scrollTrigger: {
+                            trigger: 'body',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 2
+                        }
+                    });
                 });
                 
                 return {
