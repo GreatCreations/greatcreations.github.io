@@ -1,0 +1,193 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaScape OS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&family=Bangers&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="os-container">
+        <div id="status-bar">
+            <div class="status-time"></div>
+        </div>
+        
+        <div id="panel-grid">
+            <!-- Panels will be dynamically generated -->
+        </div>
+        
+        <div id="dock">
+            <div class="dock-icon" data-app="browser">
+                <i class="fas fa-globe"></i>
+                <span>Browse</span>
+            </div>
+            <div class="dock-icon" data-app="appstore">
+                <i class="fas fa-store"></i>
+                <span>Apps</span>
+            </div>
+            <div class="dock-icon" data-app="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="app-window" id="browser-app">
+        <div class="window-header">
+            <div class="window-title">ChromaScape Browser</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="browser-toolbar">
+            <button class="browser-back"><i class="fas fa-arrow-left"></i></button>
+            <button class="browser-forward"><i class="fas fa-arrow-right"></i></button>
+            <button class="browser-refresh"><i class="fas fa-redo"></i></button>
+            <input type="text" class="browser-url" placeholder="Enter URL...">
+            <button class="browser-go"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="window-content">
+            <iframe id="browser-frame" src="https://www.wikipedia.org"></iframe>
+        </div>
+    </div>
+    
+    <div class="app-window" id="appstore-app">
+        <div class="window-header">
+            <div class="window-title">App Repository</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="app-store-grid">
+                <div class="app-store-section installed-apps">
+                    <h2>Installed Apps</h2>
+                    <div class="app-grid">
+                        <div class="app-card" data-app="sketchpad">
+                            <div class="app-icon"><i class="fas fa-paint-brush"></i></div>
+                            <div class="app-name">SketchPad</div>
+                            <div class="uninstall-icon"><i class="fas fa-times"></i></div>
+                        </div>
+                        <div class="app-card" data-app="notes">
+                            <div class="app-icon"><i class="fas fa-sticky-note"></i></div>
+                            <div class="app-name">Notes</div>
+                            <div class="uninstall-icon"><i class="fas fa-times"></i></div>
+                        </div>
+                        <div class="app-card" data-app="calendar">
+                            <div class="app-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="app-name">Calendar</div>
+                            <div class="uninstall-icon"><i class="fas fa-times"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-store-section available-apps">
+                    <h2>Available Apps</h2>
+                    <div class="app-grid">
+                        <div class="app-card" data-app="mindfield">
+                            <div class="app-icon"><i class="fas fa-brain"></i></div>
+                            <div class="app-name">Mindfield</div>
+                        </div>
+                        <div class="app-card" data-app="tasks">
+                            <div class="app-icon"><i class="fas fa-tasks"></i></div>
+                            <div class="app-name">Tasks</div>
+                        </div>
+                        <div class="app-card" data-app="resources">
+                            <div class="app-icon"><i class="fas fa-address-book"></i></div>
+                            <div class="app-name">Resources</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="app-window" id="settings-app">
+        <div class="window-header">
+            <div class="window-title">Settings</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="settings-menu">
+                <h3>Appearance</h3>
+                <div class="settings-option">
+                    <label for="color-scheme">Color Scheme:</label>
+                    <div class="color-options">
+                        <div class="color-option selected" data-scheme="default">
+                            <span class="color-preview" style="background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFA8D2);"></span>
+                            <span>Vibrant</span>
+                        </div>
+                        <div class="color-option" data-scheme="dark">
+                            <span class="color-preview" style="background: linear-gradient(45deg, #2C3E50, #4ECDC4, #E74C3C);"></span>
+                            <span>Dark</span>
+                        </div>
+                        <div class="color-option" data-scheme="pastel">
+                            <span class="color-preview" style="background: linear-gradient(45deg, #FDCB6E, #55EAFF, #FF79C6);"></span>
+                            <span>Pastel</span>
+                        </div>
+                    </div>
+                </div>
+                <h3>Display Mode</h3>
+                <div class="settings-option">
+                    <label>Window Mode:</label>
+                    <button id="borderless-mode" class="borderless-button">
+                        <i class="fas fa-expand-arrows-alt"></i> Launch Borderless Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="app-window" id="sketchpad-app">
+        <div class="window-header">
+            <div class="window-title">SketchPad</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="sketchpad-frame" src="https://excalidraw.com/"></iframe>
+        </div>
+    </div>
+    
+    <div class="app-window" id="notes-app">
+        <div class="window-header">
+            <div class="window-title">Notes</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="notes-frame" src="https://keep.google.com/"></iframe>
+        </div>
+    </div>
+    
+    <div class="app-window" id="calendar-app">
+        <div class="window-header">
+            <div class="window-title">Calendar</div>
+            <div class="window-controls">
+                <button class="window-minimize"><i class="fas fa-minus"></i></button>
+                <button class="window-fullscreen"><i class="fas fa-expand"></i></button>
+                <button class="window-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="calendar-frame" src="https://calendar.google.com/"></iframe>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
