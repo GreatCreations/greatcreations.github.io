@@ -9,6 +9,7 @@ function initializeOS() {
     setupEventListeners();
     setupShade();
     initializeApps();
+    addOSLogo();
 }
 
 function updateClock() {
@@ -320,6 +321,7 @@ function setupBrowserControls() {
     const backButton = document.querySelector('.browser-back');
     const forwardButton = document.querySelector('.browser-forward');
     const refreshButton = document.querySelector('.browser-refresh');
+    const homeButton = document.querySelector('.browser-home');
     const browserFrame = document.getElementById('browser-frame');
     
     const loadUrl = () => {
@@ -350,6 +352,12 @@ function setupBrowserControls() {
     
     refreshButton.addEventListener('click', () => {
         browserFrame.contentWindow.location.reload();
+    });
+    
+    homeButton.addEventListener('click', () => {
+        const homeUrl = 'https://greatcreations.github.io/ChromaScape_OS/ChromaScapeSearch.html';
+        browserFrame.src = homeUrl;
+        urlBar.value = homeUrl;
     });
     
     // Update URL bar when iframe src changes
@@ -486,10 +494,81 @@ function setupShade() {
     // Create shade element
     const shade = document.createElement('div');
     shade.id = 'shade';
+    
+    // Add infinity mirror layers to shade
+    const shadeLayers = document.createElement('div');
+    shadeLayers.className = 'shade-infinity-layers';
+    
+    // Create multiple layers for the infinity effect
+    for (let i = 0; i < 20; i++) {
+        const layer = document.createElement('div');
+        layer.className = 'shade-infinity-layer';
+        layer.style.animationDelay = `${i * 0.3}s`;
+        layer.style.transform = `scale(${1 - i * 0.04}) translateZ(${-i * 10}px)`;
+        layer.style.borderColor = `rgba(${255 - i * 10}, ${168 + i * 5}, ${210 - i * 5}, ${0.05 + i * 0.01})`;
+        shadeLayers.appendChild(layer);
+    }
+    
+    shade.appendChild(shadeLayers);
+    
+    // Add columns container to the center
+    const columnsContainer = document.createElement('div');
+    columnsContainer.className = 'shade-columns-container';
+    
+    // Create the three columns
+    const column1 = document.createElement('div');
+    column1.className = 'shade-column primary-column';
+    
+    const column2 = document.createElement('div');
+    column2.className = 'shade-column secondary-column';
+    
+    const column3 = document.createElement('div');
+    column3.className = 'shade-column accent-column';
+    
+    // Add some content to columns
+    column1.innerHTML = '<h3>Primary</h3><p>Column content</p>';
+    column2.innerHTML = '<h3>Secondary</h3><p>Column content</p>';
+    column3.innerHTML = '<h3>Accent</h3><p>Column content</p>';
+    
+    // Append columns to container
+    columnsContainer.appendChild(column1);
+    columnsContainer.appendChild(column2);
+    columnsContainer.appendChild(column3);
+    
+    // Add container to shade
+    shade.appendChild(columnsContainer);
+    
     document.getElementById('os-container').appendChild(shade);
     
-    // Set up simple click toggle for shade
+    // Set up infinity effect for status bar
     const statusBar = document.getElementById('status-bar');
+    
+    // Add layers to status bar
+    const statusLayers = document.createElement('div');
+    statusLayers.className = 'infinity-layers';
+    
+    // Create multiple layers for the infinity effect
+    for (let i = 0; i < 7; i++) {
+        const layer = document.createElement('div');
+        layer.className = 'infinity-layer';
+        layer.style.animationDelay = `${i * 0.3}s`;
+        // Alternate between the three theme colors
+        if (i % 3 === 0) {
+            layer.style.borderColor = 'rgba(255, 107, 107, 0.1)';
+            layer.style.boxShadow = '0 0 8px rgba(255, 107, 107, 0.2)';
+        } else if (i % 3 === 1) {
+            layer.style.borderColor = 'rgba(78, 205, 196, 0.1)';
+            layer.style.boxShadow = '0 0 8px rgba(78, 205, 196, 0.2)';
+        } else {
+            layer.style.borderColor = 'rgba(255, 168, 210, 0.1)';
+            layer.style.boxShadow = '0 0 8px rgba(255, 168, 210, 0.2)';
+        }
+        statusLayers.appendChild(layer);
+    }
+    
+    statusBar.appendChild(statusLayers);
+    
+    // Set up simple click toggle for shade
     statusBar.addEventListener('click', toggleShade);
 }
 
@@ -572,7 +651,7 @@ function updateAppStoreDisplay(installedApps) {
     
     // Store all app data to ensure consistency
     const defaultApps = ['sketchpad', 'notes', 'calendar'];
-    const allApps = [...defaultApps, 'mindfield', 'tasks', 'resources'];
+    const allApps = [...defaultApps, 'mindfield', 'tasks', 'resources', 'notepinboard'];
     
     // First, make sure all apps exist in either section
     allApps.forEach(appName => {
@@ -684,7 +763,8 @@ function getAppInfo(appName) {
         'calendar': { title: 'Calendar', icon: 'fas fa-calendar-alt' },
         'mindfield': { title: 'Mindfield', icon: 'fas fa-brain' },
         'tasks': { title: 'Tasks', icon: 'fas fa-tasks' },
-        'resources': { title: 'Resources', icon: 'fas fa-address-book' }
+        'resources': { title: 'Resources', icon: 'fas fa-address-book' },
+        'notepinboard': { title: 'NotePinboard', icon: 'fas fa-thumbtack' }
     };
     
     return appInfoMap[appName];
@@ -772,6 +852,8 @@ function createAppWindowIfNeeded(appName) {
         appUrl = 'https://greatcreations.github.io/Tasks.html';
     } else if (appName === 'resources') {
         appUrl = 'https://greatcreations.github.io/Resources.html';
+    } else if (appName === 'notepinboard') {
+        appUrl = 'https://greatcreations.github.io/tools/NotePinboard/NotePinboard.html';
     }
     
     appWindow.innerHTML = `
@@ -925,6 +1007,123 @@ function toggleFullscreen(appWindow) {
         appWindow.classList.add('fullscreen');
         appWindow.querySelector('.window-fullscreen i').className = 'fas fa-compress';
     }
+}
+
+function addOSLogo() {
+    const panelGrid = document.getElementById('panel-grid');
+    
+    // Create SVG element
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNamespace, "svg");
+    svg.setAttribute("id", "os-logo");
+    svg.setAttribute("viewBox", "0 0 100 100");
+    svg.setAttribute("xmlns", svgNamespace);
+    
+    // Create the logo - a circular logo with CS letters and orbital rings
+    
+    // Outer ring
+    const outerRing = document.createElementNS(svgNamespace, "circle");
+    outerRing.setAttribute("cx", "50");
+    outerRing.setAttribute("cy", "50");
+    outerRing.setAttribute("r", "48");
+    outerRing.setAttribute("fill", "none");
+    outerRing.setAttribute("stroke", "var(--primary-color)");
+    outerRing.setAttribute("stroke-width", "2");
+    outerRing.setAttribute("stroke-dasharray", "1, 5");
+    
+    // Middle ring
+    const middleRing = document.createElementNS(svgNamespace, "circle");
+    middleRing.setAttribute("cx", "50");
+    middleRing.setAttribute("cy", "50");
+    middleRing.setAttribute("r", "38");
+    middleRing.setAttribute("fill", "none");
+    middleRing.setAttribute("stroke", "var(--secondary-color)");
+    middleRing.setAttribute("stroke-width", "2");
+    middleRing.setAttribute("stroke-opacity", "0.7");
+    
+    // Inner ring with gradient
+    const innerRing = document.createElementNS(svgNamespace, "circle");
+    innerRing.setAttribute("cx", "50");
+    innerRing.setAttribute("cy", "50");
+    innerRing.setAttribute("r", "28");
+    innerRing.setAttribute("fill", "none");
+    innerRing.setAttribute("stroke", "var(--accent-color)");
+    innerRing.setAttribute("stroke-width", "3");
+    
+    // Center circle
+    const centerCircle = document.createElementNS(svgNamespace, "circle");
+    centerCircle.setAttribute("cx", "50");
+    centerCircle.setAttribute("cy", "50");
+    centerCircle.setAttribute("r", "18");
+    centerCircle.setAttribute("fill", "rgba(41, 47, 54, 0.7)");
+    centerCircle.setAttribute("stroke", "var(--light-color)");
+    centerCircle.setAttribute("stroke-width", "1");
+    
+    // The C
+    const letterC = document.createElementNS(svgNamespace, "path");
+    letterC.setAttribute("d", "M42,40 C38,42 36,45 36,50 C36,55 38,58 42,60 C45,61.5 48,61 48,61 L48,56 C48,56 46,56.5 44,55 C42,53.5 41,52 41,50 C41,48 42,46.5 44,45 C46,43.5 48,44 48,44 L48,39 C48,39 45,38.5 42,40 Z");
+    letterC.setAttribute("fill", "var(--light-color)");
+    
+    // The S
+    const letterS = document.createElementNS(svgNamespace, "path");
+    letterS.setAttribute("d", "M64,40 C61,38.5 58,39 58,39 L58,44 C58,44 60,43.5 62,45 C63,45.8 63.5,46.5 63.5,47.5 C63.5,48.5 63,49 62,49.5 C61,50 59,50 59,50 C59,50 57,50 56,49.5 L56,54.5 C56,54.5 57,55 59,55 C61,55 64,54.5 65.5,52.5 C67,50.5 67,48 65.5,46 C65,45.5 64.5,45 64,44.6 C63.8,44.5 64,44.4 64.2,44.3 C64.5,44.2 64.8,44 65,43.8 C65.5,43.2 66,42.5 66,41.5 C66,40.5 65,40 64,40 Z");
+    letterS.setAttribute("fill", "var(--light-color)");
+    
+    // Orbiting dot (primary color)
+    const orbit1 = document.createElementNS(svgNamespace, "circle");
+    orbit1.setAttribute("cx", "88");
+    orbit1.setAttribute("cy", "50");
+    orbit1.setAttribute("r", "5");
+    orbit1.setAttribute("fill", "var(--primary-color)");
+    orbit1.innerHTML = `<animateTransform 
+        attributeName="transform"
+        type="rotate"
+        from="0 50 50"
+        to="360 50 50"
+        dur="12s"
+        repeatCount="indefinite" />`;
+    
+    // Orbiting dot (secondary color)
+    const orbit2 = document.createElementNS(svgNamespace, "circle");
+    orbit2.setAttribute("cx", "50");
+    orbit2.setAttribute("cy", "12");
+    orbit2.setAttribute("r", "4");
+    orbit2.setAttribute("fill", "var(--secondary-color)");
+    orbit2.innerHTML = `<animateTransform 
+        attributeName="transform"
+        type="rotate"
+        from="0 50 50"
+        to="360 50 50"
+        dur="8s"
+        repeatCount="indefinite" />`;
+    
+    // Orbiting dot (accent color)
+    const orbit3 = document.createElementNS(svgNamespace, "circle");
+    orbit3.setAttribute("cx", "18");
+    orbit3.setAttribute("cy", "50");
+    orbit3.setAttribute("r", "3");
+    orbit3.setAttribute("fill", "var(--accent-color)");
+    orbit3.innerHTML = `<animateTransform 
+        attributeName="transform"
+        type="rotate"
+        from="0 50 50"
+        to="-360 50 50"
+        dur="15s"
+        repeatCount="indefinite" />`;
+    
+    // Add all elements to the SVG
+    svg.appendChild(outerRing);
+    svg.appendChild(middleRing);
+    svg.appendChild(innerRing);
+    svg.appendChild(centerCircle);
+    svg.appendChild(letterC);
+    svg.appendChild(letterS);
+    svg.appendChild(orbit1);
+    svg.appendChild(orbit2);
+    svg.appendChild(orbit3);
+    
+    // Add the SVG to the panel grid
+    panelGrid.appendChild(svg);
 }
 
 // Added CSS rule
