@@ -1,0 +1,1580 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaScape Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 15px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #444444;
+            border-radius: var(--border-radius);
+            border: 2px solid #e0e0e0;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333333;
+        }
+        
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #444444 #e0e0e0;
+        }
+
+        /* Dark mode scrollbar adjustments */
+        .dark-mode::-webkit-scrollbar-track {
+            background: #444444;
+        }
+        
+        .dark-mode::-webkit-scrollbar-thumb {
+            background: #222222;
+            border: 2px solid #444444;
+        }
+        
+        .dark-mode {
+            scrollbar-color: #222222 #444444;
+        }
+
+        /* SVG Patterns */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Pattern visibility control */
+        .theme-comic .bg-pattern:not(.pattern-comic),
+        .theme-cyberpunk .bg-pattern:not(.pattern-cyberpunk),
+        .theme-pastel .bg-pattern:not(.pattern-pastel),
+        .theme-art .bg-pattern:not(.pattern-art),
+        .theme-metal .bg-pattern:not(.pattern-metal),
+        .theme-professional .bg-pattern:not(.pattern-professional) {
+            opacity: 0;
+        }
+
+        /* Dark mode adjustments */
+        .dark-mode .bg-pattern {
+            opacity: 0.2;
+            filter: brightness(0.7);
+        }
+
+        :root {
+            /* Comic Book Panel Theme (Default) - Light Mode */
+            --bg-color: #ffffff;
+            --primary-color: #ff5252;
+            --secondary-color: #4caf50;
+            --text-color: #333333;
+            --card-bg: #f9f9f9;
+            --border: 2px solid #000000;
+            --shadow: 0px 0px 0px rgba(0,0,0,0);
+            --input-bg: #ffffff;
+            --button-bg: #ff5252;
+            --button-color: #ffffff;
+            --header-font: 'Comic Sans MS', 'Arial', sans-serif;
+            --border-radius: 0px;
+            --button-radius: 0px;
+            --card-radius: 0px;
+            --modal-bg: #ffffff;
+            --hover-color: #ff7070;
+            --logo-primary: #ff5252;
+            --logo-secondary: #4caf50;
+            --accent-color: #ffeb3b;
+        }
+
+        .dark-mode {
+            /* Comic Book Panel Theme - Dark Mode */
+            --bg-color: #1a1a1a;
+            --primary-color: #ff5252;
+            --secondary-color: #4caf50;
+            --text-color: #f0f0f0;
+            --card-bg: #2c2c2c;
+            --border: 2px solid #ffffff;
+            --shadow: 0px 0px 0px rgba(0,0,0,0);
+            --input-bg: #333333;
+            --button-bg: #ff5252;
+            --button-color: #ffffff;
+            --modal-bg: #2c2c2c;
+            --hover-color: #ff7070;
+            --logo-primary: #ff5252;
+            --logo-secondary: #4caf50;
+        }
+
+        /* Cyberpunk AI Theme */
+        .theme-cyberpunk:not(.dark-mode) {
+            --bg-color: #1a1a40;
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --text-color: #ffffff;
+            --card-bg: #2a2a50;
+            --border: 1px solid #00ffff;
+            --shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            --input-bg: #202045;
+            --button-bg: #00ffff;
+            --button-color: #0a0a20;
+            --header-font: 'Courier New', monospace;
+            --border-radius: 0px;
+            --button-radius: 0px;
+            --card-radius: 5px;
+            --modal-bg: #2a2a50;
+            --hover-color: #80ffff;
+            --logo-primary: #00ffff;
+            --logo-secondary: #ff00ff;
+            --accent-color: #ff00ff;
+        }
+
+        .theme-cyberpunk.dark-mode {
+            --bg-color: #05050f;
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --text-color: #e0e0e0;
+            --card-bg: #0f0f1a;
+            --border: 1px solid #00ffff;
+            --shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            --input-bg: #080815;
+            --button-bg: #00ffff;
+            --button-color: #05050f;
+            --modal-bg: #0f0f1a;
+            --hover-color: #80ffff;
+            --logo-primary: #00ffff;
+            --logo-secondary: #ff00ff;
+        }
+
+        /* Pastel Theme */
+        .theme-pastel:not(.dark-mode) {
+            --bg-color: #b8d8f5;
+            --primary-color: #ffafd4;
+            --secondary-color: #abdbda;
+            --text-color: #5a5a6e;
+            --card-bg: #ffffff;
+            --border: 1px solid #e0e0e0;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            --input-bg: #ffffff;
+            --button-bg: #ffafd4;
+            --button-color: #ffffff;
+            --header-font: 'Georgia', serif;
+            --border-radius: 20px;
+            --button-radius: 25px;
+            --card-radius: 15px;
+            --modal-bg: #ffffff;
+            --hover-color: #ffc8e0;
+            --logo-primary: #ffafd4;
+            --logo-secondary: #abdbda;
+            --accent-color: #c8e1ff;
+        }
+
+        .theme-pastel.dark-mode {
+            --bg-color: #2b2b45;
+            --primary-color: #d496b8;
+            --secondary-color: #86b5b4;
+            --text-color: #e0e0e0;
+            --card-bg: #3a3a55;
+            --border: 1px solid #4a4a65;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --input-bg: #3a3a55;
+            --button-bg: #d496b8;
+            --button-color: #ffffff;
+            --modal-bg: #3a3a55;
+            --hover-color: #e2abd0;
+            --logo-primary: #d496b8;
+            --logo-secondary: #86b5b4;
+        }
+
+        /* Art Class Theme */
+        .theme-art:not(.dark-mode) {
+            --bg-color: #f2f0e6;
+            --primary-color: #e63946;
+            --secondary-color: #457b9d;
+            --text-color: #1d3557;
+            --card-bg: #ffffff;
+            --border: 2px dashed #1d3557;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
+            --button-bg: #e63946;
+            --button-color: #ffffff;
+            --header-font: 'Trebuchet MS', sans-serif;
+            --border-radius: 8px;
+            --button-radius: 30px;
+            --card-radius: 8px;
+            --modal-bg: #ffffff;
+            --hover-color: #ff4d5e;
+            --logo-primary: #e63946;
+            --logo-secondary: #457b9d;
+            --accent-color: #f1faee;
+        }
+
+        .theme-art.dark-mode {
+            --bg-color: #252429;
+            --primary-color: #e63946;
+            --secondary-color: #457b9d;
+            --text-color: #f1faee;
+            --card-bg: #33323a;
+            --border: 2px dashed #f1faee;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --input-bg: #33323a;
+            --button-bg: #e63946;
+            --button-color: #ffffff;
+            --modal-bg: #33323a;
+            --hover-color: #ff4d5e;
+            --logo-primary: #e63946;
+            --logo-secondary: #457b9d;
+        }
+
+        /* Cold Metal Theme */
+        .theme-metal:not(.dark-mode) {
+            --bg-color: #e8ecef;
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b818c;
+            --text-color: #2c3e50;
+            --card-bg: #f8f9fa;
+            --border: 1px solid #ced4da;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
+            --button-bg: #4a6fa5;
+            --button-color: #ffffff;
+            --header-font: 'Arial', sans-serif;
+            --border-radius: 4px;
+            --button-radius: 4px;
+            --card-radius: 4px;
+            --modal-bg: #f8f9fa;
+            --hover-color: #5b80b6;
+            --logo-primary: #4a6fa5;
+            --logo-secondary: #6b818c;
+            --accent-color: #d0d6dd;
+        }
+
+        .theme-metal.dark-mode {
+            --bg-color: #1e2328;
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b818c;
+            --text-color: #e8ecef;
+            --card-bg: #2c3237;
+            --border: 1px solid #3a414a;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --input-bg: #2c3237;
+            --button-bg: #4a6fa5;
+            --button-color: #ffffff;
+            --modal-bg: #2c3237;
+            --hover-color: #5b80b6;
+            --logo-primary: #4a6fa5;
+            --logo-secondary: #6b818c;
+        }
+
+        /* Productive Professional Theme */
+        .theme-professional:not(.dark-mode) {
+            --bg-color: #f0f2f5;
+            --primary-color: #1565c0;
+            --secondary-color: #4caf50;
+            --text-color: #212121;
+            --card-bg: #ffffff;
+            --border: 1px solid #e0e0e0;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --input-bg: #ffffff;
+            --button-bg: #1565c0;
+            --button-color: #ffffff;
+            --header-font: 'Tahoma', sans-serif;
+            --border-radius: 6px;
+            --button-radius: 6px;
+            --card-radius: 6px;
+            --modal-bg: #ffffff;
+            --hover-color: #1976d2;
+            --logo-primary: #1565c0;
+            --logo-secondary: #4caf50;
+            --accent-color: #bbdefb;
+        }
+
+        .theme-professional.dark-mode {
+            --bg-color: #121212;
+            --primary-color: #1976d2;
+            --secondary-color: #4caf50;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --border: 1px solid #333333;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            --input-bg: #1e1e1e;
+            --button-bg: #1976d2;
+            --button-color: #ffffff;
+            --modal-bg: #1e1e1e;
+            --hover-color: #1e88e5;
+            --logo-primary: #1976d2;
+            --logo-secondary: #4caf50;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 80px auto 20px;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo svg {
+            width: 200px;
+            height: auto;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: var(--border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            outline: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .search-input:focus {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--button-bg);
+            color: var(--button-color);
+            border: none;
+            border-radius: var(--button-radius);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: var(--hover-color);
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .results-container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-item {
+            background: var(--card-bg);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            border: var(--border);
+        }
+
+        .result-title {
+            color: var(--primary-color);
+            font-size: 18px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .result-url {
+            color: var(--secondary-color);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            color: var(--text-color);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Header with controls */
+        .header-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .theme-toggle, .settings-button {
+            background: var(--button-bg);
+            color: var(--button-color);
+            border: none;
+            border-radius: var(--button-radius);
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover, .settings-button:hover {
+            background: var(--hover-color);
+        }
+        
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 20px;
+            border-radius: var(--card-radius);
+            border: var(--border);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            color: var(--text-color);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: var(--header-font);
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .theme-option {
+            padding: 10px;
+            border: 2px solid transparent;
+            border-radius: var(--card-radius);
+            cursor: pointer;
+            text-align: center;
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-option.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .theme-option:hover {
+            transform: translateY(-2px);
+        }
+        
+        .theme-preview {
+            height: 60px;
+            margin-bottom: 8px;
+            border-radius: var(--card-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-comic {
+            background-color: #ff5252;
+            color: white;
+            border: 2px solid black;
+        }
+        
+        .preview-cyberpunk {
+            background-color: #0a0a20;
+            color: #00ffff;
+            box-shadow: 0 0 5px #00ffff;
+            border: 1px solid #00ffff;
+        }
+        
+        .preview-pastel {
+            background: linear-gradient(to right, #ffafd4, #abdbda);
+            color: white;
+        }
+        
+        .preview-art {
+            background-color: #f2f0e6;
+            border: 2px dashed #1d3557;
+            color: #1d3557;
+        }
+        
+        .preview-metal {
+            background: linear-gradient(145deg, #e8ecef, #d1d8e0);
+            color: #4a6fa5;
+            border: 1px solid #ced4da;
+        }
+        
+        .preview-professional {
+            background-color: #1565c0;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .search-container {
+                margin-top: 40px;
+                width: 90%;
+            }
+            
+            .logo svg {
+                width: 150px;
+            }
+            
+            .theme-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-controls {
+                top: 5px;
+                right: 5px;
+            }
+            
+            .theme-toggle, .settings-button {
+                padding: 6px 10px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .result-item {
+                padding: 12px;
+            }
+            
+            .preview-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .preview-header {
+                padding: 10px;
+            }
+            
+            .preview-title {
+                font-size: 16px;
+            }
+            
+            .footer {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .search-container {
+                margin-top: 30px;
+            }
+            
+            .logo svg {
+                width: 120px;
+            }
+            
+            .search-input {
+                padding: 10px 45px 10px 15px;
+                font-size: 14px;
+            }
+            
+            .search-button {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .theme-options {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+        
+        /* Logo Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotateReverse {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+        
+        @keyframes glow {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.7; }
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 3s infinite ease-in-out;
+        }
+        
+        .rotate-animation {
+            transform-origin: 50px 50px;
+            animation: rotate 10s infinite linear;
+        }
+        
+        .rotate-animation.reverse {
+            animation: rotateReverse 10s infinite linear;
+        }
+        
+        .glow-animation {
+            animation: glow 4s infinite ease-in-out;
+        }
+        
+        .text-animation {
+            animation: fadeInOut 3s infinite ease-in-out;
+        }
+        
+        /* Preview panel styles */
+        .preview-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 200;
+            transition: right 0.3s ease, width 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-left: var(--border);
+            overflow: hidden;
+        }
+        
+        .preview-panel.active {
+            right: 0;
+        }
+        
+        .preview-panel.expanded {
+            width: 96%;
+        }
+        
+        .preview-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: var(--button-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .preview-title {
+            font-weight: bold;
+            font-size: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        
+        .preview-close, .open-in-tab, .expand-panel {
+            background: none;
+            border: none;
+            color: var(--button-color);
+            cursor: pointer;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-close {
+            font-size: 24px;
+        }
+        
+        .open-in-tab, .expand-panel {
+            margin-right: 5px;
+        }
+        
+        .open-in-tab:hover, .preview-close:hover, .expand-panel:hover {
+            opacity: 0.8;
+        }
+        
+        .preview-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .preview-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        
+        .preview-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .preview-panel {
+                width: 60%;
+                right: -60%;
+            }
+            
+            .preview-panel.expanded {
+                width: 96%;
+            }
+            
+            body.preview-active .results-container {
+                width: calc(100% - 60%);
+                transition: width 0.3s ease;
+            }
+            
+            body.preview-active.panel-expanded .results-container {
+                width: calc(100% - 96%);
+            }
+        }
+        
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--modal-bg);
+            color: var(--text-color);
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            border: var(--border);
+            max-width: 90%;
+        }
+        
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        #toast-close {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body class="theme-comic">
+    <!-- Background patterns -->
+    <svg class="bg-pattern pattern-cyberpunk" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="cyber-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#0a0a20;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#220a30;stop-opacity:1" />
+            </linearGradient>
+            <pattern id="circuit" patternUnits="userSpaceOnUse" width="100" height="100" patternTransform="scale(0.5)">
+                <path d="M30,10 L70,10 L70,30 L90,30 L90,70 L70,70 L70,90 L30,90 L30,70 L10,70 L10,30 L30,30 Z" fill="none" stroke="#00ffff" stroke-width="1" opacity="0.3"/>
+                <circle cx="30" cy="30" r="4" fill="#00ffff" opacity="0.4"/>
+                <circle cx="70" cy="30" r="4" fill="#ff00ff" opacity="0.4"/>
+                <circle cx="30" cy="70" r="4" fill="#ff00ff" opacity="0.4"/>
+                <circle cx="70" cy="70" r="4" fill="#00ffff" opacity="0.4"/>
+                <path d="M30,10 L30,0 M70,10 L70,0 M90,30 L100,30 M90,70 L100,70 M70,90 L70,100 M30,90 L30,100 M10,70 L0,70 M10,30 L0,30" stroke="#00ffff" stroke-width="1" opacity="0.2"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#cyber-gradient)" />
+        <rect width="100%" height="100%" fill="url(#circuit)" />
+        <!-- Horizon grid -->
+        <g stroke="#00ffff" stroke-width="0.5" opacity="0.3">
+            <!-- Perspective horizon lines -->
+            <line x1="0%" y1="50%" x2="100%" y2="50%" />
+            <path d="M0,30% L100%,45%" />
+            <path d="M0,10% L100%,40%" />
+            <path d="M0,70% L100%,55%" />
+            <path d="M0,90% L100%,60%" />
+            
+            <!-- Additional horizon grid lines -->
+            <path d="M0,20% L100%,42%" />
+            <path d="M0,40% L100%,48%" />
+            <path d="M0,60% L100%,52%" />
+            <path d="M0,80% L100%,58%" />
+        </g>
+        <g stroke="#ff00ff" stroke-width="0.3" opacity="0.2">
+            <!-- Vertical grid lines -->
+            <path d="M20%,0 L0%,100%" />
+            <path d="M40%,0 L20%,100%" />
+            <path d="M60%,0 L40%,100%" />
+            <path d="M80%,0 L60%,100%" />
+            <path d="M100%,0 L80%,100%" />
+            
+            <!-- Additional vertical grid lines -->
+            <path d="M10%,0 L-10%,100%" />
+            <path d="M30%,0 L10%,100%" />
+            <path d="M50%,0 L30%,100%" />
+            <path d="M70%,0 L50%,100%" />
+            <path d="M90%,0 L70%,100%" />
+        </g>
+        <!-- Digital city on horizon -->
+        <path d="M0,50% L5%,50% L5%,48% L8%,48% L8%,46% L12%,46% L12%,49% L16%,49% L16%,45% L20%,45% L20%,47% L25%,47% L25%,43% L28%,43% L28%,46% L32%,46% L32%,42% L38%,42% L38%,45% L42%,45% L42%,41% L48%,41% L48%,44% L52%,44% L52%,40% L58%,40% L58%,43% L62%,43% L62%,45% L68%,45% L68%,42% L74%,42% L74%,44% L78%,44% L78%,40% L84%,40% L84%,43% L88%,43% L88%,46% L92%,46% L92%,44% L96%,44% L96%,47% L100%,47% L100%,100% L0,100% Z" fill="#030314" opacity="0.8" />
+        
+        <!-- Additional cityscape details -->
+        <path d="M15%,47% L15%,45% L17%,45% L17%,42% L19%,42% L19%,45% L21%,45% L21%,47%" fill="#0f0f33" opacity="0.9"/>
+        <path d="M35%,44% L35%,38% L38%,38% L38%,44%" fill="#0f0f33" opacity="0.9"/>
+        <path d="M55%,40% L55%,35% L59%,35% L59%,40%" fill="#0f0f33" opacity="0.9"/>
+        <path d="M75%,42% L75%,36% L80%,36% L80%,42%" fill="#0f0f33" opacity="0.9"/>
+        
+        <!-- Windows in buildings -->
+        <rect x="16%" y="43%" width="1%" height="1%" fill="#00ffff" opacity="0.8"/>
+        <rect x="18%" y="43%" width="1%" height="1%" fill="#ff00ff" opacity="0.8"/>
+        <rect x="36%" y="39%" width="1%" height="1%" fill="#00ffff" opacity="0.8"/>
+        <rect x="36%" y="41%" width="1%" height="1%" fill="#ff00ff" opacity="0.8"/>
+        <rect x="56%" y="36%" width="1%" height="1%" fill="#00ffff" opacity="0.8"/>
+        <rect x="57%" y="38%" width="1%" height="1%" fill="#ff00ff" opacity="0.8"/>
+        <rect x="76%" y="37%" width="1%" height="1%" fill="#00ffff" opacity="0.8"/>
+        <rect x="78%" y="39%" width="1%" height="1%" fill="#ff00ff" opacity="0.8"/>
+        
+        <!-- Digital sun -->
+        <circle cx="70%" cy="25%" r="12" fill="#ff00ff" opacity="0.6" />
+        <circle cx="70%" cy="25%" r="8" fill="#00ffff" opacity="0.6" />
+        <circle cx="70%" cy="25%" r="4" fill="#ffffff" opacity="0.8" />
+        
+        <!-- Sun rays -->
+        <line x1="70%" y1="13%" x2="70%" y2="9%" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+        <line x1="70%" y1="37%" x2="70%" y2="41%" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+        <line x1="58%" y1="25%" x2="54%" y2="25%" stroke="#00ffff" stroke-width="1" opacity="0.5"/>
+        <line x1="82%" y1="25%" x2="86%" y2="25%" stroke="#00ffff" stroke-width="1" opacity="0.5"/>
+        <line x1="62%" y1="17%" x2="59%" y2="14%" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+        <line x1="78%" y1="33%" x2="81%" y2="36%" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+        <line x1="62%" y1="33%" x2="59%" y2="36%" stroke="#00ffff" stroke-width="1" opacity="0.5"/>
+        <line x1="78%" y1="17%" x2="81%" y2="14%" stroke="#00ffff" stroke-width="1" opacity="0.5"/>
+        
+        <!-- Data matrix/code -->
+        <text x="10%" y="20%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">10101</text>
+        <text x="15%" y="25%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">01010</text>
+        <text x="20%" y="30%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">11001</text>
+        <text x="25%" y="15%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">01100</text>
+        <text x="80%" y="35%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">11010</text>
+        <text x="85%" y="15%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">00101</text>
+        <text x="5%" y="40%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">10011</text>
+        <text x="30%" y="10%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">11100</text>
+        <text x="40%" y="25%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">01101</text>
+        <text x="75%" y="28%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">10110</text>
+        <text x="60%" y="18%" fill="#00ffff" opacity="0.5" font-family="monospace" font-size="8">00111</text>
+        <text x="90%" y="40%" fill="#ff00ff" opacity="0.5" font-family="monospace" font-size="8">11011</text>
+    </svg>
+
+    <svg class="bg-pattern pattern-art" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f2f0e6" />
+        <!-- Paint splats -->
+        <ellipse cx="20%" cy="30%" rx="70" ry="50" fill="#e63946" opacity="0.2" />
+        <path d="M15%,25% Q25%,15% 27%,30% T35%,25% T20%,35% T20%,35%" fill="#457b9d" opacity="0.2" />
+        
+        <ellipse cx="70%" cy="20%" rx="60" ry="40" fill="#a8dadc" opacity="0.2" />
+        <path d="M65%,15% Q80%,10% 75%,20% T65%,25% T75%,18%" fill="#1d3557" opacity="0.15" />
+        
+        <ellipse cx="40%" cy="75%" rx="80" ry="50" fill="#f1faee" opacity="0.3" />
+        <path d="M35%,70% Q45%,65% 42%,75% T50%,80% T38%,78%" fill="#e63946" opacity="0.25" />
+        
+        <ellipse cx="80%" cy="60%" rx="70" ry="65" fill="#457b9d" opacity="0.2" />
+        <path d="M75%,55% Q90%,50% 85%,65% T70%,60% T80%,70%" fill="#1d3557" opacity="0.15" />
+        
+        <!-- Additional paint splats and texture -->
+        <ellipse cx="50%" cy="40%" rx="45" ry="35" fill="#f77f00" opacity="0.15" />
+        <path d="M48%,35% Q55%,30% 52%,42% T60%,38% T50%,45%" fill="#fcbf49" opacity="0.2" />
+        
+        <ellipse cx="25%" cy="55%" rx="55" ry="40" fill="#06d6a0" opacity="0.15" />
+        <path d="M22%,50% Q30%,45% 28%,58% T35%,53% T25%,60%" fill="#118ab2" opacity="0.2" />
+        
+        <ellipse cx="75%" cy="35%" rx="25" ry="20" fill="#ef476f" opacity="0.2" />
+        <path d="M70%,30% Q80%,28% 76%,38% T83%,35% T73%,40%" fill="#ffd166" opacity="0.2" />
+        
+        <!-- Paint drips -->
+        <path d="M30%,0% Q31%,10% 30%,20% Q29%,10% 30%,0%" fill="#e63946" opacity="0.4" />
+        <path d="M50%,0% Q51%,15% 50%,30% Q49%,15% 50%,0%" fill="#457b9d" opacity="0.3" />
+        <path d="M70%,0% Q71%,12% 70%,25% Q69%,12% 70%,0%" fill="#1d3557" opacity="0.3" />
+        
+        <!-- Additional paint drips -->
+        <path d="M10%,0% Q11%,8% 10%,16% Q9%,8% 10%,0%" fill="#f77f00" opacity="0.35" />
+        <path d="M40%,0% Q41%,12% 40%,24% Q39%,12% 40%,0%" fill="#06d6a0" opacity="0.3" />
+        <path d="M60%,0% Q61%,10% 60%,20% Q59%,10% 60%,0%" fill="#118ab2" opacity="0.3" />
+        <path d="M80%,0% Q81%,14% 80%,28% Q79%,14% 80%,0%" fill="#ef476f" opacity="0.3" />
+        <path d="M90%,0% Q91%,9% 90%,18% Q89%,9% 90%,0%" fill="#ffd166" opacity="0.3" />
+        
+        <!-- Paintbrushes -->
+        <line x1="10%" y1="85%" x2="25%" y2="95%" stroke="#a8dadc" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+        <line x1="10%" y1="85%" x2="25%" y2="95%" stroke="#6d6875" stroke-width="1" opacity="0.5" />
+        <rect x="8%" y="84%" width="4%" height="2%" fill="#6d6875" opacity="0.5" />
+        
+        <line x1="90%" y1="85%" x2="75%" y2="95%" stroke="#e63946" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+        <line x1="90%" y1="85%" x2="75%" y2="95%" stroke="#6d6875" stroke-width="1" opacity="0.5" />
+        <rect x="88%" y="84%" width="4%" height="2%" fill="#6d6875" opacity="0.5" />
+        
+        <!-- Additional art supplies -->
+        <line x1="40%" y1="90%" x2="55%" y2="85%" stroke="#06d6a0" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+        <line x1="40%" y1="90%" x2="55%" y2="85%" stroke="#6d6875" stroke-width="1" opacity="0.5" />
+        <rect x="38%" y="89%" width="4%" height="2%" fill="#6d6875" opacity="0.5" />
+        
+        <circle cx="65%" cy="92%" r="5" fill="#f77f00" opacity="0.5" /> <!-- Paint bottle -->
+        <rect x="63%" y="85%" width="4%" height="7%" fill="#6d6875" opacity="0.5" /> <!-- Paint bottle neck -->
+        
+        <path d="M15%,80% L20%,80% L22%,82% L20%,84% L15%,84% L13%,82% Z" fill="#e63946" opacity="0.4" /> <!-- Palette -->
+        <circle cx="16%" cy="81%" r="1" fill="#f77f00" opacity="0.6" /> <!-- Paint on palette -->
+        <circle cx="18%" cy="82%" r="1" fill="#06d6a0" opacity="0.6" /> <!-- Paint on palette -->
+        <circle cx="19%" cy="83%" r="1" fill="#118ab2" opacity="0.6" /> <!-- Paint on palette -->
+        
+        <!-- Canvas on easel -->
+        <path d="M75%,75% L85%,70% L95%,75% L95%,80% L85%,85% L75%,80% Z" fill="#f8f9fa" opacity="0.6" /> <!-- Canvas -->
+        <line x1="75%" y1="75%" x2="75%" y2="85%" stroke="#6d6875" stroke-width="1" opacity="0.5" /> <!-- Easel -->
+        <line x1="95%" y1="75%" x2="95%" y2="85%" stroke="#6d6875" stroke-width="1" opacity="0.5" /> <!-- Easel -->
+        <line x1="80%" y1="85%" x2="73%" y2="95%" stroke="#6d6875" stroke-width="1" opacity="0.5" /> <!-- Easel leg -->
+        <line x1="90%" y1="85%" x2="97%" y2="95%" stroke="#6d6875" stroke-width="1" opacity="0.5" /> <!-- Easel leg -->
+        <path d="M80%,77% Q85%,72% 90%,77% Q87%,82% 80%,77%" fill="#e63946" opacity="0.3" /> <!-- Paint on canvas -->
+    </svg>
+
+    <svg class="bg-pattern pattern-comic" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="comic-dots" patternUnits="userSpaceOnUse" width="20" height="20">
+                <circle cx="10" cy="10" r="1.5" fill="#000000" opacity="0.2"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#comic-dots)"/>
+        
+        <!-- Comic-style halftone patterns -->
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#comic-dots)" transform="rotate(15)"/>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#comic-dots)" transform="rotate(30)"/>
+        
+        <!-- Comic Panel lines -->
+        <line x1="20%" y1="0" x2="20%" y2="100%" stroke="#000" stroke-width="3" opacity="0.1"/>
+        <line x1="50%" y1="0" x2="50%" y2="100%" stroke="#000" stroke-width="3" opacity="0.1"/>
+        <line x1="80%" y1="0" x2="80%" y2="100%" stroke="#000" stroke-width="3" opacity="0.1"/>
+        <line x1="0" y1="25%" x2="100%" y2="25%" stroke="#000" stroke-width="3" opacity="0.1"/>
+        <line x1="0" y1="75%" x2="100%" y2="75%" stroke="#000" stroke-width="3" opacity="0.1"/>
+    </svg>
+
+    <svg class="bg-pattern pattern-pastel" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- Pastel sky background -->
+        <rect width="100%" height="100%" fill="#b8d8f5"/>
+        
+        <!-- Pastel sun -->
+        <circle cx="75%" cy="25%" r="40" fill="#ffebb7" opacity="0.8"/>
+        <circle cx="75%" cy="25%" r="30" fill="#ffd6a5" opacity="0.6"/>
+        
+        <!-- Clouds -->
+        <ellipse cx="30%" cy="20%" rx="70" ry="30" fill="#ffffff" opacity="0.7"/>
+        <ellipse cx="25%" cy="18%" rx="50" ry="20" fill="#ffffff" opacity="0.8"/>
+        <ellipse cx="35%" cy="22%" rx="60" ry="25" fill="#ffffff" opacity="0.9"/>
+        
+        <ellipse cx="70%" cy="40%" rx="80" ry="30" fill="#ffffff" opacity="0.7"/>
+        <ellipse cx="65%" cy="38%" rx="60" ry="20" fill="#ffffff" opacity="0.8"/>
+        <ellipse cx="75%" cy="42%" rx="70" ry="25" fill="#ffffff" opacity="0.9"/>
+        
+        <!-- Hills -->
+        <ellipse cx="30%" cy="100%" rx="200" ry="80" fill="#abdbda" opacity="0.9"/>
+        <ellipse cx="70%" cy="105%" rx="250" ry="100" fill="#c8e1ff" opacity="0.7"/>
+        <ellipse cx="20%" cy="110%" rx="180" ry="90" fill="#ffafd4" opacity="0.5"/>
+    </svg>
+
+    <svg class="bg-pattern pattern-metal" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="metal-grid" patternUnits="userSpaceOnUse" width="40" height="40">
+                <path d="M0,0 L40,0 L40,40 L0,40 Z" fill="none" stroke="#6b818c" stroke-width="1" opacity="0.2"/>
+            </pattern>
+            <linearGradient id="metal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#4a6fa5;stop-opacity:0.05"/>
+                <stop offset="50%" style="stop-color:#6b818c;stop-opacity:0.05"/>
+                <stop offset="100%" style="stop-color:#4a6fa5;stop-opacity:0.05"/>
+            </linearGradient>
+        </defs>
+        
+        <rect width="100%" height="100%" fill="url(#metal-gradient)"/>
+        <rect width="100%" height="100%" fill="url(#metal-grid)"/>
+        
+        <!-- Metal plates -->
+        <rect x="5%" y="10%" width="40%" height="30%" rx="5" ry="5" fill="#4a6fa5" opacity="0.05" stroke="#6b818c" stroke-width="1" opacity="0.3"/>
+        <rect x="55%" y="10%" width="40%" height="30%" rx="5" ry="5" fill="#4a6fa5" opacity="0.05" stroke="#6b818c" stroke-width="1" opacity="0.3"/>
+        <rect x="5%" y="50%" width="40%" height="30%" rx="5" ry="5" fill="#4a6fa5" opacity="0.05" stroke="#6b818c" stroke-width="1" opacity="0.3"/>
+        <rect x="55%" y="50%" width="40%" height="30%" rx="5" ry="5" fill="#4a6fa5" opacity="0.05" stroke="#6b818c" stroke-width="1" opacity="0.3"/>
+        
+        <!-- Rivets -->
+        <circle cx="5%" cy="10%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="45%" cy="10%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="5%" cy="40%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="45%" cy="40%" r="2" fill="#6b818c" opacity="0.2"/>
+        
+        <circle cx="55%" cy="10%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="95%" cy="10%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="55%" cy="40%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="95%" cy="40%" r="2" fill="#6b818c" opacity="0.2"/>
+        
+        <circle cx="5%" cy="50%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="45%" cy="50%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="5%" cy="80%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="45%" cy="80%" r="2" fill="#6b818c" opacity="0.2"/>
+        
+        <circle cx="55%" cy="50%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="95%" cy="50%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="55%" cy="80%" r="2" fill="#6b818c" opacity="0.2"/>
+        <circle cx="95%" cy="80%" r="2" fill="#6b818c" opacity="0.2"/>
+    </svg>
+
+    <svg class="bg-pattern pattern-professional" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="grid" patternUnits="userSpaceOnUse" width="30" height="30">
+                <path d="M0,0 L30,0 L30,30 L0,30 Z" fill="none" stroke="#1565c0" stroke-width="0.5" opacity="0.1"/>
+            </pattern>
+        </defs>
+        
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        
+        <!-- Subtle geometric shapes -->
+        <rect x="10%" y="10%" width="30%" height="30%" rx="15" ry="15" fill="#1565c0" opacity="0.03"/>
+        <rect x="60%" y="20%" width="25%" height="25%" rx="15" ry="15" fill="#4caf50" opacity="0.03"/>
+        <rect x="15%" y="50%" width="35%" height="35%" rx="15" ry="15" fill="#1565c0" opacity="0.03"/>
+        <rect x="65%" y="55%" width="20%" height="20%" rx="15" ry="15" fill="#4caf50" opacity="0.03"/>
+        
+        <!-- Abstract lines -->
+        <line x1="0%" y1="35%" x2="100%" y2="35%" stroke="#1565c0" stroke-width="1" opacity="0.05"/>
+        <line x1="40%" y1="0%" x2="40%" y2="100%" stroke="#4caf50" stroke-width="1" opacity="0.05"/>
+    </svg>
+
+    <div class="header-controls">
+        <button class="theme-toggle" id="theme-toggle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        </button>
+        <button class="settings-button" id="settings-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="search-container">
+        <div class="logo">
+            <svg id="logo" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Color spectrum background -->
+                <circle cx="50" cy="50" r="40" fill="var(--bg-color)" stroke="var(--logo-primary)" stroke-width="3"/>
+                
+                <!-- Color wheel elements -->
+                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--logo-primary)" stroke-width="8" stroke-dasharray="31.4 31.4" stroke-dashoffset="0" class="rotate-animation"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--logo-secondary)" stroke-width="8" stroke-dasharray="31.4 31.4" stroke-dashoffset="15.7" class="rotate-animation reverse"/>
+                
+                <!-- Magnifying glass -->
+                <circle cx="50" cy="50" r="15" fill="transparent" stroke="var(--text-color)" stroke-width="4" class="pulse-animation"/>
+                <line x1="60" y1="60" x2="75" y2="75" stroke="var(--text-color)" stroke-width="5" stroke-linecap="round" class="pulse-animation"/>
+                
+                <!-- Inner elements -->
+                <circle cx="50" cy="50" r="8" fill="var(--accent-color)" class="glow-animation"/>
+                
+                <!-- Text -->
+                <text x="100" y="45" font-family="var(--header-font)" font-size="24" font-weight="bold" fill="var(--text-color)" class="text-animation">Chroma</text>
+                <text x="100" y="70" font-family="var(--header-font)" font-size="24" font-weight="bold" fill="var(--primary-color)" class="text-animation">Scape</text>
+            </svg>
+        </div>
+        <form class="search-box" id="search-form">
+            <input type="text" class="search-input" id="search-input" placeholder="Search the web without being tracked" autocomplete="off">
+            <button type="submit" class="search-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="currentColor"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+
+    <div class="loading">
+        <div class="loading-spinner"></div>
+        <p>Searching...</p>
+    </div>
+
+    <div class="results-container" id="results-container">
+        <!-- Search results will appear here -->
+    </div>
+
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">ChromaScape Settings</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <h4>Choose a Theme</h4>
+            <div class="theme-options">
+                <div class="theme-option active" data-theme="comic">
+                    <div class="theme-preview preview-comic">Comic</div>
+                    <span>Comic Book</span>
+                </div>
+                <div class="theme-option" data-theme="cyberpunk">
+                    <div class="theme-preview preview-cyberpunk">Cyber</div>
+                    <span>Cyberpunk AI</span>
+                </div>
+                <div class="theme-option" data-theme="pastel">
+                    <div class="theme-preview preview-pastel">Pastel</div>
+                    <span>Pastel Day/Night</span>
+                </div>
+                <div class="theme-option" data-theme="art">
+                    <div class="theme-preview preview-art">Art</div>
+                    <span>Art Class</span>
+                </div>
+                <div class="theme-option" data-theme="metal">
+                    <div class="theme-preview preview-metal">Metal</div>
+                    <span>Cold Metal</span>
+                </div>
+                <div class="theme-option" data-theme="professional">
+                    <div class="theme-preview preview-professional">Pro</div>
+                    <span>Professional</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-notification" id="toast-notification">
+        <div class="toast-content">
+            <span id="toast-message">This page cannot be loaded in preview. Try opening in a new tab.</span>
+            <button id="toast-close">×</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This search page uses Bing as its search engine.</p>
+        <p><a href="https://www.bing.com/account/general" target="_blank">Learn more about Bing privacy settings</a></p>
+    </div>
+
+    <div class="preview-panel" id="preview-panel">
+        <div class="preview-header">
+            <div class="preview-title" id="preview-title">Website Preview</div>
+            <button class="expand-panel" id="expand-panel" title="Expand panel">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+                </svg>
+            </button>
+            <button class="open-in-tab" id="open-in-tab" title="Open in new tab">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+            </button>
+            <button class="preview-close" id="preview-close">&times;</button>
+        </div>
+        <div class="preview-content">
+            <div class="preview-loading" id="preview-loading">
+                <div class="preview-spinner"></div>
+                <p>Loading preview...</p>
+            </div>
+            <iframe class="preview-iframe" id="preview-iframe"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Initialize theme system
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeButton = document.querySelector('.close-button');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const logo = document.getElementById('logo');
+        
+        // Check for saved theme preferences
+        function loadSavedPreferences() {
+            const savedTheme = localStorage.getItem('chromascape-theme') || 'comic';
+            const darkMode = localStorage.getItem('chromascape-dark-mode') === 'true';
+            
+            setTheme(savedTheme);
+            if (darkMode) {
+                body.classList.add('dark-mode');
+            }
+        }
+        
+        // Set theme
+        function setTheme(themeName) {
+            // Remove all existing theme classes
+            body.className = body.className.replace(/theme-\w+/g, '').trim();
+            // Add the selected theme class
+            body.classList.add(`theme-${themeName}`);
+            // Save to localStorage
+            localStorage.setItem('chromascape-theme', themeName);
+            
+            // Update active state in settings
+            themeOptions.forEach(option => {
+                option.classList.toggle('active', option.dataset.theme === themeName);
+            });
+        }
+        
+        // Toggle dark mode
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('chromascape-dark-mode', body.classList.contains('dark-mode'));
+        });
+        
+        // Open settings modal
+        settingsButton.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+        
+        // Close settings modal
+        closeButton.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+        
+        // Theme selection
+        themeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const selectedTheme = option.dataset.theme;
+                setTheme(selectedTheme);
+            });
+        });
+        
+        // Load saved preferences on page load
+        loadSavedPreferences();
+
+        document.getElementById('search-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const searchTerm = document.getElementById('search-input').value.trim();
+            
+            if (searchTerm) {
+                // Show loading indicator
+                document.querySelector('.loading').style.display = 'block';
+                
+                // Clear previous results
+                const resultsContainer = document.getElementById('results-container');
+                resultsContainer.innerHTML = '';
+                resultsContainer.style.display = 'none';
+                
+                // Perform search using Bing API
+                fetchSearchResults(searchTerm);
+            }
+        });
+
+        function fetchSearchResults(query) {
+            // Using Bing Search API
+            const apiUrl = `https://api.bing.microsoft.com/v7.0/search?q=${encodeURIComponent(query)}&count=10`;
+            
+            // For demo purposes, we're simulating results since actual Bing API requires a key
+            const simulatedResults = generateSearchResults(query);
+            displayBingResults(simulatedResults, query);
+        }
+
+        function generateSearchResults(query) {
+            // Generate simulated search results
+            const baseResults = [
+                {
+                    title: `Information about ${query}`,
+                    url: `https://en.wikipedia.org/wiki/${query.replace(/ /g, '_')}`,
+                    description: `Comprehensive information about ${query} with detailed explanations, history, and references.`
+                },
+                {
+                    title: `${query} - Official Website`,
+                    url: `https://www.${query.replace(/ /g, '')}.com`,
+                    description: `The official website for ${query} with the latest updates, features, and resources.`
+                },
+                {
+                    title: `${query} Review - Latest Analysis`,
+                    url: `https://www.reviews.org/${query.replace(/ /g, '-')}-review`,
+                    description: `An in-depth review of ${query} including pros, cons, and expert opinions.`
+                },
+                {
+                    title: `How to understand ${query} - A Beginner's Guide`,
+                    url: `https://www.howto.com/beginners-guide-to-${query.replace(/ /g, '-')}`,
+                    description: `Start your journey with ${query} using this comprehensive beginner's guide with step-by-step instructions.`
+                },
+                {
+                    title: `${query} in 2023: What's New`,
+                    url: `https://www.trends.com/whats-new-with-${query.replace(/ /g, '-')}-in-2023`,
+                    description: `Discover the latest developments and trends related to ${query} in the current year.`
+                },
+                {
+                    title: `${query} - Communities and Forums`,
+                    url: `https://www.forum.com/topic/${query.replace(/ /g, '-')}`,
+                    description: `Join discussions about ${query} with enthusiasts and experts from around the world.`
+                },
+                {
+                    title: `${query} Alternatives - Top 10 Options`,
+                    url: `https://www.alternatives.com/top-${query.replace(/ /g, '-')}-alternatives`,
+                    description: `Explore the best alternatives to ${query} with comparisons and detailed analysis.`
+                }
+            ];
+            
+            // Randomize order slightly to make searches feel unique
+            return baseResults.sort(() => 0.5 - Math.random());
+        }
+
+        function displayBingResults(results, query) {
+            const resultsContainer = document.getElementById('results-container');
+            document.querySelector('.loading').style.display = 'none';
+            
+            if (results && results.length > 0) {
+                results.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    
+                    resultItem.innerHTML = `
+                        <div class="result-title" onclick="showPreview('${result.url}', '${result.title.replace(/'/g, "\\'")}')">${result.title}</div>
+                        <div class="result-url">${result.url}</div>
+                        <div class="result-description">${result.description}</div>
+                    `;
+                    
+                    resultsContainer.appendChild(resultItem);
+                });
+            } else {
+                resultsContainer.innerHTML = `<div class="result-item">No results found for "${query}". Try a different search term.</div>`;
+            }
+            
+            resultsContainer.style.display = 'block';
+        }
+
+        // Preview panel functionality
+        const previewPanel = document.getElementById('preview-panel');
+        const previewTitle = document.getElementById('preview-title');
+        const previewIframe = document.getElementById('preview-iframe');
+        const previewLoading = document.getElementById('preview-loading');
+        const previewCloseBtn = document.getElementById('preview-close');
+        const openInTabBtn = document.getElementById('open-in-tab');
+        const expandPanelBtn = document.getElementById('expand-panel');
+        const toastNotification = document.getElementById('toast-notification');
+        const toastClose = document.getElementById('toast-close');
+        let currentPreviewUrl = '';
+        
+        function showPreview(url, title) {
+            currentPreviewUrl = url;
+            previewTitle.textContent = title || 'Website Preview';
+            previewLoading.style.display = 'flex';
+            previewIframe.src = url;
+            previewPanel.classList.add('active');
+            document.body.classList.add('preview-active');
+            
+            // Listen for iframe load completion
+            previewIframe.onload = function() {
+                previewLoading.style.display = 'none';
+            };
+            
+            // Set a timeout to detect if the iframe fails to load
+            setTimeout(function() {
+                if (previewLoading.style.display === 'flex') {
+                    // If still loading after timeout, page might be blocked
+                    showToast("This page cannot be loaded in preview. Try opening in a new tab.");
+                    previewLoading.style.display = 'none';
+                }
+            }, 8000);
+        }
+        
+        function showToast(message) {
+            document.getElementById('toast-message').textContent = message;
+            toastNotification.classList.add('show');
+            
+            // Auto hide toast after 5 seconds
+            setTimeout(() => {
+                toastNotification.classList.remove('show');
+            }, 5000);
+        }
+        
+        toastClose.addEventListener('click', function() {
+            toastNotification.classList.remove('show');
+        });
+        
+        // Check for iframe load errors
+        previewIframe.addEventListener('error', function() {
+            showToast("This page cannot be loaded in preview. Try opening in a new tab.");
+            previewLoading.style.display = 'none';
+        });
+        
+        openInTabBtn.addEventListener('click', function() {
+            if (currentPreviewUrl) {
+                window.open(currentPreviewUrl, '_blank');
+            }
+        });
+        
+        expandPanelBtn.addEventListener('click', function() {
+            previewPanel.classList.toggle('expanded');
+            document.body.classList.toggle('panel-expanded');
+            
+            // Update the expand button icon based on state
+            if (previewPanel.classList.contains('expanded')) {
+                expandPanelBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path>
+                    </svg>
+                `;
+                expandPanelBtn.title = "Restore panel";
+            } else {
+                expandPanelBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+                    </svg>
+                `;
+                expandPanelBtn.title = "Expand panel";
+            }
+        });
+        
+        previewCloseBtn.addEventListener('click', function() {
+            previewPanel.classList.remove('active');
+            previewPanel.classList.remove('expanded');
+            document.body.classList.remove('preview-active');
+            document.body.classList.remove('panel-expanded');
+            // Reset expand button icon
+            expandPanelBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+                </svg>
+            `;
+            expandPanelBtn.title = "Expand panel";
+            // Clear iframe src after animation completes
+            setTimeout(() => {
+                previewIframe.src = '';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
