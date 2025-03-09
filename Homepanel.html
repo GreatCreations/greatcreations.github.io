@@ -328,6 +328,25 @@
             const wormholeContainer = document.getElementById('wormhole-container');
             const hyperspaceAudio = document.getElementById('hyperspace-audio');
             
+            const songPlaylist = [
+                "https://greatcreations.github.io/Waves.wav",
+                "https://greatcreations.github.io/Vision.wav",
+                "https://greatcreations.github.io/Imagination.wav"
+            ];
+            let currentSongIndex = 0;
+            
+            hyperspaceAudio.addEventListener('ended', function() {
+                playNextSong();
+            });
+            
+            function playNextSong() {
+                currentSongIndex = (currentSongIndex + 1) % songPlaylist.length;
+                hyperspaceAudio.src = songPlaylist[currentSongIndex];
+                hyperspaceAudio.play().catch(error => {
+                    console.log("Audio playback was prevented:", error);
+                });
+            }
+            
             function createStars() {
                 starsContainer.innerHTML = '';
                 const starCount = 100;
@@ -378,7 +397,9 @@
                     createWormhole();
                     createSparks();
                     
-                    // Play audio with better error handling and user interaction requirement
+                    currentSongIndex = 0;
+                    hyperspaceAudio.src = songPlaylist[currentSongIndex];
+                    
                     const playPromise = hyperspaceAudio.play();
                     
                     if (playPromise !== undefined) {
@@ -388,7 +409,6 @@
                             console.log("Audio playback was prevented:", error);
                             alert("Click anywhere to enable audio for the full hyperspace experience!");
                             
-                            // Add one-time click handler to start audio after user interaction
                             const startAudio = () => {
                                 hyperspaceAudio.play().catch(e => console.log("Audio still failed:", e));
                                 document.body.removeEventListener('click', startAudio);
@@ -629,33 +649,34 @@
                 const centerY = logoRect.top + logoRect.height / 2;
                 const radius = logoRect.width / 2;
                 
+                logo.addEventListener('click', function(e) {
+                    if (hyperspaceMode) {
+                        e.stopPropagation(); // Prevent bubbling to body click handler
+                        playNextSong();
+                    }
+                });
+                
                 sparkInterval = setInterval(() => {
-                    // Create a new spark
                     const spark = document.createElement('div');
                     spark.classList.add('spark');
                     document.body.appendChild(spark);
                     
-                    // Random angle for the spark to fly off
                     const angle = Math.random() * Math.PI * 2;
                     const startDistance = radius;
                     
-                    // Position at edge of the logo
                     const startX = centerX + Math.cos(angle) * startDistance;
                     const startY = centerY + Math.sin(angle) * startDistance;
                     
                     spark.style.left = `${startX}px`;
                     spark.style.top = `${startY}px`;
                     
-                    // Random color for the spark
                     const colors = ['#ff6b00', '#00c2cb', '#ffebf5', '#ffffff'];
                     spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     
-                    // Random size
                     const size = Math.random() * 4 + 2;
                     spark.style.width = `${size}px`;
                     spark.style.height = `${size}px`;
                     
-                    // Animate the spark flying off
                     const speed = Math.random() * 5 + 10;
                     const distance = Math.random() * 100 + 50;
                     const duration = distance / speed * 100;
