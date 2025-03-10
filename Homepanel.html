@@ -163,12 +163,6 @@
             }
         }
 
-        @keyframes flash {
-            0% { filter: brightness(1); }
-            50% { filter: brightness(1.3); }
-            100% { filter: brightness(1); }
-        }
-        
         .orbit-image {
             position: absolute;
             border-radius: 50%;
@@ -285,13 +279,131 @@
         
         .spark {
             position: absolute;
-            width: 5px;
-            height: 5px;
+            width: 8px;
+            height: 8px;
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             filter: blur(1px);
             pointer-events: none;
             z-index: 9;
+        }
+
+        .instruction-text {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #00c2cb;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            box-shadow: 0 0 15px rgba(0, 194, 203, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .instruction-text span {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .instruction-arrow {
+            display: block;
+            margin: 8px auto 0;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #00c2cb;
+            filter: drop-shadow(0 0 5px rgba(0, 194, 203, 0.7));
+            animation: pulse-arrow 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes pulse-arrow {
+            0% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(10px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.7; }
+        }
+
+        .audio-visualizer {
+            position: absolute;
+            bottom: 30px;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #left-visualizer {
+            left: 25%;
+        }
+
+        #right-visualizer {
+            left: 75%;
+        }
+        
+        .visualizer-container {
+            width: 200px;
+            height: 70px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .visualizer-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.7;
+            transform: scale(0);
+            transition: transform 0.2s ease-out;
+        }
+        
+        .visualizer-core {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffcce6, #00c2cb);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            animation: pulse 2s infinite alternate;
+        }
+        
+        .bass-circle {
+            width: 60px;
+            height: 60px;
+            border-color: #ff6b00;
+            box-shadow: 0 0 10px #ff6b00;
+        }
+        
+        .mid-circle {
+            width: 100px;
+            height: 100px;
+            border-color: #00c2cb;
+            box-shadow: 0 0 10px #00c2cb;
+        }
+        
+        .treble-circle {
+            width: 140px;
+            height: 140px;
+            border-color: #ffcce6;
+            box-shadow: 0 0 10px #ffcce6;
+        }
+        
+        .hyperspace-mode .audio-visualizer {
+            opacity: 1;
+        }
+        
+        .visualizer-element {
+            display: none;
         }
     </style>
 </head>
@@ -314,7 +426,28 @@
     <div id="orbiting-images-container"></div>
     <div id="stars-container"></div>
     <div class="wormhole-container" id="wormhole-container"></div>
-    <audio id="hyperspace-audio" loop>
+    <div class="audio-visualizer" id="left-visualizer">
+        <div class="visualizer-container">
+            <div class="visualizer-circle treble-circle"></div>
+            <div class="visualizer-circle mid-circle"></div>
+            <div class="visualizer-circle bass-circle"></div>
+            <div class="visualizer-core"></div>
+        </div>
+    </div>
+    <div class="audio-visualizer" id="right-visualizer">
+        <div class="visualizer-container">
+            <div class="visualizer-circle treble-circle"></div>
+            <div class="visualizer-circle mid-circle"></div>
+            <div class="visualizer-circle bass-circle"></div>
+            <div class="visualizer-core"></div>
+        </div>
+    </div>
+    <div id="instruction-container" class="instruction-text">
+        <span>Tap for next song</span>
+        <span>Double tap to exit</span>
+        <div class="instruction-arrow"></div>
+    </div>
+    <audio id="hyperspace-audio">
         <source src="https://greatcreations.github.io/Waves.wav" type="audio/wav">
         Your browser does not support the audio element.
     </audio>
@@ -323,10 +456,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             let hyperspaceMode = false;
             let longPressTimer;
+            let sparkInterval;  
             const body = document.body;
             const starsContainer = document.getElementById('stars-container');
             const wormholeContainer = document.getElementById('wormhole-container');
             const hyperspaceAudio = document.getElementById('hyperspace-audio');
+            const instructionContainer = document.getElementById('instruction-container');
             
             const songPlaylist = [
                 "https://greatcreations.github.io/Waves.wav",
@@ -336,55 +471,136 @@
             let currentSongIndex = 0;
             
             hyperspaceAudio.addEventListener('ended', function() {
-                playNextSong();
-            });
-            
-            function playNextSong() {
                 currentSongIndex = (currentSongIndex + 1) % songPlaylist.length;
                 hyperspaceAudio.src = songPlaylist[currentSongIndex];
-                hyperspaceAudio.play().catch(error => {
-                    console.log("Audio playback was prevented:", error);
-                });
-            }
-            
+                hyperspaceAudio.play().catch(e => console.error("Playback error:", e));
+            });
+
             function createStars() {
                 starsContainer.innerHTML = '';
-                const starCount = 100;
-                
-                for (let i = 0; i < starCount; i++) {
+                for (let i = 0; i < 100; i++) {
                     const star = document.createElement('div');
                     star.classList.add('star');
-                    star.style.left = `${Math.random() * 100}vw`;
-                    star.style.top = `${Math.random() * 100}vh`;
-                    star.style.animationDelay = `${Math.random() * 2}s`;
+                    star.style.left = `${Math.random() * window.innerWidth}px`;
+                    star.style.top = `${Math.random() * window.innerHeight}px`;
                     starsContainer.appendChild(star);
                 }
             }
             
             function createWormhole() {
                 wormholeContainer.innerHTML = '';
-                const streakCount = 80;
-                
-                for (let i = 0; i < streakCount; i++) {
+                for (let i = 0; i < 50; i++) {
                     const streak = document.createElement('div');
                     streak.classList.add('star-streak');
                     
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = Math.random() * 70 + 10;
+                    const width = Math.random() * 100 + 100;
+                    streak.style.width = `${width}px`;
                     
-                    const centerX = window.innerWidth / 2;
-                    const centerY = window.innerHeight / 2;
+                    const angle = Math.random() * 360;
+                    streak.style.transform = `rotate(${angle}deg)`;
                     
-                    const x = centerX + Math.cos(angle) * distance;
-                    const y = centerY + Math.sin(angle) * distance;
+                    streak.style.left = `${Math.random() * window.innerWidth}px`;
+                    streak.style.top = `${Math.random() * window.innerHeight}px`;
                     
-                    streak.style.left = `${x}px`;
-                    streak.style.top = `${y}px`;
-                    streak.style.width = `${Math.random() * 60 + 30}px`;
-                    streak.style.transform = `rotate(${angle}rad)`;
-                    streak.style.animationDelay = `${Math.random() * 3}s`;
+                    const delay = Math.random() * 4;
+                    streak.style.animationDelay = `${delay}s`;
                     
                     wormholeContainer.appendChild(streak);
+                }
+            }
+            
+            function clearSparks() {
+                if (sparkInterval) {
+                    clearInterval(sparkInterval);
+                    sparkInterval = null;
+                }
+                document.querySelectorAll('.spark').forEach(spark => spark.remove());
+            }
+            
+            function createSparks() {
+                clearSparks();
+                
+                const logo = document.querySelector('.logo');
+                const logoRect = logo.getBoundingClientRect();
+                const centerX = logoRect.left + logoRect.width / 2;
+                const centerY = logoRect.top + logoRect.height / 2;
+                const radius = logoRect.width / 2;
+                
+                const logoClickHandler = function(e) {
+                    if (hyperspaceMode) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        playNextSong();
+                    }
+                };
+                
+                logo.removeEventListener('click', logoClickHandler);
+                logo.removeEventListener('touchend', logoClickHandler);
+                logo.addEventListener('click', logoClickHandler);
+                logo.addEventListener('touchend', logoClickHandler);
+                
+                sparkInterval = setInterval(() => {
+                    const spark = document.createElement('div');
+                    spark.classList.add('spark');
+                    document.body.appendChild(spark);
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const startDistance = radius;
+                    
+                    const startX = centerX + Math.cos(angle) * startDistance;
+                    const startY = centerY + Math.sin(angle) * startDistance;
+                    
+                    spark.style.left = `${startX}px`;
+                    spark.style.top = `${startY}px`;
+                    
+                    const colors = ['#ff6b00', '#00c2cb', '#ffebf5', '#ffffff'];
+                    spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    const size = Math.random() * 8 + 4;
+                    spark.style.width = `${size}px`;
+                    spark.style.height = `${size}px`;
+                    
+                    const speed = Math.random() * 5 + 10;
+                    const distance = Math.random() * 100 + 50;
+                    const duration = distance / speed * 100;
+                    
+                    spark.animate([
+                        { 
+                            transform: 'scale(1)', 
+                            opacity: 1,
+                            left: `${startX}px`,
+                            top: `${startY}px`
+                        },
+                        { 
+                            transform: 'scale(0.1)', 
+                            opacity: 0,
+                            left: `${startX + Math.cos(angle) * distance}px`,
+                            top: `${startY + Math.sin(angle) * distance}px`
+                        }
+                    ], {
+                        duration: duration,
+                        easing: 'cubic-bezier(0.075, 0.82, 0.165, 1)'
+                    }).onfinish = () => {
+                        spark.remove();
+                    };
+                }, 50); 
+            }
+            
+            function animateVisualizer() {
+                if (hyperspaceMode) {
+                    const bassCircles = document.querySelectorAll('.bass-circle');
+                    const midCircles = document.querySelectorAll('.mid-circle');
+                    const trebleCircles = document.querySelectorAll('.treble-circle');
+                    
+                    const bassValue = 0.5 + Math.random() * 0.5;
+                    const midValue = 0.4 + Math.random() * 0.6;
+                    const trebleValue = 0.3 + Math.random() * 0.7;
+                    
+                    bassCircles.forEach(circle => circle.style.transform = `scale(${bassValue})`);
+                    midCircles.forEach(circle => circle.style.transform = `scale(${midValue})`);
+                    trebleCircles.forEach(circle => circle.style.transform = `scale(${trebleValue})`);
+                    
+                    requestAnimationFrame(animateVisualizer);
                 }
             }
             
@@ -396,51 +612,46 @@
                     createStars();
                     createWormhole();
                     createSparks();
+                    showInstructions();
                     
                     currentSongIndex = 0;
                     hyperspaceAudio.src = songPlaylist[currentSongIndex];
+                    hyperspaceAudio.play().catch(error => {
+                        console.error("Audio play failed:", error);
+                        body.addEventListener('click', function playOnce() {
+                            hyperspaceAudio.play();
+                            body.removeEventListener('click', playOnce);
+                        }, { once: true });
+                    });
                     
-                    const playPromise = hyperspaceAudio.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.then(_ => {
-                            console.log("Audio playback started successfully");
-                        }).catch(error => {
-                            console.log("Audio playback was prevented:", error);
-                            alert("Click anywhere to enable audio for the full hyperspace experience!");
-                            
-                            const startAudio = () => {
-                                hyperspaceAudio.play().catch(e => console.log("Audio still failed:", e));
-                                document.body.removeEventListener('click', startAudio);
-                            };
-                            document.body.addEventListener('click', startAudio);
-                        });
-                    }
+                    animateVisualizer();
                 } else {
                     body.classList.remove('hyperspace-mode');
                     clearSparks();
                     hyperspaceAudio.pause();
                     hyperspaceAudio.currentTime = 0;
+                    hideInstructions();
                 }
             }
             
-            body.addEventListener('dblclick', function(e) {
-                toggleHyperspace();
-            });
+            function playNextSong() {
+                if (hyperspaceMode) {
+                    currentSongIndex = (currentSongIndex + 1) % songPlaylist.length;
+                    hyperspaceAudio.src = songPlaylist[currentSongIndex];
+                    hyperspaceAudio.play().catch(e => console.error("Play next song failed:", e));
+                }
+            }
             
-            body.addEventListener('touchstart', function(e) {
-                longPressTimer = setTimeout(function() {
-                    toggleHyperspace();
-                }, 800); 
-            });
+            function showInstructions() {
+                instructionContainer.style.opacity = '1';
+                setTimeout(() => {
+                    instructionContainer.style.opacity = '0';
+                }, 5000);
+            }
             
-            body.addEventListener('touchend', function(e) {
-                clearTimeout(longPressTimer);
-            });
-            
-            body.addEventListener('touchmove', function(e) {
-                clearTimeout(longPressTimer);
-            });
+            function hideInstructions() {
+                instructionContainer.style.opacity = '0';
+            }
             
             const wordContainer = document.getElementById('word-container');
             const innovation = document.getElementById('innovation');
@@ -638,82 +849,30 @@
             
             scheduleNextImage();
             
-            let sparkInterval;
-            
-            function createSparks() {
-                clearSparks(); // Clear any existing sparks first
-                
-                const logo = document.querySelector('.logo');
-                const logoRect = logo.getBoundingClientRect();
-                const centerX = logoRect.left + logoRect.width / 2;
-                const centerY = logoRect.top + logoRect.height / 2;
-                const radius = logoRect.width / 2;
-                
-                logo.addEventListener('click', function(e) {
-                    if (hyperspaceMode) {
-                        e.stopPropagation(); // Prevent bubbling to body click handler
-                        playNextSong();
-                    }
-                });
-                
-                sparkInterval = setInterval(() => {
-                    const spark = document.createElement('div');
-                    spark.classList.add('spark');
-                    document.body.appendChild(spark);
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    const startDistance = radius;
-                    
-                    const startX = centerX + Math.cos(angle) * startDistance;
-                    const startY = centerY + Math.sin(angle) * startDistance;
-                    
-                    spark.style.left = `${startX}px`;
-                    spark.style.top = `${startY}px`;
-                    
-                    const colors = ['#ff6b00', '#00c2cb', '#ffebf5', '#ffffff'];
-                    spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    
-                    const size = Math.random() * 4 + 2;
-                    spark.style.width = `${size}px`;
-                    spark.style.height = `${size}px`;
-                    
-                    const speed = Math.random() * 5 + 10;
-                    const distance = Math.random() * 100 + 50;
-                    const duration = distance / speed * 100;
-                    
-                    spark.animate([
-                        { 
-                            transform: 'scale(1)', 
-                            opacity: 1,
-                            left: `${startX}px`,
-                            top: `${startY}px`
-                        },
-                        { 
-                            transform: 'scale(0.1)', 
-                            opacity: 0,
-                            left: `${startX + Math.cos(angle) * distance}px`,
-                            top: `${startY + Math.sin(angle) * distance}px`
-                        }
-                    ], {
-                        duration: duration,
-                        easing: 'cubic-bezier(0.075, 0.82, 0.165, 1)'
-                    }).onfinish = () => {
-                        spark.remove();
-                    };
-                }, 50); // Create a new spark every 50ms
-            }
-            
-            function clearSparks() {
-                clearInterval(sparkInterval);
-                document.querySelectorAll('.spark').forEach(spark => spark.remove());
-            }
-            
             window.addEventListener('resize', function() {
                 resizeCanvas();
                 if (hyperspaceMode) {
                     clearSparks();
                     createSparks();
                 }
+            });
+            
+            body.addEventListener('dblclick', function(e) {
+                toggleHyperspace();
+            });
+            
+            body.addEventListener('touchstart', function(e) {
+                longPressTimer = setTimeout(function() {
+                    toggleHyperspace();
+                }, 800); 
+            });
+            
+            body.addEventListener('touchend', function(e) {
+                clearTimeout(longPressTimer);
+            });
+            
+            body.addEventListener('touchmove', function(e) {
+                clearTimeout(longPressTimer);
             });
         });
     </script>
