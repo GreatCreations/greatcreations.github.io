@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html style="height: 100%; margin: 0;">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech Bubble</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: transparent;
+            overflow: visible;
+            position: relative;
+        }
+        
+        svg {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            overflow: visible;
+            position: relative;
+            z-index: 5;
+        }
+
+        .bubble-text {
+            font-family: Comic Sans MS, cursive;
+            font-size: 11px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            width: 220px;
+            max-width: 220px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 1.5;
+            z-index: 10;
+        }
+        
+        .speech-bubble {
+            fill: white;
+            stroke: #333;
+            stroke-width: 3;
+            z-index: 5;
+        }
+        
+        .image-container {
+            position: absolute;
+            bottom: 150px;  
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: auto;
+            z-index: 1;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .bounce {
+            animation: bounce 2s ease infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimages.vexels.com%2Fmedia%2Fusers%2F3%2F129438%2Fisolated%2Fpreview%2F545d20336daf31c19688b696829cdd47-blonde-cartoon-man-head.png&f=1&nofb=1&ipt=d89995906894bbf4b128cabf780d32f3efc2aa7d7f9db1dfd2de497f78b6175e&ipo=images" alt="">
+    </div>
+    
+    <div class="bounce">
+        <svg viewBox="0 0 650 450" preserveAspectRatio="xMidYMid meet">
+            <path class="speech-bubble" d="
+                    M60,80 
+                    H570 
+                    Q590,80 590,100 
+                    V410 
+                    Q590,430 570,430 
+                    H255 
+                    L195,480 
+                    L155,430 
+                    H60 
+                    Q40,430 40,410 
+                    V100 
+                    Q40,80 60,80
+                " />
+        </svg>
+        
+        <p class="bubble-text">Welcome to
+Great Creation Studios
+where innovation and imagination
+meet for weirdly wonderful
+creations!</p>
+    </div>
+</body>
+</html>
