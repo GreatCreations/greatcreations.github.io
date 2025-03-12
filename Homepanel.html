@@ -279,8 +279,8 @@
         
         .spark {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 15px;
+            height: 15px;
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             filter: blur(1px);
@@ -332,7 +332,7 @@
 
         .audio-visualizer {
             position: absolute;
-            bottom: 30px;
+            bottom: 120px;
             transform: translateX(-50%);
             display: flex;
             justify-content: center;
@@ -466,7 +466,9 @@
             const songPlaylist = [
                 "https://greatcreations.github.io/Waves.wav",
                 "https://greatcreations.github.io/Vision.wav",
-                "https://greatcreations.github.io/Imagination.wav"
+
+"https://greatcreations.github.io/Spirit.wav",              
+                "https://greatcreations.github.io/Noneedforthestress.wav"
             ];
             let currentSongIndex = 0;
             
@@ -556,7 +558,7 @@
                     const colors = ['#ff6b00', '#00c2cb', '#ffebf5', '#ffffff'];
                     spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     
-                    const size = Math.random() * 8 + 4;
+                    const size = Math.random() * 15 + 8;
                     spark.style.width = `${size}px`;
                     spark.style.height = `${size}px`;
                     
@@ -858,13 +860,17 @@
             });
             
             body.addEventListener('dblclick', function(e) {
-                toggleHyperspace();
+                if (!e.target.closest('.logo')) {
+                    toggleHyperspace();
+                }
             });
             
             body.addEventListener('touchstart', function(e) {
-                longPressTimer = setTimeout(function() {
-                    toggleHyperspace();
-                }, 800); 
+                if (!e.target.closest('.logo')) {
+                    longPressTimer = setTimeout(function() {
+                        toggleHyperspace();
+                    }, 800); 
+                }
             });
             
             body.addEventListener('touchend', function(e) {
