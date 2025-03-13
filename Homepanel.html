@@ -405,6 +405,61 @@
         .visualizer-element {
             display: none;
         }
+        
+        .comet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, white 10%, rgba(255, 255, 255, 0.7) 30%, transparent 70%);
+            border-radius: 50%;
+            z-index: 3;
+            opacity: 0;
+            filter: blur(1px);
+            box-shadow: 0 0 5px white;
+            animation: pulse-comet 2s infinite alternate;
+            pointer-events: none;
+        }
+        
+        .comet-tail {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(to var(--direction, right), 
+                transparent, 
+                rgba(255, 204, 230, 0.8), 
+                rgba(0, 194, 203, 0.8), 
+                rgba(255, 107, 0, 0.8));
+            z-index: 2;
+            border-radius: 2px;
+            opacity: 0;
+            filter: blur(1.5px);
+            transform-origin: 0 50%;
+            pointer-events: none;
+        }
+        
+        @keyframes pulse-comet {
+            0% { transform: scale(0.9); box-shadow: 0 0 5px white; }
+            100% { transform: scale(1.1); box-shadow: 0 0 8px white; }
+        }
+        
+        .hyperspace-mode .comet {
+            filter: blur(0);
+            box-shadow: 0 0 15px white, 0 0 25px #00c2cb;
+            width: 12px;
+            height: 12px;
+            animation: pulse-comet 0.8s infinite alternate;
+            background: radial-gradient(circle, white 10%, rgba(255, 255, 255, 0.9) 30%, rgba(0, 194, 203, 0.5) 70%);
+        }
+        
+        .hyperspace-mode .comet-tail {
+            filter: blur(0.5px);
+            box-shadow: 0 0 8px #00c2cb;
+            height: 5px;
+            background: linear-gradient(to var(--direction, right), 
+                transparent,
+                rgba(255, 204, 230, 1), 
+                rgba(0, 194, 203, 1), 
+                rgba(255, 107, 0, 1));
+        }
     </style>
 </head>
 <body>
@@ -425,6 +480,7 @@
     <canvas class="particles"></canvas>
     <div id="orbiting-images-container"></div>
     <div id="stars-container"></div>
+    <div id="comet-container"></div>
     <div class="wormhole-container" id="wormhole-container"></div>
     <div class="audio-visualizer" id="left-visualizer">
         <div class="visualizer-container">
@@ -460,6 +516,7 @@
             const body = document.body;
             const starsContainer = document.getElementById('stars-container');
             const wormholeContainer = document.getElementById('wormhole-container');
+            const cometContainer = document.getElementById('comet-container');
             const hyperspaceAudio = document.getElementById('hyperspace-audio');
             const instructionContainer = document.getElementById('instruction-container');
             
@@ -467,7 +524,7 @@
                 "https://greatcreations.github.io/Waves.wav",
                 "https://greatcreations.github.io/Vision.wav",
 
-"https://greatcreations.github.io/Spirit.wav",              
+                "https://greatcreations.github.io/Spirit.wav",              
                 "https://greatcreations.github.io/Noneedforthestress.wav"
             ];
             let currentSongIndex = 0;
@@ -880,6 +937,68 @@
             body.addEventListener('touchmove', function(e) {
                 clearTimeout(longPressTimer);
             });
+            
+            function createComet() {
+                cometContainer.innerHTML = '';
+                
+                const comet = document.createElement('div');
+                comet.classList.add('comet');
+                
+                const cometTail = document.createElement('div');
+                cometTail.classList.add('comet-tail');
+                
+                cometContainer.appendChild(cometTail);
+                cometContainer.appendChild(comet);
+                
+                const leftToRight = Math.random() > 0.5;
+                const startX = leftToRight ? -10 : window.innerWidth + 10;
+                const endX = leftToRight ? window.innerWidth + 10 : -10;
+                
+                const startY = Math.random() * (window.innerHeight * 0.8) + (window.innerHeight * 0.1);
+                const endY = startY + (Math.random() * 200 - 100);
+                
+                comet.style.top = `${startY}px`;
+                cometTail.style.top = `${startY + 2}px`;
+                cometTail.style.setProperty('--direction', leftToRight ? 'right' : 'left');
+                
+                const duration = hyperspaceMode ? 
+                    (Math.random() * 2000 + 2000) : 
+                    (Math.random() * 5000 + 7000);
+                
+                comet.animate([
+                    { opacity: 0, left: `${startX}px`, top: `${startY}px` },
+                    { opacity: 1, left: `${startX + (leftToRight ? 50 : -50)}px`, top: `${startY + (endY - startY) * 0.25}px` },
+                    { opacity: 1, left: `${endX - (leftToRight ? 50 : -50)}px`, top: `${startY + (endY - startY) * 0.75}px` },
+                    { opacity: 0, left: `${endX}px`, top: `${endY}px` }
+                ], {
+                    duration: duration,
+                    easing: 'ease-in-out',
+                    fill: 'forwards'
+                });
+                
+                cometTail.animate([
+                    { opacity: 0, left: `${startX}px`, top: `${startY + 2}px`, width: '0px' },
+                    { opacity: 0.9, left: `${startX - (leftToRight ? -5 : 100)}px`, top: `${startY + (endY - startY) * 0.25 + 2}px`, width: '50px' },
+                    { opacity: 0.9, left: `${endX - (leftToRight ? 100 : -5)}px`, top: `${startY + (endY - startY) * 0.75 + 2}px`, width: '100px' },
+                    { opacity: 0, left: `${endX}px`, top: `${endY + 2}px`, width: '0px' }
+                ], {
+                    duration: duration,
+                    easing: 'ease-in-out',
+                    fill: 'forwards'
+                }).onfinish = scheduleNextComet;
+            }
+            
+            function scheduleNextComet() {
+                const delay = hyperspaceMode ? 
+                    (Math.random() * 2000 + 1500) : 
+                    (Math.random() * 10000 + 8000);
+                
+                setTimeout(() => {
+                    createComet();
+                }, delay);
+            }
+
+            scheduleNextComet();
         });
     </script>
 </body>
