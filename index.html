@@ -454,14 +454,14 @@
         // Clear any existing timeout
         clearTimeout(headerTimeout);
         
-        // Hide header again after 2 seconds
+        // Hide header again after 2.5 seconds
         headerTimeout = setTimeout(function() {
           if (isHeaderHidden) {
             header.classList.remove('header-visible');
             header.classList.add('header-hidden');
             headerIcon.classList.add('visible');
           }
-        }, 2000);
+        }, 2500);
       }
 
       // Scroll to top button
@@ -546,7 +546,7 @@
         
         // Start animation
         setTimeout(() => {
-          spiralLogo.style.animation = 'spiralPath 8s ease-in-out 3';
+          spiralLogo.style.animation = 'spiralPath 8s ease-in-out 1';
           
           // Listen for animation end
           spiralLogo.addEventListener('animationend', function() {
