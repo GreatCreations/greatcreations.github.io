@@ -534,10 +534,10 @@
         
         // Create clone of the logo
         const logoRect = centerLogo.getBoundingClientRect();
-        const spiralLogo = document.createElement('img');
+        const spiralLogo = document.createElement('video');
         spiralLogo.src = centerLogo.src;
         spiralLogo.alt = centerLogo.alt;
-        spiralLogo.className = 'spiral-logo h-6 w-6';
+        spiralLogo.className = 'spiral-logo h-6 w-16';
         spiralLogo.style.left = `${logoRect.left}px`;
         spiralLogo.style.top = `${logoRect.top}px`;
         
