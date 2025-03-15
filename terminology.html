@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Great Creations Studios - Design Terminology Library</title>
+    <style>
+        /* Variables and resets - Sass-like structure */
+        :root {
+            --primary-color: #FF7F50; /* Coral orange */
+            --secondary-color: #40E0D0; /* Turquoise cyan */
+            --accent-color: #FFB6C1; /* Light pink */
+            --background-color: #FFFAF0; /* Comic page off-white */
+            --panel-color: #ffffff;
+            --text-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
+            --toast-bg: rgba(255, 127, 80, 0.9); /* Orange-based toast */
+            --toast-text: #ffffff;
+            --category-colors: #FF7F50, #40E0D0, #FFB6C1, #FF6347, #4DD0E1, #FFC0CB, #FF4500;
+            --border-color: #000000; /* Black borders for comic effect */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 1rem;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+                repeating-linear-gradient(45deg, var(--accent-color) 0px, var(--accent-color) 1px, transparent 1px, transparent 2px);
+        }
+
+        /* Typography */
+        .title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: 3px solid var(--border-color);
+            display: inline-block;
+            transform: rotate(-2deg);
+            box-shadow: 5px 5px 0 var(--border-color);
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 900;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin: 1.5rem auto;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--panel-color);
+            border-radius: 0;
+            border: 2px solid var(--border-color);
+            box-shadow: 4px 4px 0 var(--secondary-color);
+            margin-top: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--shadow-color);
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .search-result-title {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .search-result-category {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 3px solid var(--border-color);
+            border-radius: 0; /* Square corners for comic style */
+            box-shadow: 4px 4px 0 var(--primary-color);
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 4px 4px 0 var(--secondary-color);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        /* Filter Tags */
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-tag {
+            padding: 0.5rem 1rem;
+            background-color: var(--panel-color);
+            border: 2px solid var(--border-color);
+            border-radius: 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0.25rem;
+            box-shadow: 2px 2px 0 var(--border-color);
+        }
+
+        .filter-tag:hover, .filter-tag.active {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 3px 3px 0 var(--border-color);
+        }
+
+        /* Category filter styling */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .category-filters .filter {
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            background-color: white;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            box-shadow: 2px 2px 0 var(--border-color);
+        }
+        
+        .category-filters .filter.active {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 var(--border-color);
+        }
+        
+        .category-filters .filter:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 var(--border-color);
+        }
+
+        /* Comic-style Grid Layout */
+        .terminology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .term-panel {
+            border: 3px solid var(--border-color);
+            background-color: var(--panel-color);
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 5px 5px 0 var(--shadow-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+            position: relative;
+        }
+        
+        .term-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .term-panel:nth-child(7n+1)::before { background-color: var(--primary-color); }
+        .term-panel:nth-child(7n+2)::before { background-color: var(--secondary-color); }
+        .term-panel:nth-child(7n+3)::before { background-color: var(--accent-color); }
+        .term-panel:nth-child(7n+4)::before { background-color: #FF6347; }
+        .term-panel:nth-child(7n+5)::before { background-color: #4DD0E1; }
+        .term-panel:nth-child(7n+6)::before { background-color: #FFC0CB; }
+        .term-panel:nth-child(7n+7)::before { background-color: #FF4500; }
+
+        .term-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0 var(--shadow-color);
+        }
+
+        .term-header {
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-bottom: 2px solid var(--border-color);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .term-title {
+            font-size: 1.1rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-color);
+            font-weight: bold;
+            border-bottom: 1px dotted var(--shadow-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .term-categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .term-category {
+            font-size: 0.75rem;
+            color: white;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+            background-color: var(--primary-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            word-wrap: break-word;
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .term-content {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            padding: 1rem;
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 0;
+            width: 90%;
+            max-width: 600px;
+            border: 4px solid var(--border-color);
+            position: relative;
+            box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
+            animation: zoomIn 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 1rem;
+            background-color: var(--panel-color);
+            border-bottom: 3px solid var(--border-color);
+            position: relative;
+        }
+        
+        .modal-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+        
+        .modal-category {
+            display: inline-block;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--secondary-color);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-description {
+            margin-bottom: 1.5rem;
+        }
+
+        .related-terms {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--shadow-color);
+        }
+
+        .related-terms h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .related-terms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .related-term {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.7rem;
+            background-color: var(--background-color);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .related-term:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 1001;
+        }
+
+        .toast {
+            padding: 1rem;
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            border-radius: 0;
+            border: 3px solid var(--border-color);
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.3);
+            min-width: 250px;
+            max-width: 350px;
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 3.7s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            display: none;
+            border: 3px dashed var(--border-color);
+            margin: 2rem auto;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        
+        .empty-state p:first-child {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        /* Loading indicator */
+        .loader {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .loader div {
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+        
+        .loader div:nth-child(2) {
+            animation-delay: 0.1s;
+            background-color: var(--secondary-color);
+        }
+        
+        .loader div:nth-child(3) {
+            animation-delay: 0.2s;
+            background-color: var(--accent-color);
+        }
+        
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted var(--primary-color);
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            text-align: center;
+            border-radius: 4px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--toast-bg) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .terminology-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .term-panel {
+                height: 180px;
+            }
+
+            .modal-content {
+                max-height: 90vh;
+            }
+        }
+        
+        /* Search results styling */
+        .search-result-item {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .search-result-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .search-result-item .term-category {
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            margin-right: 0.2rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .more-tag {
+            background-color: var(--secondary-color);
+        }
+        
+        /* Custom scrollbar for search dropdown and page */
+        #search-results::-webkit-scrollbar,
+        .modal-content::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        #search-results::-webkit-scrollbar-track,
+        .modal-content::-webkit-scrollbar-track,
+        body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+        
+        #search-results::-webkit-scrollbar-thumb,
+        .modal-content::-webkit-scrollbar-thumb,
+        body::-webkit-scrollbar-thumb {
+            background: #ffb6c1;
+            border-radius: 5px;
+        }
+        
+        #search-results::-webkit-scrollbar-thumb:hover,
+        .modal-content::-webkit-scrollbar-thumb:hover,
+        body::-webkit-scrollbar-thumb:hover {
+            background: #ff9aa2;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="title-container">
+            <h1>Design Terminology Library</h1>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search for design terms..." id="search-input">
+            <button class="clear-search" id="clear-search">×</button>
+            <div class="search-results" id="search-results">
+                <!-- Search results will appear here as the user types -->
+            </div>
+        </div>
+        
+        <div class="category-filters" id="filter-tags">
+            <!-- Tags will be generated by JavaScript -->
+        </div>
+        
+        <div class="loader" id="loader">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        
+        <div class="empty-state" id="empty-state">
+            <p>No terms found matching your search.</p>
+            <p>Try adjusting your search terms or filters.</p>
+        </div>
+        
+        <div class="terminology-grid" id="terminology-grid">
+            <!-- Term panels will be generated by JavaScript -->
+        </div>
+    </main>
+    
+    <!-- Modal -->
+    <div class="modal" id="term-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title"></h2>
+                <div class="term-categories-container" id="modal-categories">
+                    <!-- Categories will be generated by JavaScript -->
+                </div>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-description" id="modal-description"></div>
+                <div class="related-terms-container" id="related-terms-container">
+                    <h3>Related Terms</h3>
+                    <div class="related-terms-list" id="related-terms-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <script>
+        // Design terminology database
+        const designTerms = [
+            { id: 1, title: "Color Psychology", categories: ["Color and Visual Elements", "Design Principles", "UX and UI Design"], description: "The study of how colors affect human perception, emotions, and behavior. Different colors can evoke specific emotions and psychological responses, which designers leverage to create effective visual communication.", related: ["Visual Identity", "Branding", "Focal Point"], tooltip: "How colors impact emotions and behavior" },
+                
+            { id: 2, title: "Visual Hierarchy", categories: ["Design Principles", "UX and UI Design", "Layout and Composition"], description: "The arrangement of elements in a design according to their importance. This guides the viewer's attention through the design in a deliberate way, helping them understand the content more effectively.", related: ["Grid Systems", "Balance", "Proximity"], tooltip: "Organizing elements by importance" },
+                
+            { id: 3, title: "Typography", categories: ["Typography and Fonts", "Design Principles", "Visual Communication"], description: "The art and technique of arranging type to make written language legible, readable, and appealing. Typography includes font selection, point size, line length, leading, tracking, and kerning.", related: ["Serif", "Sans-serif", "Hierarchy"], tooltip: "The art of arranging type" },
+                
+            { id: 4, title: "Negative Space", categories: ["Design Principles", "Layout and Composition"], description: "The area around and between the subject(s) of an image. Proper use of negative space can create visual interest, balance, and help define the focal point of a design.", related: ["Composition", "Minimalism", "Balance"], tooltip: "The empty space in a design" },
+                
+            { id: 5, title: "Grid Systems", categories: ["Layout and Composition", "UX and UI Design"], description: "A structure of horizontal and vertical lines used to organize content in a design. Grids help create a consistent, organized layout and establish a visual rhythm.", related: ["Visual Hierarchy", "Alignment", "Responsive Design"], tooltip: "Organizing content with invisible lines" },
+                
+            { id: 6, title: "Responsive Design", categories: ["Web and Digital Design", "UX and UI Design", "Technical Design"], description: "An approach to web design that makes web pages render well on a variety of devices and window or screen sizes. Content, design, and performance are essential across all devices to ensure usability and satisfaction.", related: ["Mobile-First Design", "Breakpoints", "Fluid Layouts"], tooltip: "Designs that adapt to different screen sizes" },
+                
+            { id: 7, title: "Design Thinking", categories: ["Design Process", "UX Research"], description: "A non-linear, iterative process that teams use to understand users, challenge assumptions, redefine problems, and create innovative solutions to prototype and test. It involves five phases: Empathize, Define, Ideate, Prototype, and Test.", related: ["User-Centered Design", "Empathy Mapping", "Prototyping"], tooltip: "A methodology to solve complex problems" },
+                
+            { id: 8, title: "User Experience (UX)", categories: ["UX and UI Design", "Design Process", "User Research"], description: "The overall experience of a person using a product, especially in terms of how easy or pleasing it is to use. UX design considers every element that shapes this experience, from how a physical product feels in your hand to how straightforward the checkout process is.", related: ["User Interface", "Usability", "Information Architecture"], tooltip: "How users feel about interacting with a product" },
+                
+            { id: 9, title: "User Interface (UI)", categories: ["UX and UI Design", "Web and Digital Design"], description: "The space where interactions between humans and machines occur. The goal of UI design is to make the user's interaction as simple and efficient as possible, in terms of accomplishing user goals.", related: ["User Experience", "Interaction Design", "Visual Design"], tooltip: "What users interact with directly" },
+                
+            { id: 10, title: "Branding", categories: ["Brand Design", "Marketing Design", "Visual Identity"], description: "The process of creating a unique name, design, and image for a product or service in consumers' minds. Branding aims to establish a significant and differentiated presence in the market that attracts and retains loyal customers.", related: ["Brand Identity", "Logo Design", "Brand Guidelines"], tooltip: "Creating a recognizable identity for a product or company" },
+                
+            { id: 11, title: "Minimalism", categories: ["Design Styles", "Layout and Composition"], description: "A design approach that emphasizes simplicity and the removal of superfluous elements. It's characterized by generous negative space, limited color palettes, and simplified forms to create clean, focused designs.", related: ["Negative Space", "Whitespace", "Flat Design"], tooltip: "Design that uses only essential elements" },
+                
+            { id: 12, title: "Color Theory", categories: ["Color and Visual Elements", "Design Principles"], description: "The practical guidance to color mixing and the visual effects of color combinations. It encompasses color physics, the color wheel, harmony, and the context of how colors are perceived.", related: ["Color Psychology", "Color Harmony", "RGB vs CMYK"], tooltip: "The science and art of using color" },
+                
+            { id: 13, title: "Wireframing", categories: ["UX and UI Design", "Design Process"], description: "A visual guide that represents the skeletal framework of a website or application. Wireframes are created to arrange elements to best accomplish a particular purpose, usually being informed by a business objective and creative idea.", related: ["Prototyping", "Information Architecture", "User Flow"], tooltip: "Creating a basic layout structure" },
+                
+            { id: 14, title: "Prototyping", categories: ["Design Process", "UX and UI Design"], description: "The process of creating an early sample, model, or release of a product built to test a concept or process. Prototypes help designers understand requirements better, identify issues early, and iterate more effectively.", related: ["Wireframing", "Mockup", "User Testing"], tooltip: "Building a testable version of a design" },
+                
+            { id: 15, title: "Information Architecture", categories: ["UX and UI Design", "Web and Digital Design"], description: "The structural design of shared information environments. It involves organizing, structuring, and labeling content in an effective and sustainable way so that users can find information and complete tasks.", related: ["User Experience", "Navigation Design", "Sitemap"], tooltip: "How information is organized and structured" },
+
+            { id: 16, title: "Gestalt Principles", categories: ["Design Principles", "Cognitive Psychology", "Visual Communication"], description: "A set of rules that describe how humans tend to organize visual elements into groups or unified wholes. Principles include proximity, similarity, continuity, closure, figure/ground, and common fate.", related: ["Visual Perception", "Pattern Recognition", "Visual Hierarchy"], tooltip: "How we perceive visual elements as organized patterns" },
+                
+            { id: 17, title: "Golden Ratio", categories: ["Design Principles", "Layout and Composition", "Art History"], description: "A mathematical ratio of approximately 1:1.618 that appears repeatedly in nature and has been used in design for centuries. The golden ratio creates aesthetically pleasing, balanced compositions when used to determine proportions in layout, typography, or visual elements.", related: ["Rule of Thirds", "Divine Proportion", "Fibonacci Sequence"], tooltip: "A proportional relationship creating visual harmony" },
+                
+            { id: 18, title: "Mood Board", categories: ["Design Process", "Visual Communication", "Creative Direction"], description: "A collection of visual materials assembled as inspiration before beginning a design project. Mood boards may include images, color palettes, textures, typography samples, and other elements that convey the intended emotional response and aesthetic direction.", related: ["Style Guide", "Creative Brief", "Visual Research"], tooltip: "Visual collection that sets the tone for a project" },
+                
+            { id: 19, title: "Kerning", categories: ["Typography and Fonts", "Technical Design"], description: "The process of adjusting the space between individual letter forms to achieve visually pleasing and readable text. Proper kerning ensures consistent spacing between characters and improves legibility, particularly in headlines and logos.", related: ["Typography", "Tracking", "Leading"], tooltip: "Adjusting space between specific letter pairs" },
+                
+            { id: 20, title: "Raster vs. Vector", categories: ["Technical Design", "Digital Art", "Graphic Production"], description: "Two different types of digital images. Raster images are made of pixels and have a fixed resolution, while vector images are made of mathematical paths and can be scaled infinitely without losing quality. Understanding when to use each is crucial for different design applications.", related: ["Image Resolution", "File Formats", "Scalability"], tooltip: "Pixel-based vs. math-based graphics" },
+                
+            { id: 21, title: "Impasto", categories: ["Fine Art Techniques", "Painting", "Texture and Materials"], description: "A technique where paint is laid on a surface in very thick layers, usually thick enough that the brush or knife strokes are visible. The paint can be mixed right on the canvas to create a dimensional, textured effect that captures light and creates visual interest.", related: ["Chiaroscuro", "Value Studies", "Figure Drawing"], tooltip: "Thick application of paint creating texture" },
+                
+            { id: 22, title: "Art Direction", categories: ["Creative Direction", "Design Management", "Visual Communication"], description: "The management of visual elements in a project by establishing a visual style that adheres to a creative vision. An art director oversees and unifies the vision across multiple channels and formats while maintaining brand consistency and emotional impact.", related: ["Creative Direction", "Brand Consistency", "Visual Storytelling"], tooltip: "Managing the visual aspects of a creative project" },
+                
+            { id: 23, title: "Scrum for Design", categories: ["Design Management", "Agile Methodology", "Design Process"], description: "An agile framework adapted for design teams that emphasizes iterative progress, collaboration, and frequent reassessment. Design Scrum includes sprints, daily stand-ups, and retrospectives to improve workflow efficiency while maintaining creative quality and user-centered focus.", related: ["Agile UX", "Design Sprints", "Iterative Design"], tooltip: "Agile framework adapted for design workflows" },
+                
+            { id: 24, title: "3D Rendering", categories: ["Digital Modeling", "Technical Design", "Visual Communication"], description: "The process of generating a 2D image or animation from a 3D model using computer software. Rendering calculates lighting, textures, shadows, and reflections to create realistic or stylized representations of three-dimensional objects or environments.", related: ["3D Modeling", "Lighting", "Texturing"], tooltip: "Creating 2D images from 3D digital models" },
+                
+            { id: 25, title: "Client Brief", categories: ["Design Management", "Design Process", "Business of Design"], description: "A document that outlines the objectives, requirements, audience, and deliverables for a design project. A comprehensive brief aligns expectations between the client and design team, providing a road map and reference point throughout the design process.", related: ["Scope of Work", "Project Requirements", "Design Strategy"], tooltip: "Document outlining project parameters and goals" },
+                
+            { id: 26, title: "Pixel Art", categories: ["Digital Art", "Illustration Styles", "Game Design"], description: "A form of digital art where images are created and edited at the pixel level. Characterized by its deliberately limited resolution and color palette, pixel art embraces visible pixels as an aesthetic choice rather than a technical limitation.", related: ["8-bit Graphics", "Sprite Animation", "Limited Palette"], tooltip: "Digital art form using visible, deliberate pixels" },
+                
+            { id: 27, title: "Material Design", categories: ["Design Systems", "UX and UI Design", "Web and Digital Design"], description: "A design language developed by Google that combines the classic principles of successful design with innovation and technology. It features tactile surfaces, bold graphic design, and intuitive animations to create a unified experience across platforms and device sizes.", related: ["Flat Design", "Design Systems", "Microinteractions"], tooltip: "Google's design language based on paper metaphor" },
+                
+            { id: 28, title: "Skeuomorphism", categories: ["Design Styles", "UX and UI Design", "Digital Art"], description: "A design concept where objects in software mimic their real-world counterparts in appearance and how users interact with them. Examples include digital notebooks with page-turning animations or audio software with knobs and sliders mimicking physical equipment.", related: ["Realism", "Flat Design", "Interface Metaphors"], tooltip: "Digital designs mimicking physical objects" },
+                
+            { id: 29, title: "Accessible Design", categories: ["UX and UI Design", "Inclusive Design", "Technical Design"], description: "The design of products, devices, services, or environments for people with disabilities. Accessible design ensures that all users, regardless of ability, can perceive, understand, navigate, and interact with designs effectively, independently, and with dignity.", related: ["Universal Design", "WCAG", "Inclusive Design"], tooltip: "Design that works for people of all abilities" },
+                
+            { id: 30, title: "Foreshortening", categories: ["Fine Art Techniques", "Illustration", "Visual Communication"], description: "A technique used to create the illusion that an object is receding strongly into the distance or background. The technique is commonly used in drawing and painting to depict objects that appear to thrust forward or backward in space, creating dramatic perspective.", related: ["Perspective", "Optical Illusion", "Visual Depth"], tooltip: "Depicting objects receding in space through perspective" },
+                
+            { id: 31, title: "Key Performance Indicators (KPIs) for Design", categories: ["Design Management", "Business of Design", "UX Research"], description: "Measurable values that demonstrate how effectively a design achieves key business objectives. Design KPIs might include conversion rates, user engagement metrics, brand recognition, or reduction in support tickets, helping quantify design's impact on business goals.", related: ["Design ROI", "Analytics", "Success Metrics"], tooltip: "Measurable metrics tracking design effectiveness" },
+                
+            { id: 32, title: "SVG Animation", categories: ["Web and Digital Design", "Animation", "Technical Design"], description: "The process of creating motion effects with Scalable Vector Graphics using CSS or JavaScript. SVG animations are resolution-independent, lightweight, and allow for complex interactive elements that can respond to user actions.", related: ["CSS Animation", "Vector Graphics", "Interactive Design"], tooltip: "Animating vector graphics for web and interfaces" },
+                
+            { id: 33, title: "Color Gamut", categories: ["Color and Visual Elements", "Technical Design", "Graphic Production"], description: "The complete range of colors that can be represented within a color space or by a specific device. Understanding color gamut is crucial when designing across different media (print, web, mobile) to ensure color consistency and predictability.", related: ["Color Space", "sRGB", "Display Calibration"], tooltip: "Range of colors a medium can produce" },
+                
+            { id: 34, title: "Design Systems", categories: ["Design Systems", "UX and UI Design", "Design Management"], description: "A collection of reusable components, guided by clear standards, that can be assembled to build any number of applications. Design systems solve design and development challenges by creating a shared language and standardizing visual elements.", related: ["Pattern Library", "Style Guide", "Component Library"], tooltip: "Comprehensive frameworks for consistent design" },
+                
+            { id: 35, title: "Isometric Projection", categories: ["Technical Design", "Illustration", "Digital Modeling"], description: "A method of visually representing three-dimensional objects in two dimensions where the three coordinate axes appear equally foreshortened. Isometric drawing allows complex objects to be illustrated without perspective distortion, maintaining consistent scale throughout the image.", related: ["Axonometric Projection", "Technical Drawing", "3D Illustration"], tooltip: "Equal-scale drawing method without perspective" },
+                
+            { id: 36, title: "Design Operation (DesignOps)", categories: ["Design Management", "Business of Design", "Organizational Structure"], description: "The practice of optimizing people, processes, and tools in design to improve efficiency, effectiveness, and quality of design output. DesignOps teams focus on creating workflows, establishing tools and systems, and scaling design practices across organizations.", related: ["Design Leadership", "Design Systems", "Design Scalability"], tooltip: "Optimizing design workflows and resources" },
+                
+            { id: 37, title: "Resource Allocation", categories: ["Design Management", "Project Planning", "Business of Design"], description: "The strategic distribution of available design resources (people, time, budget, tools) across projects and tasks to maximize efficiency and output quality. Effective resource allocation prevents bottlenecks, burnout, and ensures projects receive appropriate attention based on business priorities.", related: ["Project Management", "Design Planning", "Team Structure"], tooltip: "Strategic distribution of design resources" },
+                
+            { id: 38, title: "Design Maturity Model", categories: ["Design Management", "Business of Design", "Organizational Structure"], description: "A framework that evaluates and benchmarks an organization's design capabilities, integration, and impact across various dimensions. The model helps companies understand their current state of design integration and provides a roadmap for improving design's strategic value within the organization.", related: ["Design Leadership", "Design Strategy", "Organizational Change"], tooltip: "Framework for evaluating organizational design capabilities" },
+                
+            { id: 39, title: "Cross-functional Collaboration", categories: ["Design Management", "Team Dynamics", "Design Process"], description: "The practice of designers working closely with other disciplines like engineering, product management, marketing, and research to ensure alignment and integration throughout the product development lifecycle. Effective cross-functional collaboration leads to better solutions and fewer handoff issues.", related: ["Design Handoff", "Team Integration", "Collaboration Methods"], tooltip: "Working effectively across different disciplines" },
+                
+            { id: 40, title: "Design Quality Assurance", categories: ["Design Management", "Quality Control", "Design Process"], description: "The systematic process of reviewing designs against established standards, specifications, and brand guidelines to ensure consistency and excellence before implementation. Design QA involves checklists, reviews, and validation procedures that maintain quality across products and experiences.", related: ["Design Audits", "Design Systems", "Consistency Checks"], tooltip: "Ensuring design meets quality standards" },
+                
+            { id: 41, title: "Charcoal Drawing", categories: ["Fine Art Techniques", "Drawing", "Texture and Materials"], description: "A drawing technique using compressed charcoal sticks or pencils to create expressive, high-contrast imagery. Charcoal allows for a wide range of values from deep blacks to light grays, with distinctive textures and atmospheric effects achieved through various application methods and erasure techniques.", related: ["Chiaroscuro", "Value Studies", "Figure Drawing"], tooltip: "Drawing with carbon-rich material for deep blacks" },
+                
+            { id: 42, title: "Gesture Drawing", categories: ["Fine Art Techniques", "Figure Drawing", "Animation", "Drawing"], description: "A rapid drawing exercise focusing on capturing the essential movement, action, and flow of a subject rather than details. Typically completed in seconds or minutes, gesture drawings help artists understand form, weight, and motion, serving as foundations for more detailed work or animation keyframes.", related: ["Life Drawing", "Figure Studies", "Line of Action"], tooltip: "Quick drawings capturing essential movement and form" },
+                
+            { id: 43, title: "Glazing", categories: ["Fine Art Techniques", "Painting", "Color and Visual Elements"], description: "A painting technique where thin, transparent layers of paint are applied over dry underlying layers to create luminous depth, subtle color shifts, and rich visual effects. Popular in oil painting, glazing creates a distinctive glow as light penetrates the layers and reflects back from the base layers.", related: ["Layering", "Transparency", "Oil Painting"], tooltip: "Layering transparent paint for luminous effects" },
+                
+            { id: 44, title: "Sgraffito", categories: ["Fine Art Techniques", "Texture and Materials", "Ceramics"], description: "A decorative technique where a surface layer of paint, plaster, or clay is scratched or scraped away to reveal a different colored layer beneath. The technique creates distinctive textural effects and can be used in painting, pottery, ceramics, and wall treatments to add visual interest and contrast.", related: ["Texture", "Layering", "Surface Treatment"], tooltip: "Scratching through surfaces to reveal underlying colors" },
+                
+            { id: 45, title: "Sfumato", categories: ["Fine Art Techniques", "Painting", "Renaissance Art"], description: "A painting technique pioneered by Leonardo da Vinci that creates soft, imperceptible transitions between colors and tones. By carefully blending adjacent areas without harsh lines, sfumato produces a smoky, atmospheric quality that mimics how human vision perceives objects in natural light.", related: ["Chiaroscuro", "Atmospheric Perspective", "Oil Painting"], tooltip: "Smoky, gradual blending of light and shadow" },
+                
+            { id: 46, title: "Digital Brushes", categories: ["Illustration Tools", "Digital Art", "Software Elements"], description: "Custom tools within digital illustration software that simulate traditional media or create unique digital effects. Digital brushes can be customized for size, opacity, texture, blend mode, and pressure sensitivity, allowing artists to achieve a wide range of styles and techniques in digital work.", related: ["Brush Dynamics", "Stylus Pressure", "Texture Mapping"], tooltip: "Customizable digital tools simulating artistic media" },
+                
+            { id: 47, title: "Rotoscoping", categories: ["Illustration Tools", "Animation", "Film Techniques"], description: "A technique where animators trace over motion picture footage, frame by frame, to create realistic movement in animated sequences. Originally done by projecting film footage onto a glass panel for manual tracing, modern rotoscoping uses digital tools to create stylized animation with natural movement.", related: ["Frame-by-Frame Animation", "Motion Reference", "Film Integration"], tooltip: "Tracing live footage for realistic animation movement" },
+                
+            { id: 48, title: "Light Box", categories: ["Illustration Tools", "Traditional Art", "Studio Equipment"], description: "A translucent surface illuminated from behind, used by artists to trace or refine drawings. Light boxes allow illustrators to see through multiple layers of paper, making them essential for inking, animation, and creating iterations of drawings while maintaining consistency in complex illustrations.", related: ["Tracing Paper", "Inking", "Traditional Animation"], tooltip: "Illuminated surface for tracing and refining drawings" },
+                
+            { id: 49, title: "French Curves", categories: ["Illustration Tools", "Technical Drawing", "Architectural Tools"], description: "A set of curved drawing templates used to create smooth, variable curves that cannot be made with a compass. These transparent templates come in various shapes and are essential for technical illustration, fashion design, architectural drawing, and creating precise curved lines in traditional illustration.", related: ["Technical Drawing", "Precision Tools", "Drafting"], tooltip: "Curved templates for precise non-circular arcs" },
+                
+            { id: 50, title: "Spot UV", categories: ["Print Design", "Design Production", "Print Finishing"], description: "A printing technique that applies a glossy, transparent coating to specific areas of a printed piece, creating contrast between matte and shiny surfaces. Spot UV adds tactile and visual interest to business cards, packaging, book covers, and premium print materials, highlighting specific design elements.", related: ["Print Finishing", "Embossing", "Specialty Printing"], tooltip: "Selective glossy coating on printed materials" },
+                
+            { id: 51, title: "Imposition", categories: ["Print Production", "Design Production", "Pre-press"], description: "The process of arranging multiple pages in the correct order for printing and binding. Imposition layouts ensure that when sheets are folded, cut, and bound, all pages appear in the proper sequence, maximizing efficiency by fitting multiple pages on a single press sheet.", related: ["Pagination", "Signatures", "Print Planning"], tooltip: "Strategic arrangement of pages for printing" },
+                
+            { id: 52, title: "Information Architecture", categories: ["UX and UI Design", "Information Design", "Web and Digital Design"], description: "The structural design of shared information environments. It involves organizing, labeling, and designing navigation systems to help users find and manage information effectively. Good information architecture creates intuitive paths for users to access content and complete tasks without confusion.", related: ["User Flow", "Site Mapping", "Wireframing"], tooltip: "Organizing and structuring information for usability" },
+                
+            { id: 53, title: "Textile Design", categories: ["Texture and Materials", "Pattern Design", "Product Design"], description: "The creation of designs specifically for woven, knitted, or printed fabrics. This specialized field combines technical knowledge of textile production with artistic elements like pattern, color, and texture to create fabrics for fashion, interior design, and industrial applications.", related: ["Pattern Design", "Texture", "Color Theory"], tooltip: "Creating designs for fabric and textiles" },
+                
+            { id: 54, title: "Biomimicry", categories: ["Design Principles", "Sustainable Design", "Innovation"], description: "A design approach that seeks sustainable solutions by emulating nature's patterns and strategies. Designers study biological systems and processes to derive inspiration for solving human problems, resulting in designs that are efficient, sustainable, and often innovative in unexpected ways.", related: ["Sustainable Design", "Organic Design", "Functional Design"], tooltip: "Design inspired by natural systems and processes" },
+                
+            { id: 55, title: "Color Calibration", categories: ["Color Management", "Design Production", "Print Production"], description: "The process of adjusting and standardizing color output across various devices and media to ensure consistency. Color calibration involves creating profiles for monitors, printers, and scanners, allowing designers to accurately predict how colors will appear in final production without unwanted shifts or variations.", related: ["Color Profiles", "Color Management", "Print Standards"], tooltip: "Standardizing color accuracy across devices" },
+                
+            { id: 56, title: "Modular Grid System", categories: ["Graphic Design", "Layout and Composition", "Design Principles"], description: "A structured framework that divides a page into a series of consistent columns, rows, and margins to organize content systematically. Modular grids create visual rhythm, alignment, and hierarchy, allowing designers to arrange elements with mathematical precision while maintaining flexibility for different content types.", related: ["Grid Systems", "Layout Design", "Visual Hierarchy"], tooltip: "Organizing design with consistent columns and rows" },
+            
+            { id: 57, title: "Dieline", categories: ["Packaging Design", "Design Production", "Technical Design"], description: "A template that shows all the cut lines, folds, and dimensions needed to create a three-dimensional package from flat material. Dielines serve as blueprints for packaging designers and manufacturers, ensuring accurate production of boxes, bags, labels, and other container formats.", related: ["Packaging Design", "Technical Drawing", "Die Cutting"], tooltip: "Technical template for package construction" },
+            
+            { id: 58, title: "Preflighting", categories: ["Design Production", "Print Production", "Quality Control"], description: "The process of checking design files for potential printing problems before they enter production. Preflighting examines resolution, color modes, fonts, bleeds, and other technical specifications to identify and correct issues that could cause delays, errors, or additional costs during printing.", related: ["Print Preparation", "Quality Assurance", "File Optimization"], tooltip: "Checking design files for production readiness" },
+            
+            { id: 59, title: "Mockup", categories: ["Graphic Design", "Design Production", "Presentation"], description: "A realistic visualization showing how a design will appear when implemented or produced. Mockups place designs in context—on packaging, products, billboards, or devices—helping clients and stakeholders evaluate aesthetics, scale, and appropriateness before final production or implementation.", related: ["Prototyping", "Presentation", "Visualization"], tooltip: "Realistic preview of a final design implementation" },
+            
+            { id: 60, title: "Trapping", categories: ["Print Production", "Design Production", "Technical Design"], description: "A technique that creates slight overlaps between adjacent colors in printed designs to prevent unwanted white gaps caused by misregistration during printing. Trapping adjusts the boundaries between colors by slightly expanding one color into another, ensuring seamless color transitions in the final printed piece.", related: ["Registration", "Overprinting", "Print Production"], tooltip: "Preventing gaps between colors in printing" },
+            
+            { id: 61, title: "Die Cutting", categories: ["Packaging Design", "Design Production", "Print Finishing"], description: "A manufacturing process that uses specialized cutting tools to cut paper, cardboard, vinyl, and other materials into custom shapes. Die cutting is essential for creating packaging boxes, custom folders, stickers, labels, and promotional items with precise, consistent shapes beyond standard rectangular forms.", related: ["Dieline", "Packaging Design", "Print Finishing"], tooltip: "Cutting materials into custom shapes for design" },
+            
+            { id: 62, title: "Foil Stamping", categories: ["Print Design", "Design Production", "Print Finishing"], description: "A print finishing technique that applies metallic or pigmented foil to a surface using heat and pressure. Foil stamping creates metallic accents on business cards, book covers, packaging, and premium print materials, adding a luxurious, eye-catching quality through selective application.", related: ["Print Finishing", "Embossing", "Specialty Printing"], tooltip: "Applying metallic or pigmented foil to printed surfaces" },
+            
+            { id: 63, title: "Bleeds", categories: ["Print Design", "Graphic Design", "Design Production"], description: "The practice of extending design elements beyond the trim edge of a page to ensure no white margins appear after cutting. Proper bleeds (typically 1/8 inch or 3mm) compensate for slight variations in the cutting process, ensuring color or imagery extends fully to the edge of the finished piece.", related: ["Trim Marks", "Print Preparation", "Layout Design"], tooltip: "Extending designs past trim edge for clean cutting" },
+            
+            { id: 64, title: "Pagination", categories: ["Print Design", "Design Production", "Editorial Design"], description: "The sequential numbering and arrangement of pages in multi-page publications like books, magazines, and catalogs. Pagination involves planning content flow, determining page counts, arranging sections, and ensuring proper sequencing for printing and binding while considering reader experience.", related: ["Imposition", "Editorial Design", "Book Design"], tooltip: "Organizing sequential page numbering and flow" },
+            
+            { id: 65, title: "Pantone Matching System", categories: ["Color and Visual Elements", "Graphic Design", "Design Production"], description: "A standardized color reproduction system used worldwide to ensure color consistency across different materials and printing processes. PMS uses numbered color swatches that serve as exact references, enabling designers and printers to match colors precisely across various applications and substrates.", related: ["Color Specification", "Brand Colors", "Print Standards"], tooltip: "Industry standard for consistent color specification" },
+            
+            { id: 66, title: "Golden Ratio", categories: ["Design Principles", "Graphic Design", "Layout and Composition"], description: "A mathematical ratio (approximately 1:1.618) found in nature and used in design to create aesthetically pleasing proportions and layouts. The golden ratio guides composition decisions like sizing relationships, image placement, and text layout, resulting in designs that feel naturally balanced and harmonious.", related: ["Proportion", "Fibonacci Sequence", "Divine Proportion"], tooltip: "Mathematical proportion creating visual harmony" },
+            
+            { id: 67, title: "Gestalt Principles", categories: ["Design Principles", "Visual Perception", "Graphic Design"], description: "A set of perceptual principles explaining how humans naturally perceive and organize visual elements into cohesive patterns. Key principles include proximity, similarity, continuity, closure, and figure/ground, which designers leverage to create unity, group related elements, and guide visual interpretation of information.", related: ["Visual Perception", "Grouping", "Pattern Recognition"], tooltip: "Principles of visual perception and organization" },
+            
+            { id: 68, title: "Style Guide", categories: ["Brand Design", "Graphic Design", "Design Management"], description: "A comprehensive document that establishes standards and specifications for all visual elements of a brand identity. Style guides define logo usage, color palettes, typography, imagery style, graphic elements, and their applications across various media to ensure consistent brand expression.", related: ["Brand Guidelines", "Design Systems", "Brand Identity"], tooltip: "Document defining brand visual standards" },
+            
+            { id: 69, title: "Visual Hierarchy", categories: ["Graphic Design", "Design Principles", "Layout and Composition"], description: "The arrangement and presentation of elements in a design to emphasize their order of importance. Visual hierarchy uses contrast, scale, color, spacing, positioning, and typography to guide viewers through content in a deliberate sequence, ensuring key messages receive appropriate attention.", related: ["Emphasis", "Information Architecture", "Layout Design"], tooltip: "Ordering design elements by importance" },
+            
+            { id: 70, title: "White Space", categories: ["Graphic Design", "Layout and Composition", "Design Principles"], description: "The negative or empty space between and around elements in a design. Also called negative space, white space is an active design element that creates breathing room, improves readability, establishes relationships between elements, and conveys sophistication when used deliberately.", related: ["Minimalism", "Layout Design", "Visual Breathing Room"], tooltip: "Empty space as an active design element" },
+            
+            { id: 71, title: "Kerning", categories: ["Typography", "Graphic Design", "Visual Communication"], description: "The process of adjusting the spacing between individual characters in a font to achieve visually pleasing and readable text. Proper kerning corrects awkward gaps or crowding between specific letter pairs (like 'AV' or 'To'), creating text that flows naturally and maintains consistent visual rhythm.", related: ["Typography", "Tracking", "Letter Spacing"], tooltip: "Adjusting space between individual characters" },
+            
+            { id: 72, title: "Design for Accessibility", categories: ["Design Challenges", "Inclusive Design", "UX and UI Design"], description: "The practice of creating designs usable by people with diverse abilities, disabilities, and other characteristics. Accessibility design considers visual, auditory, physical, speech, cognitive, and neurological variations, creating solutions that work for all people regardless of circumstance, environment, or ability.", related: ["Inclusive Design", "Universal Design", "WCAG Standards"], tooltip: "Creating usable designs for people of all abilities" },
+            
+            { id: 73, title: "Cross-Platform Consistency", categories: ["Design Challenges", "Design Systems", "UX and UI Design"], description: "The challenge of maintaining visual and functional coherence across multiple devices, screen sizes, and operating systems. Designers must create adaptable systems that preserve essential brand attributes and user experience while accommodating the technical constraints and interaction patterns of diverse platforms.", related: ["Responsive Design", "Design Systems", "Platform-Specific Guidelines"], tooltip: "Maintaining coherence across diverse devices" },
+            
+            { id: 74, title: "Design Debt", categories: ["Design Challenges", "Design Management", "Design Process"], description: "The accumulation of suboptimal design decisions, inconsistencies, and adaptations made under time constraints that create long-term maintenance issues. Similar to technical debt in software development, design debt increases complexity, reduces user experience quality, and makes future updates more difficult and time-consuming.", related: ["Design Systems", "Design Governance", "Design Refactoring"], tooltip: "Accumulated design compromises creating maintenance burden" },
+            
+            { id: 75, title: "Dark Patterns", categories: ["Design Challenges", "Design Ethics", "UX and UI Design"], description: "Deceptive design techniques that manipulate users into taking actions they might not otherwise choose to make. Dark patterns exploit cognitive biases and psychological vulnerabilities to prioritize business interests over user needs, raising significant ethical concerns within the design profession.", related: ["Design Ethics", "Persuasive Design", "User Manipulation"], tooltip: "Deceptive design techniques manipulating user choices" },
+            
+            { id: 76, title: "Context-Aware Design", categories: ["Design Challenges", "UX and UI Design", "Adaptive Design"], description: "The approach of creating interfaces that adapt to a user's environment, situation, and needs based on contextual information. Context-aware design considers variables like location, time, physical environment, device capability, user history, and social setting to deliver more relevant, personalized experiences.", related: ["Personalization", "Responsive Design", "Adaptive Interfaces"], tooltip: "Interfaces adapting to user's environment and situation" },
+            
+            { id: 77, title: "Information Overload", categories: ["Design Challenges", "Information Design", "UX and UI Design"], description: "The difficulty of effectively communicating in an environment saturated with excessive data and stimuli. Designers must create systems that help users navigate, filter, and process information without overwhelming them, employing techniques like progressive disclosure, chunking, and visual hierarchy.", related: ["Information Architecture", "Content Strategy", "Cognitive Load"], tooltip: "Managing excessive data without overwhelming users" },
+            
+            { id: 78, title: "Internationalization", categories: ["Design Challenges", "Global Design", "Design Systems"], description: "The process of designing products that can be adapted to various languages, regions, and cultures without engineering changes. Internationalization requires consideration of text expansion, reading direction, date formats, cultural symbols, and other localization factors during the initial design phase.", related: ["Localization", "Global Design", "Cultural Sensitivity"], tooltip: "Designing for adaptation across languages and cultures" },
+            
+            { id: 79, title: "Balancing Innovation and Usability", categories: ["Design Challenges", "Design Strategy", "UX and UI Design"], description: "The ongoing challenge of introducing novel design solutions without sacrificing learnability and efficiency. Designers must evaluate when to leverage familiar patterns versus where to introduce innovative approaches, considering factors like user expertise, context of use, and business goals.", related: ["Design Innovation", "Interface Convention", "Learnability"], tooltip: "Finding equilibrium between novelty and usability" },
+            
+            { id: 80, title: "Sustainable Materials", categories: ["Sustainable Design", "Ecological Design", "Product Design"], description: "Materials selected for their reduced environmental impact throughout their lifecycle. Sustainable materials minimize resource depletion, pollution, waste, and carbon emissions while often being renewable, recyclable, biodegradable, or inherently durable for extended use.", related: ["Circular Design", "Environmental Impact", "Material Science"], tooltip: "Environmentally responsible material selection" },
+            
+            { id: 81, title: "Contour Drawing", categories: ["Drawing", "Fine Art Techniques", "Traditional Art"], description: "A drawing technique that focuses on the outline or silhouette of a subject without shading or internal details. Artists practicing contour drawing train their hand-eye coordination by carefully observing and recording the edges and boundaries of forms, often without looking at the paper (blind contour) for heightened observation skills.", related: ["Line Work", "Observational Drawing", "Gesture Drawing"], tooltip: "Outline-based drawing focusing on edges of forms" },
+            
+            { id: 82, title: "Cross-Hatching", categories: ["Drawing", "Fine Art Techniques", "Traditional Art"], description: "A shading technique using intersecting sets of parallel lines to create tone, texture, and value in drawings. Cross-hatching allows artists to build up darkness gradually, create the illusion of form, and develop rich textures by varying the density, direction, and layering of the hatch marks.", related: ["Stippling", "Value Studies", "Pen and Ink"], tooltip: "Intersecting lines creating texture and volume" },
+            
+            { id: 83, title: "Stippling", categories: ["Drawing", "Fine Art Techniques", "Traditional Art"], description: "A drawing technique creating tone through patterns of dots. Artists control value by adjusting dot density rather than using lines or strokes, resulting in distinctive texture and precision. Popular in scientific illustration and pen/ink work, stippling requires patience but offers unique visual effects and exceptional reproduction quality.", related: ["Cross-Hatching", "Pen and Ink", "Value Studies"], tooltip: "Creating tone with patterns of small dots" },
+            
+            { id: 84, title: "Value Drawing", categories: ["Drawing", "Fine Art Techniques", "Traditional Art"], description: "A drawing approach that prioritizes light and shadow relationships over line or color. Value drawings focus on accurately representing the different tones in a subject, training artists to observe how light interacts with form and develops the foundation for creating convincing three-dimensional illusions on flat surfaces.", related: ["Chiaroscuro", "Tonal Drawing", "Graphite Techniques"], tooltip: "Focus on light and shadow relationships" },
+            
+            { id: 85, title: "Graphite Techniques", categories: ["Drawing", "Fine Art Techniques", "Traditional Art"], description: "Methods of using graphite pencils to create various effects, textures, and tones in drawing. Techniques include layering, blending, erasing for highlights, burnishing, hatching, and using different pencil grades (from 9H to 9B) to achieve a range of values from light to dark.", related: ["Value Drawing", "Mechanical Drawing", "Pencil Drawing"], tooltip: "Various methods for using graphite pencils" },
+            
+            { id: 86, title: "Perspective Drawing", categories: ["Drawing", "Technical Drawing", "Traditional Art"], description: "The art of representing three-dimensional objects on a two-dimensional surface by creating the illusion of depth and distance. Perspective drawing uses principles like vanishing points, horizon lines, and proportional diminution to accurately depict how objects appear smaller and converge toward points as they recede into the distance.", related: ["Linear Perspective", "Technical Drawing", "Spatial Depth"], tooltip: "Creating illusion of depth through geometric principles" },
+            
+            { id: 87, title: "Thumbnail Sketching", categories: ["Drawing", "Design Process", "Ideation"], description: "The practice of creating small, quick drawings to explore multiple compositional ideas before committing to a final design or artwork. These miniature sketches allow artists and designers to rapidly assess value patterns, placements, proportions, and visual flow without investing significant time in details or refinement.", related: ["Ideation", "Compositional Studies", "Visual Planning"], tooltip: "Small explorative sketches for planning compositions" },
+            
+            { id: 88, title: "Dry Media", categories: ["Drawing", "Traditional Art", "Art Materials"], description: "Drawing materials that don't require solvents or water and can be applied directly to surfaces. This category includes graphite, charcoal, conte crayon, colored pencils, pastels, and other materials that create marks through direct transfer of pigment rather than flowing application, each offering distinctive textures and handling properties.", related: ["Graphite", "Charcoal", "Pastels"], tooltip: "Non-liquid drawing materials applied directly" },
+            
+            { id: 89, title: "Line Quality", categories: ["Drawing", "Design Elements", "Visual Communication"], description: "The distinctive character and expressiveness of drawn lines, including variations in thickness, pressure, texture, direction, and continuity. Artists manipulate line quality to convey emotion, movement, volume, and weight, with each artist developing a personal line vocabulary that becomes part of their visual signature.", related: ["Mark Making", "Expressive Drawing", "Visual Language"], tooltip: "Expressive variations in drawn lines" },
+            
+            { id: 90, title: "Analytical Drawing", categories: ["Drawing", "Fine Art Techniques", "Technical Drawing"], description: "A methodical approach to drawing that breaks down complex subjects into measurable, analyzable components. Analytical drawing emphasizes accurate proportions, spatial relationships, underlying structures, and objective observation, often using comparative measurement techniques and geometric simplification to achieve precise representation.", related: ["Observational Drawing", "Technical Drawing", "Structural Analysis"], tooltip: "Methodical drawing through measurement and analysis" },
+        ];
+        
+        // Update existing terms with new categories
+        designTerms.forEach(term => {
+            // Add new categories to relevant terms
+            if (term.categories.includes("Sustainable Design")) {
+                term.categories.push("Ecological Design");
+            }
+            
+            if (term.categories.includes("Information Design") || term.categories.includes("Visual Hierarchy")) {
+                term.categories.push("Cognitive Design");
+            }
+            
+            if (term.categories.includes("UX and UI Design") && term.title.includes("Accessib")) {
+                term.categories.push("Global Design");
+            }
+            
+            // Add Traditional Art category to non-digital medium terms
+            if (term.categories.includes("Painting") || 
+                term.categories.includes("Fine Art Techniques") || 
+                term.categories.includes("Printmaking") || 
+                term.categories.includes("Relief Printing") || 
+                term.categories.includes("Sculpture") || 
+                (term.categories.includes("Drawing") && !term.categories.includes("Digital Art"))) {
+                
+                if (!term.categories.includes("Traditional Art")) {
+                    term.categories.push("Traditional Art");
+                }
+            }
+            
+            // Remove Figure Drawing and Ceramics categories
+            term.categories = term.categories.filter(category => 
+                category !== "Figure Drawing" && 
+                category !== "Ceramics"
+            );
+            
+            // Ensure Gesture Drawing has Drawing category
+            if (term.title === "Gesture Drawing" && !term.categories.includes("Drawing")) {
+                term.categories.push("Drawing");
+            }
+            
+            // Remove any duplicate categories
+            term.categories = [...new Set(term.categories)];
+        });
+        
+        // Document ready function
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
+            const searchResults = document.getElementById('search-results');
+            const filterTags = document.getElementById('filter-tags');
+            const terminologyGrid = document.getElementById('terminology-grid');
+            const emptyState = document.getElementById('empty-state');
+            const loader = document.getElementById('loader');
+            const modal = document.getElementById('term-modal');
+            const modalClose = document.getElementById('modal-close');
+            const toastContainer = document.getElementById('toast-container');
+            
+            let currentFilter = 'all';
+            let currentSearchValue = '';
+            
+            function init() {
+                renderCategories();
+                renderTerms();
+                hideLoader();
+                setupEventListeners();
+            }
+            
+            // Show/hide loader
+            function showLoader() {
+                loader.style.display = 'flex';
+                terminologyGrid.style.display = 'none';
+                emptyState.style.display = 'none';
+            }
+            
+            function hideLoader() {
+                loader.style.display = 'none';
+                terminologyGrid.style.display = 'grid';
+            }
+            
+            // Show empty state if no results
+            function showEmptyState() {
+                emptyState.style.display = 'block';
+                terminologyGrid.style.display = 'none';
+            }
+            
+            function hideEmptyState() {
+                emptyState.style.display = 'none';
+                terminologyGrid.style.display = 'grid';
+            }
+            
+            // Render category filter tags
+            function renderCategories() {
+                filterTags.innerHTML = '';
+                
+                // Get unique categories
+                const categories = [...new Set(designTerms.flatMap(term => term.categories))];
+                
+                // Create "All" filter
+                const allTag = document.createElement('div');
+                allTag.className = 'filter';
+                allTag.textContent = 'All';
+                allTag.dataset.category = 'all';
+                filterTags.appendChild(allTag);
+                
+                // Create category filters
+                categories.forEach(category => {
+                    if (category !== "Figure Drawing" && category !== "Ceramics") {
+                        const tag = document.createElement('div');
+                        tag.className = 'filter';
+                        tag.textContent = category;
+                        tag.dataset.category = category;
+                        filterTags.appendChild(tag);
+                    }
+                });
+            }
+            
+            // Render all terms
+            function renderTerms(filteredTerms = null) {
+                terminologyGrid.innerHTML = '';
+                const termsToRender = filteredTerms || designTerms;
+                
+                if (termsToRender.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                
+                hideEmptyState();
+                
+                termsToRender.forEach(term => {
+                    const panel = document.createElement('div');
+                    panel.className = 'term-panel';
+                    panel.dataset.id = term.id;
+                    
+                    const header = document.createElement('div');
+                    header.className = 'term-header';
+                    
+                    const title = document.createElement('h3');
+                    title.className = 'term-title';
+                    
+                    if (term.tooltip) {
+                        title.className += ' tooltip';
+                        
+                        const tooltipSpan = document.createElement('span');
+                        tooltipSpan.className = 'tooltip-text';
+                        tooltipSpan.textContent = term.tooltip;
+                        
+                        title.textContent = term.title;
+                        title.appendChild(tooltipSpan);
+                    } else {
+                        title.textContent = term.title;
+                    }
+                    
+                    const categories = document.createElement('div');
+                    categories.className = 'term-categories-container';
+                    
+                    // Create individual tag for each category
+                    term.categories.forEach(category => {
+                        const tag = document.createElement('span');
+                        tag.className = 'term-category';
+                        tag.textContent = category;
+                        categories.appendChild(tag);
+                    });
+                    
+                    const content = document.createElement('div');
+                    content.className = 'term-content';
+                    content.textContent = term.description;
+                    
+                    header.appendChild(title);
+                    header.appendChild(categories);
+                    panel.appendChild(header);
+                    panel.appendChild(content);
+                    
+                    terminologyGrid.appendChild(panel);
+                });
+            }
+            
+            // Filter terms based on search and category filters
+            function filterTerms() {
+                let filtered = [...designTerms];
+                
+                // Filter by category
+                if (currentFilter !== 'all') {
+                    filtered = filtered.filter(term => term.categories.includes(currentFilter));
+                }
+                
+                // Filter by search term
+                if (currentSearchValue) {
+                    const searchTerm = currentSearchValue.toLowerCase();
+                    filtered = filtered.filter(term => 
+                        term.title.toLowerCase().includes(searchTerm) ||
+                        term.description.toLowerCase().includes(searchTerm) ||
+                        term.categories.some(cat => cat.toLowerCase().includes(searchTerm)) ||
+                        (term.tooltip && term.tooltip.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                return filtered;
+            }
+            
+            // Handle search input
+            function handleSearch() {
+                const searchTerm = searchInput.value.trim();
+                currentSearchValue = searchTerm;
+                
+                if (searchTerm.length > 0) {
+                    clearSearchBtn.style.display = 'block';
+                    showSearchResults(searchTerm);
+                } else {
+                    clearSearchBtn.style.display = 'none';
+                    hideSearchResults();
+                    renderTerms(filterTerms());
+                }
+            }
+            
+            // Clear search input
+            function clearSearch() {
+                searchInput.value = '';
+                currentSearchValue = '';
+                clearSearchBtn.style.display = 'none';
+                hideSearchResults();
+                renderTerms(filterTerms());
+            }
+            
+            // Show search results dropdown
+            function showSearchResults(searchTerm) {
+                if (!searchTerm) {
+                    hideSearchResults();
+                    return;
+                }
+                
+                const searchTermLower = searchTerm.toLowerCase();
+                const matchingTerms = designTerms.filter(term => 
+                    term.title.toLowerCase().includes(searchTermLower) ||
+                    term.description.toLowerCase().includes(searchTermLower) ||
+                    term.categories.some(cat => cat.toLowerCase().includes(searchTermLower))
+                ).slice(0, 5); // Limit to 5 results
+                
+                searchResults.innerHTML = '';
+                
+                if (matchingTerms.length === 0) {
+                    hideSearchResults();
+                    renderTerms(filterTerms());
+                    return;
+                }
+                
+                matchingTerms.forEach(term => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.dataset.id = term.id;
+                    
+                    const resultTitle = document.createElement('div');
+                    resultTitle.className = 'search-result-title';
+                    resultTitle.textContent = term.title;
+                    
+                    const resultCategory = document.createElement('div');
+                    resultCategory.className = 'term-categories-container';
+                    
+                    // Create individual tag for each category (limit to first 2 in the dropdown to save space)
+                    term.categories.slice(0, 2).forEach(category => {
+                        const tag = document.createElement('span');
+                        tag.className = 'term-category';
+                        tag.textContent = category;
+                        resultCategory.appendChild(tag);
+                    });
+                    
+                    // Add a "+X more" indicator if there are more than 2 categories
+                    if (term.categories.length > 2) {
+                        const moreTag = document.createElement('span');
+                        moreTag.className = 'term-category more-tag';
+                        moreTag.textContent = `+${term.categories.length - 2} more`;
+                        resultCategory.appendChild(moreTag);
+                    }
+                    
+                    resultItem.appendChild(resultTitle);
+                    resultItem.appendChild(resultCategory);
+                    
+                    searchResults.appendChild(resultItem);
+                });
+                
+                searchResults.style.display = 'block';
+            }
+            
+            // Hide search results dropdown
+            function hideSearchResults() {
+                searchResults.style.display = 'none';
+            }
+            
+            // Open term modal
+            function openTermModal(termId) {
+                const term = designTerms.find(t => t.id == termId);
+                if (!term) return;
+                
+                document.getElementById('modal-title').textContent = term.title;
+                const modalCategories = document.getElementById('modal-categories');
+                modalCategories.innerHTML = '';
+                
+                // Create individual tag for each category
+                term.categories.forEach(category => {
+                    const tag = document.createElement('span');
+                    tag.className = 'term-category';
+                    tag.textContent = category;
+                    modalCategories.appendChild(tag);
+                });
+                
+                document.getElementById('modal-description').textContent = term.description;
+                
+                // Render related terms
+                const relatedTermsList = document.getElementById('related-terms-list');
+                relatedTermsList.innerHTML = '';
+                
+                if (term.related && term.related.length > 0) {
+                    term.related.forEach(relatedTermTitle => {
+                        const relatedTerm = designTerms.find(t => t.title === relatedTermTitle);
+                        if (relatedTerm) {
+                            const relatedTermElement = document.createElement('div');
+                            relatedTermElement.className = 'related-term';
+                            relatedTermElement.textContent = relatedTermTitle;
+                            relatedTermElement.dataset.id = relatedTerm.id;
+                            
+                            relatedTermsList.appendChild(relatedTermElement);
+                        }
+                    });
+                    
+                    document.getElementById('related-terms-container').style.display = 'block';
+                } else {
+                    document.getElementById('related-terms-container').style.display = 'none';
+                }
+                
+                modal.style.display = 'flex';
+                
+                // Only show a tip if no other tip is currently showing
+                if (!isTipShowing) {
+                    // Show random design tip instead of just UI/UX tips
+                    if (Math.random() < 0.5) {  // 50% chance to show a tip
+                        const randomTip = designTips[Math.floor(Math.random() * designTips.length)];
+                        showToast(randomTip);
+                        isTipShowing = true;
+                        
+                        // Reset the flag when the toast disappears
+                        setTimeout(() => {
+                            isTipShowing = false;
+                        }, 6300); // 6000ms for display + 300ms for fade-out
+                    } else if (term.categories.includes("UX and UI Design")) {
+                        showToast("💡 Tip: UI and UX work together but have different focuses. UI is about the interface, UX is about the overall experience.");
+                        isTipShowing = true;
+                        
+                        // Reset the flag when the toast disappears
+                        setTimeout(() => {
+                            isTipShowing = false;
+                        }, 6300); // 6000ms for display + 300ms for fade-out
+                    }
+                }
+            }
+            
+            // Close term modal
+            function closeTermModal() {
+                modal.style.display = 'none';
+            }
+            
+            // Close modal on click outside
+            modal.addEventListener('click', event => {
+                if (event.target === modal) {
+                    closeTermModal();
+                }
+            });
+            
+            // Close search results on click outside
+            document.addEventListener('click', event => {
+                if (!event.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                }
+            });
+            
+            // Escape key to close modal
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeTermModal();
+                    searchResults.style.display = 'none';
+                }
+            });
+            
+            // Show toast message
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                
+                toastContainer.appendChild(toast);
+                
+                // Auto-remove toast after 6 seconds (changed from 4)
+                setTimeout(() => {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => {
+                        toastContainer.removeChild(toast);
+                    }, 300);
+                }, 6000);
+            }
+            
+            // Array of design tips to show randomly
+            const designTips = [
+                "💡 Tip: Color Theory and Color Psychology work together - one explains how colors interact, the other how they affect emotions.",
+                "💡 Tip: Typography and Typography Anatomy are closely related - understanding letterform structure improves your font choices.",
+                "💡 Tip: White Space isn't wasted space - it's an active design element that improves readability and focus.",
+                "💡 Tip: The Golden Ratio (1:1.618) appears in nature and creates naturally pleasing proportions in design.",
+                "💡 Tip: Modular Grid Systems create consistent structure while allowing creative flexibility within their framework.",
+                "💡 Tip: Gestalt Principles explain why certain arrangements of elements look unified while others seem disjointed.",
+                "💡 Tip: Style Guides and Design Systems work together - one defines standards, the other provides reusable components.",
+                "💡 Tip: Pantone Matching System ensures colors look consistent across different materials and printing methods.",
+                "💡 Tip: Kerning, Tracking, and Leading all affect text readability in different but complementary ways.",
+                "💡 Tip: Visual Hierarchy determines what users notice first, second, and third in your design.",
+                "💡 Tip: Dielines and Die Cutting work hand-in-hand - one plans the structure, the other creates it.",
+                "💡 Tip: Bleeds prevent white edges by extending design elements beyond where the page will be cut.",
+                "💡 Tip: Spot UV adds selective glossy coating to make specific elements stand out with contrast.",
+                "💡 Tip: Pagination and Imposition are crucial for multi-page publications - one orders content, the other arranges printed pages.",
+                "💡 Tip: Preflighting catches technical issues before printing, potentially saving substantial time and money.",
+                // Additional 20 tips below
+                "💡 Tip: Embossing, Debossing, and Foil Stamping are texture techniques that add tactile dimension to printed materials.",
+                "💡 Tip: Minimalism, White Space, and Visual Hierarchy form the foundation of clean, modern design approaches.",
+                "💡 Tip: The Fibonacci Sequence (1,1,2,3,5,8...) relates to the Golden Ratio and appears in spiral compositions in design.",
+                "💡 Tip: Complementary, Analogous, and Monochromatic are three color schemes with dramatically different emotional impacts.",
+                "💡 Tip: Material Design, Flat Design, and Skeuomorphism represent three major UI design philosophies of the digital era.",
+                "💡 Tip: CMYK (print) and RGB (digital) color models require careful translation to maintain color consistency across media.",
+                "💡 Tip: Negative Space can create hidden symbols and dual-meaning imagery, as seen in the FedEx and Amazon logos.",
+                "💡 Tip: Information Architecture, User Journey Mapping, and UX Research work together to create intuitive digital experiences.",
+                "💡 Tip: Mockups, Wireframes, and Prototypes represent progressively more detailed stages of the design process.",
+                "💡 Tip: Gestalt's 'Closure' principle explains why we see a complete circle in the IBM logo, even though it's made of stripes.",
+                "💡 Tip: Spot Colors (like Pantone) are more precise than process colors for brand consistency across print materials.",
+                "💡 Tip: Letterpress, Spot UV, and Foil Stamping combine old and new printing techniques for premium tactile effects.",
+                "💡 Tip: Style Guides, Brand Guidelines, and Design Systems form a hierarchy of increasingly comprehensive documentation.",
+                "💡 Tip: Trapping and Registration are printing techniques that prevent misalignment gaps between adjacent colors.",
+                "💡 Tip: The Rule of Thirds, Golden Ratio, and Visual Balance are composition principles that create naturally appealing designs.",
+                "💡 Tip: Biomimicry and Sustainable Design share ecological roots - one learns from nature, the other preserves it.",
+                "💡 Tip: Serif, Sans-serif, and Display type classifications serve different purposes in visual communication.",
+                "💡 Tip: Preflighting, Color Calibration, and Color Gamut awareness are crucial for print quality control.",
+                "💡 Tip: Die Cutting, Laser Cutting, and CNC techniques allow precision custom shapes in various materials.",
+                "💡 Tip: Accessibility, Inclusive Design, and Design Ethics are increasingly critical considerations in responsible design."
+            ];
+            
+            // Flag to track if a tip is currently showing
+            let isTipShowing = false;
+            
+            // Setup event listeners
+            function setupEventListeners() {
+                // Search input
+                searchInput.addEventListener('input', handleSearch);
+                
+                // Clear search button
+                clearSearchBtn.addEventListener('click', clearSearch);
+                
+                // Category filters
+                const filterTags = document.querySelectorAll('.filter');
+                filterTags.forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        // Remove active class from all tags
+                        filterTags.forEach(t => t.classList.remove('active'));
+                        
+                        // Add active class to clicked tag
+                        tag.classList.add('active');
+                        
+                        // Update current filter
+                        currentFilter = tag.dataset.category;
+                        
+                        // Filter terms
+                        renderTerms(filterTerms());
+                    });
+                });
+                
+                // Term panels
+                terminologyGrid.addEventListener('click', event => {
+                    const panel = event.target.closest('.term-panel');
+                    if (panel) {
+                        openTermModal(panel.dataset.id);
+                    }
+                });
+                
+                // Search result items
+                searchResults.addEventListener('click', event => {
+                    const resultItem = event.target.closest('.search-result-item');
+                    if (resultItem) {
+                        openTermModal(resultItem.dataset.id);
+                        searchResults.style.display = 'none';
+                    }
+                });
+                
+                // Related terms
+                document.getElementById('related-terms-list').addEventListener('click', event => {
+                    const relatedTerm = event.target.closest('.related-term');
+                    if (relatedTerm) {
+                        openTermModal(relatedTerm.dataset.id);
+                    }
+                });
+                
+                // Close modal
+                modalClose.addEventListener('click', closeTermModal);
+            }
+            
+            // Init function
+            init();
+        });
+    </script>
+</body>
+</html>
