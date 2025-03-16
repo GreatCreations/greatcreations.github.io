@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Great Creation Studios | Testimonials & Awards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Variables and resets */
+        :root {
+            --primary-color: #FF7F50; /* Orange */
+            --secondary-color: #40E0D0; /* Cyan */
+            --accent-color: #FFB6C1; /* Light pink */
+            --background-color: #1E0A2E; /* Dark purple */
+            --text-color: #FFFFFF;
+            --highlight-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --toast-bg: rgba(255, 127, 80, 0.9);
+            --toast-text: #FFFFFF;
+            --fade-duration: 4s; /* Duration for image transitions - increased from 2s to 4s */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Basic fixed background */
+        body {
+            background-color: var(--background-color);
+        }
+
+        /* Content */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Section backgrounds with parallax */
+        #testimonials {
+            background-image: none; /* Remove default background image */
+            position: relative;
+        }
+
+        #testimonials .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity var(--fade-duration) ease-in-out;
+            z-index: 0; /* Place behind overlay */
+        }
+
+        #testimonials .bg-image.active {
+            opacity: 1;
+        }
+
+        #testimonials::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 10, 46, 0.7);
+            z-index: 1; /* Place above background images but below content */
+        }
+
+        #testimonials > *:not(.bg-image) {
+            position: relative;
+            z-index: 2; /* Place content above overlay */
+        }
+
+        #awards {
+            background-image: none; /* Remove default background image */
+            position: relative;
+        }
+
+        #awards .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity var(--fade-duration) ease-in-out;
+            z-index: 0; /* Place behind overlay */
+        }
+
+        #awards .bg-image.active {
+            opacity: 1;
+        }
+
+        #awards::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 10, 46, 0.7);
+            z-index: 1; /* Place above background images but below content */
+        }
+
+        #awards > *:not(.bg-image) {
+            position: relative;
+            z-index: 2; /* Place content above overlay */
+        }
+
+        #recognition {
+            background-image: none; /* Remove default background image */
+            position: relative;
+        }
+
+        #recognition .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity var(--fade-duration) ease-in-out;
+            z-index: 0; /* Place behind overlay */
+        }
+
+        #recognition .bg-image.active {
+            opacity: 1;
+        }
+
+        #recognition::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 10, 46, 0.8);
+            z-index: 1; /* Place above background images but below content */
+        }
+
+        #recognition > *:not(.bg-image) {
+            position: relative;
+            z-index: 2; /* Place content above overlay */
+        }
+
+        /* Section decorations and effects */
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 127, 80, 0.05), rgba(64, 224, 208, 0.05));
+            pointer-events: none;
+        }
+
+        .section-title {
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 1.2s ease-out;
+        }
+
+        .section-title.visible::after {
+            width: 100%;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Testimonials Section */
+        .testimonial-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .testimonial-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .testimonial-sheen {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.75s ease-out;
+        }
+
+        .testimonial-card:hover .testimonial-sheen {
+            left: 150%;
+        }
+
+        .testimonial-card .quote {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-card .quote::before,
+        .testimonial-card .quote::after {
+            content: '"';
+            font-size: 3rem;
+            color: var(--primary-color);
+            opacity: 0.2;
+            position: absolute;
+        }
+
+        .testimonial-card .quote::before {
+            top: -30px;
+            left: -15px;
+        }
+
+        .testimonial-card .quote::after {
+            bottom: -50px;
+            right: -15px;
+        }
+
+        .testimonial-card .client {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .client-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            border: 2px solid var(--secondary-color);
+        }
+
+        .client-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .client-info h4 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .client-info p {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            opacity: 0.8;
+        }
+
+        /* Awards Section */
+        .awards-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+
+        @media (max-width: 1200px) {
+            .awards-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .awards-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .awards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .award-card {
+            position: relative;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: perspective(1000px) rotateX(5deg);
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 320px;
+        }
+
+        .award-card.visible {
+            opacity: 1;
+            transform: perspective(1000px) rotateX(0);
+        }
+
+        .award-card:hover {
+            transform: perspective(1000px) rotateX(0) translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .award-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        .award-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .award-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+            z-index: 1;
+        }
+
+        .award-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 127, 80, 0.4);
+        }
+
+        .award-title {
+            font-family: 'Georgia', serif;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .award-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .award-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .award-year {
+            font-size: 0.85rem;
+            background-color: var(--secondary-color);
+            color: var(--background-color);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .award-sheen {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.75s ease-out;
+        }
+
+        .award-card:hover .award-sheen {
+            left: 200%;
+        }
+
+        /* Recognition Section */
+        .recognition-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+            margin-top: 2rem;
+        }
+
+        .magazine-feature {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .magazine-feature.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .magazine-cover {
+            flex: 0 0 300px;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .magazine-cover:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .cover-sheen {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            z-index: 2;
+            transform: skewX(-15deg);
+            transition: left 0.75s ease-out;
+        }
+
+        .magazine-cover:hover .cover-sheen {
+            left: 100%;
+        }
+
+        .magazine-cover img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: all 0.4s ease;
+        }
+
+        .magazine-content {
+            flex: 1;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .magazine-content h3 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-family: 'Georgia', serif;
+            font-style: italic;
+        }
+
+        .magazine-content p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .feature-date {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 0.4rem 1.2rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .press-mentions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .press-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border-radius: 10px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .press-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .press-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .press-logo {
+            max-width: 200px;
+            margin: 0 auto 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .press-logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .press-item blockquote {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .press-item blockquote::before,
+        .press-item blockquote::after {
+            content: '"';
+            font-size: 2.5rem;
+            position: absolute;
+            opacity: 0.3;
+            color: var(--accent-color);
+        }
+
+        .press-item blockquote::before {
+            top: -20px;
+            left: -10px;
+        }
+
+        .press-item blockquote::after {
+            bottom: -40px;
+            right: -10px;
+        }
+
+        /* Contact Section */
+        #contact {
+            background-color: rgba(30, 10, 46, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Contact section background pattern */
+        #contact {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.12;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .pattern-icon {
+            position: relative;
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.75);
+            opacity: 0.35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1px;
+        }
+        
+        /* Create the halftone offset effect */
+        .bg-pattern .row {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            padding: 3px 0;
+        }
+        
+        .bg-pattern .row:nth-child(even) {
+            transform: translateX(2.5%);
+        }
+        
+        .bg-pattern .row:nth-child(4n+1) .pattern-icon {
+            transform: rotate(5deg);
+        }
+        
+        .bg-pattern .row:nth-child(4n+2) .pattern-icon {
+            transform: rotate(-5deg);
+        }
+        
+        .bg-pattern .row:nth-child(4n+3) .pattern-icon {
+            transform: rotate(10deg);
+        }
+        
+        /* Make container relative for proper stacking */
+        .container.contact-container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Make section title relative for proper stacking */
+        #contact .section-title {
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .contact-info.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .contact-heading {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .contact-heading i {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+        }
+
+        .contact-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-detail i {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: 0.25rem;
+        }
+
+        .contact-detail-content {
+            flex: 1;
+        }
+
+        .contact-detail-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .contact-detail-content p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        .contact-form {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .contact-form.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.3);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn, .file-upload-label {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+            font-family: inherit;
+            text-align: center;
+            line-height: 1.5;
+            min-height: 45px;
+            min-width: 140px;
+            margin: 0;
+        }
+
+        .submit-btn:hover, .file-upload-label:hover {
+            background-color: #ff6a3c;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Ensure consistency between buttons */
+        .submit-btn, .file-upload-label {
+            min-height: 45px;
+            min-width: 140px;
+        }
+
+        /* Custom File Upload Styling */
+        .file-upload {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Hide the original file input completely */
+        input[type="file"], input[type="file"].form-control-file {
+            width: 0.1px !important;
+            height: 0.1px !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            z-index: -1 !important;
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        /* Remove all lingering file upload styling */
+        .file-upload, .file-upload-container {
+            display: none;
+        }
+        
+        .file-name-display {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            color: #555;
+            font-style: italic;
+        }
+        
+        /* Layout classes for the form */
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+        }
+
+        /* Social links */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--highlight-color);
+            color: var(--text-color);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-link img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .social-link:hover img {
+            transform: scale(1.1);
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .social-link:hover::before {
+            opacity: 0.7;
+        }
+
+        /* Footer */
+        .footer {
+            display: none; /* Hide the footer completely */
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background: linear-gradient(135deg, var(--background-color) 0%, rgba(40, 15, 60, 1) 100%);
+            width: 80%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            color: var(--text-color);
+        }
+
+        .modal-body h2 {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal-award-details {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-award-details p {
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .modal-project-showcase {
+            margin-top: 2rem;
+        }
+
+        .modal-project-showcase h3 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .project-gallery {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .project-gallery img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 900;
+            transition: bottom 0.3s ease-in-out;
+        }
+
+        .toast-notification.show {
+            bottom: 30px;
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .toast-message {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .testimonial-card .quote {
+                font-size: 1rem;
+            }
+            
+            .magazine-feature {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .magazine-cover {
+                flex: 0 0 auto;
+                margin: 0 auto 2rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .award-title {
+                font-size: 1.3rem;
+            }
+            
+            .testimonial-card, .award-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Form Status */
+        .form-status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            height: 20px;
+        }
+        
+        .input-hint {
+            color: #777;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        /* Separator line for contact info section */
+        .contact-separator {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .contact-separator::after {
+            content: "❖";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--background-dark);
+            padding: 0 15px;
+            color: var(--accent-color);
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Testimonials Section -->
+        <section id="testimonials">
+            <!-- Background images for transition -->
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet1.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet2.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet3.png');"></div>
+            
+            <h2 class="section-title">Client Testimonials</h2>
+            <div class="testimonial-container">
+                <div class="testimonial-card">
+                    <div class="testimonial-sheen"></div>
+                    <div class="quote">Great Creation Studios transformed our brand identity with an exceptional design that perfectly captures our company's essence. Their collaborative approach and attention to detail exceeded our expectations at every stage.</div>
+                    <div class="client">
+                        <div class="client-image">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Client">
+                        </div>
+                        <div class="client-info">
+                            <h4>Jessica Parker</h4>
+                            <p>CEO, Innovate Tech</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-sheen"></div>
+                    <div class="quote">Working with Great Creations on our rebrand was the best decision we made this year. Their strategic approach to design thinking resulted in a visual identity that has resonated deeply with our audience and increased customer engagement by 45%.</div>
+                    <div class="client">
+                        <div class="client-image">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Client">
+                        </div>
+                        <div class="client-info">
+                            <h4>Michael Reynolds</h4>
+                            <p>Marketing Director, Elevate Brands</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-sheen"></div>
+                    <div class="quote">The immersive virtual exhibition designed by Great Creation Studios helped us reach a global audience during challenging times. Their innovative approach to digital experiences created an emotional connection with viewers that traditional galleries couldn't achieve.</div>
+                    <div class="client">
+                        <div class="client-image">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Client">
+                        </div>
+                        <div class="client-info">
+                            <h4>Amelia Zhang</h4>
+                            <p>Curator, Contemporary Arts Museum</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Awards Section -->
+        <section id="awards">
+            <!-- Background images for transition -->
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet4.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet5.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet6.png');"></div>
+            
+            <h2 class="section-title">Recognition & Awards</h2>
+            <div class="awards-container">
+                <div class="award-card">
+                    <div class="award-sheen"></div>
+                    <div class="award-icon">
+                        <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Design Excellence Award">
+                    </div>
+                    <h3 class="award-title">Design Excellence Award</h3>
+                    <p class="award-description">Recognized for outstanding achievement in visual communication design, demonstrating exceptional creativity, innovation, and effectiveness.</p>
+                    <span class="award-year">2024</span>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-sheen"></div>
+                    <div class="award-icon">
+                        <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Creative Visionary">
+                    </div>
+                    <h3 class="award-title">Creative Visionary</h3>
+                    <p class="award-description">Honored for pushing boundaries in digital experiences through innovative use of emerging technologies and immersive storytelling.</p>
+                    <span class="award-year">2023</span>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-sheen"></div>
+                    <div class="award-icon">
+                        <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Brand Transformation">
+                    </div>
+                    <h3 class="award-title">Brand Transformation</h3>
+                    <p class="award-description">Recognized for a revolutionary approach to brand identity that elevated client market position and created measurable business impact.</p>
+                    <span class="award-year">2023</span>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-sheen"></div>
+                    <div class="award-icon">
+                        <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Sustainability in Design">
+                    </div>
+                    <h3 class="award-title">Sustainability in Design</h3>
+                    <p class="award-description">Awarded for excellence in incorporating eco-friendly practices and sustainable principles throughout the design process and final product.</p>
+                    <span class="award-year">2022</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recognition Section -->
+        <section id="recognition">
+            <!-- Background images for transition -->
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet7.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet8.png');"></div>
+            <div class="bg-image" style="background-image: url('https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet9.png');"></div>
+            
+            <h2 class="section-title">Industry Recognition</h2>
+            <div class="recognition-container">
+                <div class="magazine-feature">
+                    <div class="magazine-cover">
+                        <div class="cover-sheen"></div>
+                        <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Magazine Cover">
+                    </div>
+                    <div class="magazine-content">
+                        <h3>"The Future of Immersive Design"</h3>
+                        <p>An exclusive interview with Great Creation Studios' creative team about their groundbreaking approach to experiential design and virtual environments.</p>
+                        <span class="feature-date">Featured: June 2024</span>
+                    </div>
+                </div>
+
+                <div class="press-mentions">
+                    <div class="press-item">
+                        <div class="press-logo">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Design Week">
+                        </div>
+                        <blockquote>"Great Creation Studios continues to redefine the boundaries between physical and digital design experiences."</blockquote>
+                    </div>
+                    
+                    <div class="press-item">
+                        <div class="press-logo">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Creative Pulse">
+                        </div>
+                        <blockquote>"Their innovative use of spatial design principles in digital environments sets a new standard for the industry."</blockquote>
+                    </div>
+                    
+                    <div class="press-item">
+                        <div class="press-logo">
+                            <img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Tech Design">
+                        </div>
+                        <blockquote>"Great Creations blends artistic vision with strategic thinking to create meaningful brand experiences that resonate."</blockquote>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2 class="section-title">Get In Touch</h2>
+            
+            <!-- Background pattern with icons - denser halftone pattern -->
+            <div class="bg-pattern">
+                <!-- Row 1 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                </div>
+                <!-- Row 2 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                </div>
+                <!-- Row 3 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                </div>
+                <!-- Row 4 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                </div>
+                <!-- Row 5 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                </div>
+                <!-- Row 6 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                </div>
+                <!-- Row 7 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                </div>
+                <!-- Row 8 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                </div>
+                <!-- Row 9 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                </div>
+                <!-- Row 10 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                </div>
+                <!-- Row 11 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                </div>
+                <!-- Row 12 -->
+                <div class="row">
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-award"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-building"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-address-card"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-star"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-comment"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-heart"></i></div>
+                    <div class="pattern-icon"><i class="fas fa-envelope"></i></div>
+                </div>
+            </div>
+            
+            <div class="container contact-container">
+                <div class="contact-info">
+                    <h3 class="contact-heading"><i class="fas fa-map-marker-alt"></i> Our Studio</h3>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <i class="fas fa-building"></i>
+                            <div class="contact-detail-content">
+                                <h4>Main dude who tries checks email each morning</h4>
+                                <p>Unit 204 33941 Essendene Avenue<br>Abbotsford, British Columbia<br>Canada, V2S2J1</p>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <i class="fas fa-clock"></i>
+                            <div class="contact-detail-content">
+                                <h4>Working Hours</h4>
+                                <p>Monday - Thursday: 6:37 AM - 10 on the dot PM<br>Weekend: By Appointment</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="contact-heading"><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <i class="fas fa-phone-alt"></i>
+                            <div class="contact-detail-content">
+                                <h4>Phone</h4>
+                                <p>(NOT) AVA-LABLE, go spam someone else infernet creeps</p>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <i class="fas fa-envelope"></i>
+                            <div class="contact-detail-content">
+                                <h4>Email</h4>
+                                <p>info@greatcreations.ca</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-separator"></div>
+                    
+                    <div class="social-links">
+                        <a href="#testimonials" class="social-link"><img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Testimonials"></a>
+                        <a href="#awards" class="social-link"><img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Awards"></a>
+                        <a href="#recognition" class="social-link"><img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Recognition"></a>
+                        <a href="greatcreations.html#contact" class="social-link"><img src="https://greatcreations.github.io/pageimages/GC1.png" alt="Contact"></a>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <h3 class="contact-heading"><i class="fas fa-paper-plane"></i> Send Us a Message</h3>
+                    <form id="contactForm" action="https://formsubmit.co/ajax/info@greatcreations.ca" method="POST">
+                        <!-- FormSubmit Configuration -->
+                        <input type="hidden" name="_subject" value="New message from Great Creation Studios website">
+                        <input type="hidden" name="_template" value="table">
+                        <input type="hidden" name="_captcha" value="false">
+
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" class="form-control" required placeholder="Hi I'd like to thank or award Great Creation Studios">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" class="form-control" required placeholder="I just love Great Creations Studios and what they have done for us in designing out brand, and they're just soooo dreamy and cool! 💖"></textarea>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <div style="display:none; width:0; height:0; opacity:0; overflow:hidden;">
+                                <input type="file" id="attachment" name="attachment" accept="image/*">
+                            </div>
+                            <label for="attachment" class="file-upload-label">
+                                <i class="fas fa-paperclip" style="margin-right: 8px;"></i>Choose Image (Optional)
+                            </label>
+                            <button type="submit" class="submit-btn">Send Message</button>
+                        </div>
+                        
+                        <div class="file-info">
+                            <div id="file-name-display" class="file-name-display">No file selected</div>
+                            <small class="input-hint">Supported formats: JPG, PNG, GIF</small>
+                            <div id="form-status" class="form-status"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-notification">
+        <div class="toast-content">
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2
+        };
+
+        // Observer for section titles
+        const titleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observer for testimonials
+        const cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    // Add a delay based on the index
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 150);
+                }
+            });
+        }, observerOptions);
+
+        // Get all elements to observe
+        const sectionTitles = document.querySelectorAll('.section-title');
+        const testimonialCards = document.querySelectorAll('.testimonial-card');
+        const awardCards = document.querySelectorAll('.award-card');
+        const magazineFeature = document.querySelector('.magazine-feature');
+        const pressItems = document.querySelectorAll('.press-item');
+        const contactInfo = document.querySelector('.contact-info');
+        const contactForm = document.querySelector('.contact-form');
+
+        // Observe section titles
+        sectionTitles.forEach(title => {
+            titleObserver.observe(title);
+        });
+
+        // Observe testimonial cards
+        testimonialCards.forEach(card => {
+            cardObserver.observe(card);
+        });
+
+        // Observe award cards
+        awardCards.forEach(card => {
+            cardObserver.observe(card);
+        });
+        
+        // Observe magazine feature
+        if (magazineFeature) {
+            cardObserver.observe(magazineFeature);
+        }
+        
+        // Observe press items with staggered delay
+        pressItems.forEach((item, index) => {
+            const pressObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 200);
+                    }
+                });
+            }, observerOptions);
+            
+            pressObserver.observe(item);
+        });
+
+        // Observe contact info and form
+        if (contactInfo) cardObserver.observe(contactInfo);
+        if (contactForm) cardObserver.observe(contactForm);
+
+        // Toast notification function
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.querySelector('.toast-message');
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // Modal functions
+        function openModal(content) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.querySelector('.modal-body');
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'flex';
+            
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('show');
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close modal when clicking on X or outside
+        document.querySelector('.close-modal').addEventListener('click', closeModal);
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Contact form handling function with FormSubmit for a no-setup form solution
+        function initContactForm() {
+            const contactFormEl = document.getElementById('contactForm');
+            const formStatus = document.getElementById('form-status');
+            
+            // Check if this is a redirect after form submission with an attachment
+            if (window.location.href.includes('?submitted=true')) {
+                // Show success toast after redirection
+                showToast('Thank you! Your message with attachment has been sent.');
+                
+                // Remove the query parameter to prevent showing the toast again on refresh
+                if (window.history && window.history.replaceState) {
+                    const cleanUrl = window.location.href.split('?')[0];
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+            }
+            
+            // Handle custom file input styling
+            const fileInput = document.getElementById('attachment');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            
+            if (fileInput && fileNameDisplay) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files.length > 0) {
+                        fileNameDisplay.textContent = this.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = 'No file selected';
+                    }
+                });
+            }
+            
+            if (contactFormEl) {
+                // Add animation to the submit button
+                const submitBtn = contactFormEl.querySelector('.submit-btn');
+                if (submitBtn) {
+                    submitBtn.addEventListener('mouseenter', function() {
+                        this.classList.add('hover-effect');
+                    });
+                    
+                    submitBtn.addEventListener('mouseleave', function() {
+                        this.classList.remove('hover-effect');
+                    });
+                }
+                
+                // Handle form submission with fetch API
+                contactFormEl.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show loading state
+                    const submitBtn = contactFormEl.querySelector('.submit-btn');
+                    const originalBtnText = submitBtn.textContent;
+                    submitBtn.textContent = 'Sending...';
+                    submitBtn.disabled = true;
+                    formStatus.textContent = '';
+                    
+                    // For file uploads, we need to use FormData directly
+                    // and cannot use the AJAX endpoint that requires JSON
+                    const hasAttachment = document.getElementById('attachment').files.length > 0;
+                    
+                    if (hasAttachment) {
+                        // For forms with attachments, we need to use the regular endpoint
+                        // and let the page redirect to the FormSubmit success page
+                        contactFormEl.action = 'https://formsubmit.co/info@greatcreations.ca';
+                        contactFormEl.method = 'POST';
+                        contactFormEl.enctype = 'multipart/form-data';
+                        contactFormEl.target = '_self'; // Ensure it stays in the same iframe
+                        
+                        // Add a hidden field for redirect back to this page with a query parameter
+                        // to indicate successful submission
+                        let redirectInput = document.createElement('input');
+                        redirectInput.type = 'hidden';
+                        redirectInput.name = '_next';
+                        
+                        // Get the current URL and add a query parameter
+                        let currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
+                        redirectInput.value = currentUrl + '?submitted=true';
+                        
+                        contactFormEl.appendChild(redirectInput);
+                        
+                        // Show toast before submitting
+                        showToast('Sending your message with attachment...');
+                        
+                        // Submit the form normally
+                        setTimeout(() => {
+                            contactFormEl.submit();
+                        }, 500);
+                    } else {
+                        // For forms without attachments, use the AJAX endpoint as before
+                        const formData = new FormData(contactFormEl);
+                        const data = {};
+                        formData.forEach((value, key) => {
+                            data[key] = value;
+                        });
+                        
+                        // Send form data using fetch
+                        fetch('https://formsubmit.co/ajax/info@greatcreations.ca', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Success
+                            formStatus.textContent = 'Your message has been sent successfully!';
+                            formStatus.style.color = '#4CAF50';
+                            contactFormEl.reset();
+                            
+                            // Show toast notification
+                            showToast('Thank you! Your message has been sent.');
+                        })
+                        .catch(error => {
+                            // Error
+                            console.error('Error:', error);
+                            formStatus.textContent = 'Sorry, there was an error sending your message. Please try again later.';
+                            formStatus.style.color = '#F44336';
+                        })
+                        .finally(() => {
+                            // Reset button state
+                            submitBtn.textContent = originalBtnText;
+                            submitBtn.disabled = false;
+                        });
+                    }
+                });
+            }
+        }
+        
+        initContactForm();
+
+        // Initial animation and positioning
+        window.addEventListener('load', function() {
+            // Force scrolling to top on page load
+            window.scrollTo(0, 0);
+            
+            // Add first animations after a small delay
+            setTimeout(() => {
+                const firstTitle = document.querySelectorAll('.section-title')[0];
+                if (firstTitle) firstTitle.classList.add('visible');
+                
+                // Stagger the testimonial animations
+                testimonialCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, 300 + (index * 150));
+                });
+            }, 300);
+            
+            // Set up image transitions for all sections
+            setupImageTransitions('testimonials', 3);
+            setupImageTransitions('awards', 3);
+            setupImageTransitions('recognition', 3);
+        });
+        
+        /**
+         * Sets up image transitions for a section
+         * @param {string} sectionId - The ID of the section
+         * @param {number} imageCount - Number of images to cycle through
+         */
+        function setupImageTransitions(sectionId, imageCount) {
+            const section = document.getElementById(sectionId);
+            const bgImages = section.querySelectorAll('.bg-image');
+            
+            // Set first image as active initially
+            bgImages[0].classList.add('active');
+            
+            let currentImageIndex = 0;
+            
+            // Only start transitions when the section is in view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Start the transition cycle when the section comes into view
+                        if (!section.hasAttribute('data-transition-started')) {
+                            section.setAttribute('data-transition-started', 'true');
+                            startTransitionCycle();
+                        }
+                    } else {
+                        // Stop the transition cycle when section is out of view
+                        if (section.hasAttribute('data-transition-started')) {
+                            section.removeAttribute('data-transition-started');
+                            // Could optionally clear the interval here if we stored it
+                        }
+                    }
+                });
+            }, { threshold: 0.2 }); // Trigger when 20% of the section is visible
+            
+            observer.observe(section);
+            
+            function startTransitionCycle() {
+                setInterval(() => {
+                    // Remove active class from current image
+                    bgImages[currentImageIndex].classList.remove('active');
+                    
+                    // Move to next image
+                    currentImageIndex = (currentImageIndex + 1) % imageCount;
+                    
+                    // Add active class to new current image
+                    bgImages[currentImageIndex].classList.add('active');
+                }, 12000); // Change image every 12 seconds
+            }
+        }
+        
+        // Preload background images
+        window.addEventListener('DOMContentLoaded', function() {
+            const imageUrls = [
+                // Testimonials section images
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet1.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet2.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet3.png',
+                
+                // Awards section images
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet4.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet5.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet6.png',
+                
+                // Recognition section images
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet7.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet8.png',
+                'https://greatcreations.github.io/pageimages/Recognition_Panel_Page/awardplanet9.png'
+            ];
+            
+            imageUrls.forEach(url => {
+                const img = new Image();
+                img.src = url;
+            });
+        });
+    </script>
+</body>
+</html>
