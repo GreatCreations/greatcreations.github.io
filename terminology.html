@@ -1442,6 +1442,29 @@
                 
                 // Close modal
                 modalClose.addEventListener('click', closeTermModal);
+                
+                // Handle dropdown menu links
+                const dropdownLinks = document.querySelectorAll('.dropdown-content a[data-url]');
+                dropdownLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('data-url');
+                        
+                        // Find the parent frame and navigate it
+                        if (window.parent && window.parent !== window) {
+                            const parentFrame = window.parent.document.getElementById('frame2');
+                            if (parentFrame) {
+                                parentFrame.src = url;
+                            } else {
+                                // If we can't find the specific frame, try to navigate the parent window
+                                window.parent.location.href = url;
+                            }
+                        } else {
+                            // Fallback to direct navigation if not in an iframe
+                            window.location.href = url;
+                        }
+                    });
+                });
             }
             
             // Init function
