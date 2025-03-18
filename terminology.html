@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Frame-Options" content="ALLOW">
     <title>Great Creations Studios - Design Terminology Library</title>
     <style>
         /* Variables and resets - Sass-like structure */
@@ -636,9 +637,79 @@
         body::-webkit-scrollbar-thumb:hover {
             background: #ff9aa2;
         }
+        
+        /* Dropdown menu styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .dropdown-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #ff6a39;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 250px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--border-color);
+            z-index: 1000;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f9f9f9;
+            color: var(--primary-color);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .main-menu {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <!-- Dropdown menu -->
+    <div class="main-menu">
+        <div class="dropdown">
+            <button class="dropdown-btn">Learning</button>
+            <div class="dropdown-content">
+                <a href="https://studios.greatcreations.art/designtrends.html" target="content-frame">Design Trends Explorer</a>
+
+                <a href="https://studios.greatcreations.art/terminology.html" target="content-frame">Design Terminology Library</a>
+            </div>
+        </div>
+    </div>
+    
     <main>
         <div class="title-container">
             <h1>Design Terminology Library</h1>
