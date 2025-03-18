@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Frame-Options" content="ALLOW">
+    <title>Design Trends: 2023-2025</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 100 100" width="50" height="50">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="5" />
+                <path d="M30,50 L70,50 M50,30 L50,70" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+            </svg>
+            <h1>Design Evolution</h1>
+        </div>
+        
+        <div class="main-menu">
+            <div class="dropdown">
+                <button class="dropdown-btn">Learning</button>
+                <div class="dropdown-content">
+                    <a href="https://studios.greatcreations.art/terminology.html" target="content-frame">Design Terminology Library</a>
+                    
+                    <a href="https://studios.greatcreations.art/designtrends.html" target="content-frame">Design Trends Explorer</a>
+                </div>
+            </div>
+        </div>
+        
+        <nav>
+            <button id="categoryFilter">Filter Categories</button>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search trends...">
+            </div>
+            <button id="viewToggle">Toggle View</button>
+        </nav>
+    </header>
+
+    <div class="filter-panel hidden">
+        <div class="filter-categories">
+            <button class="filter-btn active" data-category="all">All Trends</button>
+            <button class="filter-btn" data-category="digital">Digital Design</button>
+            <button class="filter-btn" data-category="ui">UI/UX</button>
+            <button class="filter-btn" data-category="graphic">Graphic Design</button>
+            <button class="filter-btn" data-category="industrial">Industrial Design</button>
+            <button class="filter-btn" data-category="fashion">Fashion Design</button>
+            <button class="filter-btn" data-category="architecture">Architecture</button>
+            <button class="filter-btn" data-category="immersive">Immersive</button>
+        </div>
+        <div class="filter-years">
+            <button class="year-btn active" data-year="all">All Years</button>
+            <button class="year-btn" data-year="2023">2023</button>
+            <button class="year-btn" data-year="2024">2024</button>
+            <button class="year-btn" data-year="2025">2025</button>
+        </div>
+    </div>
+
+    <main>
+        <section class="intro">
+            <h2>Exploring Design Trends 2023-2025</h2>
+            <p>Stay ahead of the curve with our comprehensive collection of design trends spanning digital interfaces, traditional art, architecture, fashion, and more. Our curated cards showcase innovations defining the creative landscape through 2025.</p>
+        </section>
+
+        <section class="trend-container">
+            <!-- Cards will be dynamically generated here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>Design Trends Explorer | Showcasing forward-thinking design innovations</p>
+    </footer>
+
+    <div class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</body>
+</html>
