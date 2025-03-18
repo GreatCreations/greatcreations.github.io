@@ -639,10 +639,16 @@
         }
         
         /* Dropdown menu styles */
+        .main-menu {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+        }
+
         .dropdown {
             position: relative;
             display: inline-block;
-            z-index: 1000;
         }
 
         .dropdown-btn {
@@ -652,23 +658,27 @@
             font-size: 14px;
             border: 2px solid var(--border-color);
             cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 3px 3px 0 var(--shadow-color);
+            transition: all 0.2s ease;
         }
 
         .dropdown-btn:hover {
-            background-color: #ff6a39;
+            background-color: #FF9474;
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 0 var(--shadow-color);
         }
 
         .dropdown-content {
             display: none;
             position: absolute;
-            background-color: white;
+            background-color: var(--panel-color);
             min-width: 250px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 4px 0 var(--shadow-color);
             border: 2px solid var(--border-color);
-            z-index: 1000;
-            border-radius: 4px;
+            z-index: 1;
+            border-radius: 5px;
             overflow: hidden;
         }
 
@@ -677,11 +687,16 @@
             padding: 12px 16px;
             text-decoration: none;
             display: block;
-            transition: background-color 0.3s;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
         }
 
         .dropdown-content a:hover {
-            background-color: #f9f9f9;
+            background-color: #f1f1f1;
             color: var(--primary-color);
         }
 
@@ -689,27 +704,37 @@
             display: block;
         }
 
-        .main-menu {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
+        /* Mobile adjustments for dropdown */
+        @media (max-width: 768px) {
+            .main-menu {
+                width: 100%;
+                top: 10px;
+                left: 0;
+                text-align: center;
+            }
+            
+            .dropdown-content {
+                width: 90%;
+                left: 5%;
+                right: 5%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Dropdown menu -->
-    <div class="main-menu">
-        <div class="dropdown">
-            <button class="dropdown-btn">Learning</button>
-            <div class="dropdown-content">
-                 <a href="#frame2" data-url="https://studios.greatcreations.art/Design_Trends/index.html">Design Trends Explorer</a>
-                 <a href="#frame2" data-url="https://greatcreations.github.io/terminology.html">Design Terminology Library</a>
+    <main>
+        <!-- Add the dropdown menu as requested -->
+        <div class="main-menu">
+            <div class="dropdown">
+                <button class="dropdown-btn">Learning</button>
+                <div class="dropdown-content">
+                    <a href="https://studios.greatcreations.art/Design_Trends/index.html">Design Trends Explorer</a>
+                    <a href="https://studios.greatcreations.art/terminology.html">Design Terminology Library</a>
+                    
+                </div>
             </div>
         </div>
-    </div>
-    
-    <main>
+        
         <div class="title-container">
             <h1>Design Terminology Library</h1>
         </div>
@@ -1442,29 +1467,6 @@
                 
                 // Close modal
                 modalClose.addEventListener('click', closeTermModal);
-                
-                // Handle dropdown menu links
-                const dropdownLinks = document.querySelectorAll('.dropdown-content a[data-url]');
-                dropdownLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('data-url');
-                        
-                        // Find the parent frame and navigate it
-                        if (window.parent && window.parent !== window) {
-                            const parentFrame = window.parent.document.getElementById('frame2');
-                            if (parentFrame) {
-                                parentFrame.src = url;
-                            } else {
-                                // If we can't find the specific frame, try to navigate the parent window
-                                window.parent.location.href = url;
-                            }
-                        } else {
-                            // Fallback to direct navigation if not in an iframe
-                            window.location.href = url;
-                        }
-                    });
-                });
             }
             
             // Init function
