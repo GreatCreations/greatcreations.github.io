@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Great Creation Studios: Your Creative Adventure!</title>
+    <style>
+        /* --- Styles (Keep all previous styles) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Orbitron:wght@500;700&display=swap');
+        :root{--color-primary:#FFA500;--color-secondary:#00BCD4;--color-accent:#F8BBD0;--color-info-orb:#fff;--color-background:#1A0F2A;--color-text:#E0E0E0;--color-dark-accent:#4A148C;--color-error:#ff5252;--color-success:#a5d6a7;--color-info:#90caf9;--color-win-flash:#ffffff;--color-win-glow:#ffd700;--font-primary:'Quicksand',sans-serif;--font-display:'Orbitron',sans-serif;--game-speed-factor:1}
+        *{margin:0;padding:0;box-sizing:border-box;user-select:none}html{scroll-behavior:smooth}
+        body{background-color:var(--color-background);color:var(--color-text);font-family:var(--font-primary);line-height:1.6;overflow:hidden;background-image:radial-gradient(circle at top left,rgba(74,20,140,.5),transparent 60%),radial-gradient(circle at bottom right,rgba(0,188,212,.4),transparent 70%);background-attachment:fixed;transition:background-color .5s ease}body:not(.game-mode-active){overflow-y:auto}
+        body.game-mode-active{background-color:#05020a}body.game-mode-active .adventure-section:not(#section-game),body.game-mode-active footer{display:none;pointer-events:none}
+        #adventure-world{width:100%;position:relative}
+        .adventure-section{min-height:100vh;padding:40px 20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0;position:absolute;top:0;left:0;width:100%;transform:translateY(30px);transition:opacity .6s ease-out,transform .6s ease-out,visibility 0s .6s;visibility:hidden;z-index:0;background-color:var(--color-background)}
+        .adventure-section.active{opacity:1;transform:translateY(0);position:relative;visibility:visible;z-index:10;transition:opacity .6s ease-out,transform .6s ease-out}
+        #section-game{position:fixed;top:0;left:0;width:100vw;height:100vh;padding:0;background-color:transparent;z-index:50;display:flex;justify-content:flex-start;align-items:stretch}#section-game:not(.active){opacity:0;visibility:hidden;transform:translateY(30px);position:absolute;min-height:100vh;height:auto}
+        h1,h2,h3{margin-bottom:1rem;font-weight:700}h1{font-size:clamp(2.5rem,6vw,4rem);color:var(--color-primary);text-shadow:0 0 10px var(--color-primary),0 0 20px var(--color-accent)}h2{font-size:clamp(1.8rem,4vw,2.5rem);color:var(--color-secondary);margin:1rem 0}p{font-size:clamp(1rem,2.5vw,1.2rem);max-width:650px;margin-bottom:1.5rem;color:var(--color-text);opacity:.9}
+        .adventure-button{background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));color:var(--color-background);padding:10px 20px;border:none;border-radius:50px;font-family:var(--font-primary);font-size:clamp(.9rem,2.2vw,1rem);font-weight:700;cursor:pointer;transition:all .2s ease;margin:5px 8px;text-decoration:none;display:inline-block;box-shadow:0 3px 10px rgba(0,0,0,.3);position:relative;z-index:2}.adventure-button:disabled{cursor:not-allowed;opacity:.5;filter:grayscale(60%);transform:none!important;box-shadow:0 1px 5px rgba(0,0,0,.2)!important}.adventure-button:hover:not(:disabled),.adventure-button:focus:not(:disabled){transform:translateY(-2px) scale(1.03);box-shadow:0 6px 20px rgba(255,165,0,.3),0 6px 20px rgba(0,188,212,.2);outline:none}.button-secondary{background:linear-gradient(135deg,var(--color-secondary),var(--color-accent));color:var(--color-dark-accent)}.button-secondary:hover:not(:disabled),.button-secondary:focus:not(:disabled){box-shadow:0 6px 20px rgba(0,188,212,.3),0 6px 20px rgba(248,187,208,.2)}.button-tertiary{background:linear-gradient(135deg,var(--color-accent),var(--color-primary));color:var(--color-dark-accent)}.button-tertiary:hover:not(:disabled),.button-tertiary:focus:not(:disabled){box-shadow:0 6px 20px rgba(248,187,208,.3),0 6px 20px rgba(255,165,0,.2)}
+        #section-intro .logo{max-width:300px;width:60%;height:auto;margin-bottom:2rem;filter:drop-shadow(0 0 20px var(--color-secondary));animation:introLogoPulse 4s infinite ease-in-out}@keyframes introLogoPulse{0%,100%{filter:drop-shadow(0 0 15px var(--color-secondary));transform:scale(1)}50%{filter:drop-shadow(0 0 25px var(--color-primary));transform:scale(1.03)}}
+
+        /* --- Avatar Preview Styles (UPDATED) --- */
+        #avatar-preview{width:140px;height:140px;border:3px solid var(--color-accent);border-radius:50%;margin:1rem auto;position:relative;background-color:var(--color-primary);overflow:hidden;transition:all .3s ease;box-shadow:0 0 20px var(--color-accent)}
+        /* Apply square shape to both previews */
+        #avatar-preview.shape-square,
+        #summit-avatar-preview.shape-square {
+            border-radius: 15px;
+        }
+        /* Apply blob shape to both previews */
+        #avatar-preview.shape-blob,
+        #summit-avatar-preview.shape-blob {
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+        /* Keep the morph animation ONLY for the creation preview */
+        #avatar-preview.shape-blob {
+            animation: blobMorph 8s ease-in-out infinite both;
+        }
+        @keyframes blobMorph{0%,100%{border-radius:40% 60% 70% 30% / 40% 50% 60% 50%}50%{border-radius:30% 70% 40% 60% / 50% 60% 30% 40%}}
+
+        /* --- Rest of Avatar Styles --- */
+        .avatar-eyes,.avatar-mouth{position:absolute;width:100%;height:100%;top:0;left:0;background:none}.avatar-eyes div,.avatar-mouth div{position:absolute;background-color:var(--color-background);border-radius:50%;transition:all .3s ease}.eyes-dots .eye-left,.eyes-dots .eye-right{width:10px;height:10px;top:40%}.eyes-dots .eye-left{left:30%;transform:translateX(-50%)}.eyes-dots .eye-right{right:30%;transform:translateX(50%)}.eyes-lines .eye-left,.eyes-lines .eye-right{width:20px;height:5px;top:45%;border-radius:3px}.eyes-lines .eye-left{left:30%;transform:translateX(-50%) rotate(-10deg)}.eyes-lines .eye-right{right:30%;transform:translateX(50%) rotate(10deg)}.eyes-googly .eye-left,.eyes-googly .eye-right{width:25px;height:25px;top:35%;background-color:#fff;border:2px solid var(--color-background);display:flex;justify-content:center;align-items:center}.eyes-googly .pupil{position:static;width:8px;height:8px;background-color:var(--color-background);border-radius:50%;animation:googlyMove 3s infinite ease-in-out}.eyes-googly .eye-left{left:30%;transform:translateX(-50%)}.eyes-googly .eye-right{right:30%;transform:translateX(50%)}@keyframes googlyMove{0%,100%{transform:translate(0,0)}25%{transform:translate(3px,-2px)}50%{transform:translate(-2px,3px)}75%{transform:translate(1px,-3px)}}.mouth-smile .mouth-shape{width:40px;height:20px;bottom:20%;left:50%;transform:translateX(-50%);border-radius:0 0 20px 20px;background-color:transparent;border:4px solid var(--color-background);border-top:none}.mouth-neutral .mouth-shape{width:30px;height:4px;bottom:25%;left:50%;transform:translateX(-50%);border-radius:2px}.mouth-o .mouth-shape{width:20px;height:20px;bottom:20%;left:50%;transform:translateX(-50%);border-radius:50%}
+        .avatar-controls{margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.control-group{padding:8px;border:1px dashed var(--color-secondary);border-radius:10px}.control-group h3{font-size:.9rem;margin-bottom:.4rem;color:var(--color-accent)}.control-button{background:var(--color-dark-accent);color:var(--color-text);padding:6px 10px;border:1px solid var(--color-secondary);border-radius:5px;font-size:.85rem;cursor:pointer;transition:all .2s ease;margin:2px}.control-button:hover:not(.selected){background-color:var(--color-secondary);color:var(--color-background);transform:scale(1.05)}.control-button.selected{background-color:var(--color-primary);color:var(--color-background);border-color:var(--color-primary);box-shadow:0 0 8px var(--color-primary);transform:scale(1.05)}
+        #section-crossroads .choice-container, .realm-container{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin-top:1.5rem}.realm-description{background:rgba(74,20,140,.2);padding:20px;border-radius:15px;border:1px solid var(--color-secondary);max-width:500px;box-shadow:0 5px 15px rgba(0,188,212,.1)}.realm-description ul{list-style:none;padding-left:0;text-align:left;display:inline-block}.realm-description li{margin-bottom:.5rem;padding-left:1.5em;position:relative}.realm-description li::before{content:'✨';position:absolute;left:0;color:var(--color-primary);font-size:.9em}
+        #section-idea-forge .forge-icon{font-size:4rem;margin-bottom:1rem;color:var(--color-primary);animation:pulse 2s infinite}@keyframes pulse{0%{transform:scale(1);text-shadow:0 0 5px var(--color-primary)}50%{transform:scale(1.1);text-shadow:0 0 15px var(--color-primary)}100%{transform:scale(1);text-shadow:0 0 5px var(--color-primary)}}
+
+        /* ================= Game Section Styles ================= */
+        #game-ui-layer{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:100;pointer-events:none;padding:15px}#game-top-ui{width:100%;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:auto}#game-info{background:rgba(26,15,42,.8);padding:8px 12px;border-radius:8px;border:1px solid var(--color-secondary);text-shadow:0 0 5px var(--color-accent);font-size:clamp(.9em,2vw,1.2em);color:#fff;font-family:var(--font-display);line-height:1.3}#game-info span{display:inline-block;margin:0 3px}#inspiration-meter-container{width:150px;height:15px;background-color:rgba(0,0,0,.6);border:1px solid var(--color-accent);border-radius:10px;overflow:hidden;margin-top:5px}#inspiration-meter-fill{width:0%;height:100%;background:linear-gradient(90deg,var(--color-accent),var(--color-secondary));transition:width .5s ease-out;border-radius:8px;box-shadow:0 0 8px var(--color-secondary) inset}
+        #milestone-display{background:rgba(74,20,140,.9);padding:6px 12px;border-radius:5px;border:1px solid var(--color-primary);text-shadow:0 0 8px var(--color-primary);font-size:clamp(.8em,1.8vw,1em);text-align:right;opacity:0;transform:translateY(-20px);transition:opacity .4s ease,transform .4s ease;pointer-events:none;max-width:50%;position:absolute;top:70px;right:15px}#milestone-display.visible{opacity:1;transform:translateY(0)}
+        #skip-game-btn{position:absolute;top:15px;right:15px;z-index:110;padding:6px 12px;font-size:.8rem;font-family:var(--font-primary);background-color:rgba(255,255,255,.2);color:#ccc;border:1px solid #aaa;border-radius:5px;cursor:pointer;pointer-events:auto;opacity:.7;transition:all .2s ease}#skip-game-btn:hover{background-color:rgba(255,255,255,.4);color:#fff;opacity:1}
+        #game-instructions{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(26,15,42,.95);padding:25px 35px;border-radius:10px;border:1px solid var(--color-primary);box-shadow:0 0 25px var(--color-primary);z-index:200;font-size:clamp(1rem,2.5vw,1.2rem);display:flex;flex-direction:column;align-items:center;opacity:1;transition:opacity .5s ease;pointer-events:auto;max-width:90%;width:550px}#game-instructions.hidden{opacity:0;pointer-events:none}#game-instructions h3{color:var(--color-secondary);font-family:var(--font-display);margin-bottom:15px;font-size:clamp(1.5rem,4vw,2rem)}#game-instructions p{font-size:clamp(.9rem,2vw,1.1rem);margin-bottom:10px;max-width:450px}#game-instructions strong{color:var(--color-primary)}#game-instructions ul{list-style:none;padding:0;margin-top:10px;margin-bottom:15px;text-align:left;width:90%;max-width:400px}#game-instructions li{margin-bottom:8px}#game-instructions li::before{content:'» ';color:var(--color-secondary);margin-right:5px;font-weight:bold}
+        #game-container{position:absolute;top:0;left:0;width:100%;height:100%;background-color:transparent;margin:0;border:none;box-shadow:none;overflow:hidden;transform-style:preserve-3d;perspective:500px;perspective-origin:50% 60%;z-index:51}#game-background{position:absolute;top:0;left:0;right:0;bottom:0;transform-style:preserve-3d;z-index:1}
+        .grid-floor{position:absolute;bottom:-5%;left:-50%;width:200%;height:60%;background-image:linear-gradient(rgba(0,188,212,.3) 1px,transparent 1px),linear-gradient(to right,rgba(0,188,212,.3) 1px,transparent 1px);background-size:60px 60px;opacity:.3;transform:rotateX(78deg);transform-origin:bottom center;animation:moveGridFloor calc(10s / var(--game-speed-factor)) linear infinite;will-change:background-position}.lane-guide{position:absolute;bottom:0;height:60%;width:2px;background:linear-gradient(to top,rgba(0,188,212,.4),transparent 70%);transform-origin:bottom center;transform:rotateX(78deg);box-shadow:0 0 5px var(--color-secondary);opacity:.4}#lane-guide-left{left:calc(50% - 80px)}#lane-guide-right{left:calc(50% + 80px)}
+        @keyframes moveGridFloor{from{background-position-y:0}to{background-position-y:600px}}
+        #particles-container{position:absolute;top:0;left:0;right:0;bottom:0;transform-style:preserve-3d;z-index:2;pointer-events:none}.particle{position:absolute;left:50%;top:50%;width:2px;height:30px;background:linear-gradient(to bottom,transparent,var(--color-accent) 70%,transparent);border-radius:1px;opacity:0;will-change:transform,opacity;mix-blend-mode:screen}.particle.cyan{background:linear-gradient(to bottom,transparent,var(--color-secondary) 70%,transparent)}.particle.orange{background:linear-gradient(to bottom,transparent,var(--color-primary) 70%,transparent)}@keyframes flyParticle{0%{transform:var(--transform-start);opacity:0}10%{opacity:.9}90%{opacity:.7}100%{transform:var(--transform-end);opacity:0}}
+        .tunnel-segment{position:absolute;left:50%;top:50%;width:180vw;height:180vh;border:3px solid var(--color-primary);border-radius:50%;transform-origin:center center;opacity:0;box-shadow:0 0 25px var(--color-primary) inset,0 0 10px var(--color-primary);animation:tunnelPulse calc(6s / var(--game-speed-factor)) ease-in-out infinite alternate;will-change:transform,opacity;z-index:3;transition:opacity .5s ease}.tunnel-segment.visible{opacity:.08}.tunnel-segment.color-secondary{border-color:var(--color-secondary);box-shadow:0 0 25px var(--color-secondary) inset,0 0 10px var(--color-secondary)}@keyframes tunnelPulse{from{opacity:.04;transform:var(--current-transform) scale(.98)}to{opacity:.12;transform:var(--current-transform) scale(1.01)}}
+
+        /* --- Player --- */
+        #player-avatar{position:absolute;top:50%;left:50%;transform:translate(-50%,50%) translateZ(0);width:35px;height:35px;filter:drop-shadow(0 0 12px currentColor);transition:transform .06s linear;z-index:60;transform-style:preserve-3d;will-change:transform;background-color:var(--color-primary);border-radius:50%}
+        #player-avatar.shape-circle{border-radius:50%}#player-avatar.shape-square{border-radius:4px}#player-avatar.shape-blob{border-radius:40% 60% 70% 30% / 40% 50% 60% 50%;animation:none}
+        #player-indicator{position:absolute;bottom:-15px;left:50%;width:40px;height:8px;background-color:var(--color-secondary);border-radius:50%;opacity:.5;filter:blur(4px);transform:translateX(-50%) scaleY(.3) rotateX(80deg);transform-origin:center bottom;z-index:59}
+        #player-avatar.shielded::after{content:'';position:absolute;top:-20%;left:-20%;width:140%;height:140%;border:2px dashed var(--color-accent);border-radius:50%;opacity:.7;animation:pulseShield .7s infinite ease-in-out;box-shadow:0 0 10px var(--color-accent);transform:translateZ(-5px);pointer-events:none}@keyframes pulseShield{0%,100%{transform:scale(1) rotate(0deg);opacity:.7}50%{transform:scale(1.1) rotate(180deg);opacity:.4}}
+        #player-avatar.boosting{animation:boostPulse .2s infinite alternate}@keyframes boostPulse{from{filter:drop-shadow(0 0 15px var(--color-primary)) brightness(1.2)}to{filter:drop-shadow(0 0 25px #fff) brightness(1.8)}}
+        #player-avatar.hit{animation:shakePlayer .3s ease-in-out;filter:drop-shadow(0 0 15px var(--color-error)) brightness(2)}@keyframes shakePlayer{0%,100%{transform:var(--current-transform) rotate(0deg)}25%{transform:var(--current-transform) translateX(-6px) rotate(-8deg)}75%{transform:var(--current-transform) translateX(6px) rotate(8deg)}}
+         /* Win State Animation */
+         #player-avatar.win-state{animation:winPulse .5s infinite ease-in-out}@keyframes winPulse{0%,100%{transform:var(--current-transform) scale(1);filter:drop-shadow(0 0 15px var(--color-win-glow))}50%{transform:var(--current-transform) scale(1.2);filter:drop-shadow(0 0 30px var(--color-win-flash))}}
+         #game-container.win-state .grid-floor,#game-container.win-state .lane-guide,#game-container.win-state .tunnel-segment{animation-play-state:paused!important;opacity:.1!important}
+
+        /* --- Focus Beam --- */
+        #focus-beam{position:absolute;left:50%;bottom:0;height:75%;width:8px;background:linear-gradient(to top,rgba(255,255,255,.9) 5%,var(--color-secondary),rgba(0,188,212,.1) 90%);border-radius:4px 4px 0 0;transform-origin:bottom center;opacity:0;transition:opacity .05s linear,transform .05s linear;z-index:59;box-shadow:0 0 12px #fff,0 0 18px var(--color-secondary);filter:brightness(1.4);pointer-events:none;transform:translateX(-50%) translateY(100%) translateZ(0) scaleY(0)}#focus-beam.active{opacity:.85;transform:translateX(var(--beam-x)) translateY(var(--beam-y)) translateZ(var(--beam-z)) scaleY(1);transition:opacity .05s linear,transform .05s linear}
+
+        /* --- Game Elements --- */
+        #elements-container,#feedback-container{position:absolute;top:0;left:0;width:100%;height:100%;transform-style:preserve-3d;z-index:55;pointer-events:none}#projectiles-container{/* Removed */}
+        .game-element{position:absolute;left:50%;top:50%;transform-origin:center center;z-index:55;will-change:transform,opacity;backface-visibility:hidden;opacity:0;transition:opacity .2s ease;pointer-events:auto}.game-element.visible{opacity:1}
+        .obstacle{width:40px;height:40px;background:rgba(74,20,140,.7);border:2px solid var(--color-primary);box-shadow:0 0 10px var(--color-primary),0 0 4px var(--color-primary) inset;border-radius:4px;transform-style:preserve-3d}.obstacle::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.3);border:inherit;border-radius:inherit;transform:translateZ(-10px) scale(.9);opacity:.6;z-index:-1;box-shadow:inherit}.obstacle.color-secondary{border-color:var(--color-secondary);box-shadow:0 0 10px var(--color-secondary),0 0 4px var(--color-secondary) inset}.obstacle.color-secondary::before{border-color:var(--color-secondary)}.obstacle.breakable{border-style:dashed;border-color:var(--color-error);box-shadow:0 0 12px var(--color-error)}.obstacle.breakable::before{border-style:dashed;border-color:var(--color-error)}
+        .collectible{width:25px;height:25px;background:radial-gradient(ellipse at center,var(--color-accent) 30%,rgba(248,187,208,.7) 70%,transparent 100%);border-radius:50%;box-shadow:0 0 20px var(--color-accent),0 0 12px #fff;animation:pulseCollectible 1s infinite ease-in-out}.collectible.powerup-shield{background:radial-gradient(ellipse at center,#fff 40%,rgba(0,188,212,.7) 80%,transparent 100%);box-shadow:0 0 25px #fff,0 0 15px var(--color-secondary);animation-duration:.8s}.collectible.powerup-boost{background:radial-gradient(ellipse at center,var(--color-primary) 40%,rgba(255,165,0,.7) 80%,transparent 100%);box-shadow:0 0 25px var(--color-primary),0 0 15px #fff;animation-duration:.4s}
+        .collectible.info-orb{background:radial-gradient(ellipse at center,var(--color-info-orb) 30%,rgba(255,255,255,.7) 70%,transparent 100%);box-shadow:0 0 20px var(--color-info-orb),0 0 10px var(--color-secondary);animation-duration:1.2s}@keyframes pulseCollectible{0%,100%{transform:var(--current-transform) scale(1) rotateY(0deg);filter:brightness(1)}50%{transform:var(--current-transform) scale(1.2) rotateY(180deg);filter:brightness(1.8)}}
+        .game-element.destroyed{animation:destroyElement .3s ease-out forwards;pointer-events:none}@keyframes destroyElement{0%{opacity:1;transform:var(--current-transform) scale(1) rotate(0deg);filter:brightness(1.5)}100%{opacity:0;transform:var(--current-transform) scale(.3) rotate(360deg);filter:brightness(0)}}.game-element.collected{animation:collectElement .2s ease-out forwards;pointer-events:none}@keyframes collectElement{from{opacity:1;transform:var(--current-transform) scale(1.1)}to{opacity:0;transform:var(--current-transform) scale(.1)}}
+
+        /* --- Feedback Text --- */
+        #feedback-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:110;overflow:hidden}
+        .feedback-text{position:absolute;font-family:var(--font-display);font-weight:700;text-shadow:1px 1px 3px rgba(0,0,0,.7);pointer-events:none;animation:floatFade 1.4s ease-out forwards;white-space:nowrap;font-size:clamp(1rem,2.2vw,1.3rem)}@keyframes floatFade{0%{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) translateY(-60px) scale(.8)}}.feedback-score{color:var(--color-success);filter:drop-shadow(0 0 4px var(--color-success))}.feedback-penalty{color:var(--color-error);filter:drop-shadow(0 0 4px var(--color-error))}.feedback-powerup{color:var(--color-info);filter:drop-shadow(0 0 4px var(--color-info))}.feedback-shield{color:var(--color-accent);filter:drop-shadow(0 0 4px var(--color-accent))}.feedback-milestone{color:var(--color-primary);filter:drop-shadow(0 0 6px var(--color-primary));font-size:clamp(1.2rem,2.8vw,1.6rem);animation-duration:2.2s}.feedback-info{color:var(--color-info-orb);filter:drop-shadow(0 0 5px var(--color-info-orb));font-size:clamp(.8rem,1.8vw,1rem);font-family:var(--font-primary);font-weight:400;animation-duration:2.5s;max-width:200px;white-space:normal;text-align:center;background:rgba(26,15,42,.7);padding:4px 8px;border-radius:4px}
+
+        /* --- Game Over / Win Screen --- */
+        #game-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(16,5,31,.92);backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:150;opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s .4s;font-family:var(--font-display);text-align:center;pointer-events:auto}#game-overlay.visible{opacity:1;visibility:visible;transition:opacity .4s ease}#game-overlay h3{font-size:clamp(2rem,6vw,3.5rem);margin-bottom:1rem;color:var(--color-primary);text-shadow:0 0 10px var(--color-primary),0 0 20px #fff}#game-overlay p{font-size:clamp(1rem,3vw,1.4rem);color:var(--color-secondary);margin-bottom:2rem;max-width:80%;line-height:1.4}#game-overlay .button-container{display:flex;flex-wrap:wrap;justify-content:center;gap:15px}#game-overlay .adventure-button{font-size:clamp(1rem,2.5vw,1.1rem);padding:12px 25px}
+        #game-overlay.win h3{color:var(--color-win-glow);text-shadow:0 0 15px var(--color-win-glow),0 0 25px #fff} /* Win state title */
+        #game-overlay.win p{color:var(--color-accent)} /* Win state message color */
+
+        /* --- Game Controls --- */
+        #game-controls{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-end;gap:30px;z-index:100;padding:15px 20px;pointer-events:none;background:linear-gradient(to top,rgba(26,15,42,.85),transparent 90%)}#arrow-controls{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(3,60px);gap:5px;pointer-events:auto}.game-control{width:60px;height:60px;padding:5px;font-size:1.8rem;box-shadow:0 2px 6px rgba(0,0,0,.6);background:rgba(74,20,140,.5);border:1px solid var(--color-secondary);color:var(--color-text);backdrop-filter:blur(2px);border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;pointer-events:auto;transition:background-color .1s ease,transform .1s ease}.game-control.active-key{background:rgba(0,188,212,.7);transform:scale(1.05)}.game-control:hover:not(:disabled){background:rgba(0,188,212,.7);box-shadow:0 3px 10px rgba(0,188,212,.5);transform:scale(1.05)}.game-control:active:not(:disabled){transform:scale(.95)}.game-control:disabled{cursor:not-allowed;opacity:.4;filter:grayscale(80%);background:rgba(50,50,50,.4);border-color:#666}#btn-up{grid-row:1;grid-column:2}#btn-left{grid-row:2;grid-column:1}#btn-right{grid-row:2;grid-column:3}#btn-down{grid-row:3;grid-column:2}#btn-shoot{width:70px;height:70px;font-size:1.8rem;background:rgba(255,165,0,.6);border-color:var(--color-primary);color:#fff;align-self:center;pointer-events:auto}#btn-shoot:hover:not(:disabled){background:rgba(255,165,0,.8);box-shadow:0 3px 10px rgba(255,165,0,.5)}
+
+         /* --- Summit (UPDATED) --- */
+         #section-summit{justify-content:space-around}
+         #summit-avatar-container{width:150px;height:180px;margin-bottom:1rem;display:flex;justify-content:center;align-items:flex-end}
+         #summit-avatar-preview{
+             width:120px;
+             height:120px;
+             position:relative;
+             overflow:hidden;
+             /* This animation will now apply to ALL shapes */
+             animation:bounceJoy 1.5s infinite ease-in-out;
+             transform-origin:bottom center;
+             /* Base styles (applied before shape class) */
+             border-radius: 50%; /* Default to circle if no shape class somehow applies */
+             border: 3px solid var(--color-accent); /* Default border, color will be overridden by JS */
+             background-color: var(--color-primary); /* Default color, will be overridden by JS */
+             box-shadow: 0 0 15px var(--color-accent); /* Default shadow, color will be overridden by JS */
+        }
+         #summit-avatar-preview .avatar-eyes,#summit-avatar-preview .avatar-mouth{position:absolute;width:100%;height:100%;top:0;left:0;background:none}
+         #summit-avatar-preview .avatar-eyes div,#summit-avatar-preview .avatar-mouth div{position:absolute;background-color:var(--color-background);border-radius:50%}
+         /* Summit Eye Styles */
+         #summit-avatar-preview .eyes-dots .eye-left,#summit-avatar-preview .eyes-dots .eye-right{width:8px;height:8px;top:40%}
+         #summit-avatar-preview .eyes-dots .eye-left{left:30%;transform:translateX(-50%)}
+         #summit-avatar-preview .eyes-dots .eye-right{right:30%;transform:translateX(50%)}
+         #summit-avatar-preview .eyes-lines .eye-left,#summit-avatar-preview .eyes-lines .eye-right{width:16px;height:4px;top:45%;border-radius:2px}
+         #summit-avatar-preview .eyes-lines .eye-left{left:30%;transform:translateX(-50%) rotate(-10deg)}
+         #summit-avatar-preview .eyes-lines .eye-right{right:30%;transform:translateX(50%) rotate(10deg)}
+         #summit-avatar-preview .eyes-googly .eye-left,#summit-avatar-preview .eyes-googly .eye-right{width:20px;height:20px;top:35%;background-color:#fff;border:1px solid var(--color-background);display:flex;justify-content:center;align-items:center}
+         #summit-avatar-preview .eyes-googly .pupil{position:static;width:6px;height:6px;background-color:var(--color-background);border-radius:50%}
+         #summit-avatar-preview .eyes-googly .eye-left{left:30%;transform:translateX(-50%)}
+         #summit-avatar-preview .eyes-googly .eye-right{right:30%;transform:translateX(50%)}
+         /* Summit Mouth Styles */
+         #summit-avatar-preview .mouth-smile .mouth-shape{width:30px;height:15px;bottom:25%;left:50%;transform:translateX(-50%);border-radius:0 0 15px 15px;border:3px solid var(--color-background);border-top:none}
+         #summit-avatar-preview .mouth-neutral .mouth-shape{width:25px;height:3px;bottom:30%;left:50%;transform:translateX(-50%);border-radius:1px}
+         #summit-avatar-preview .mouth-o .mouth-shape{width:15px;height:15px;bottom:25%;left:50%;transform:translateX(-50%);border-radius:50%}
+         /* Summit Bounce Animation */
+         @keyframes bounceJoy{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-25px) scale(1.05)}60%{transform:translateY(-10px)}}
+
+         #section-summit h1{font-size:clamp(2rem,5vw,3.5rem)}#section-summit .contact-info{margin-top:1.5rem;font-size:1.1rem}#section-summit .contact-info a{color:var(--color-secondary);text-decoration:none;transition:color .3s ease,text-shadow .3s ease}#section-summit .contact-info a:hover{color:var(--color-accent);text-shadow:0 0 8px var(--color-accent)}
+
+         /* --- Footer --- */
+         footer{text-align:center;padding:15px;font-size:.8rem;color:var(--color-text);opacity:.6;position:relative;z-index:5;width:100%}
+
+         /* --- Responsiveness --- */
+         @media(max-width:768px){h1{font-size:2rem}h2{font-size:1.5rem}p{font-size:.9rem}.adventure-button{padding:8px 18px;font-size:.9rem}.adventure-section{padding:30px 15px}#game-container{perspective:350px}.grid-floor{background-size:35px 35px}#player-avatar{width:30px;height:30px}#player-indicator{width:35px;height:7px}.obstacle{width:35px;height:35px}.collectible{width:22px;height:22px}#game-info{font-size:.85em;padding:6px 10px}#inspiration-meter-container{width:100px;height:12px}#milestone-display{font-size:.7em;padding:5px 8px;top:60px}#game-instructions h3{font-size:1.3rem}#game-instructions p{font-size:.85rem}#game-instructions ul{width:95%}#skip-game-btn{top:10px;right:10px;padding:4px 8px;font-size:.7rem}#game-controls{padding:10px 15px;gap:15px}#arrow-controls{grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px)}.game-control{width:50px;height:50px;font-size:1.5rem}#btn-shoot{width:60px;height:60px;font-size:1.5rem}#game-overlay h3{font-size:1.8rem}#game-overlay p{font-size:1rem}#game-overlay .button-container{gap:10px}#game-overlay .adventure-button{font-size:1rem;padding:10px 20px}.feedback-text{font-size:clamp(.8rem,1.8vw,1.1rem)}.feedback-milestone{font-size:clamp(1rem,2.2vw,1.3rem)}}
+         @media(max-width:480px){#game-container{perspective:300px;perspective-origin:50% 70%}#player-avatar{width:28px;height:28px}#player-indicator{width:30px;height:6px}.obstacle{width:30px;height:30px}.collectible{width:20px;height:20px}#game-top-ui{flex-direction:column;align-items:center;gap:5px}#game-info{text-align:center}#milestone-display{position:static;max-width:80%;text-align:center;margin-top:5px;transform:none}#game-controls{flex-direction:column;gap:15px;padding-bottom:10px;background:linear-gradient(to top,rgba(26,15,42,.95),transparent 95%)}#arrow-controls{grid-template-columns:repeat(3,45px);grid-template-rows:repeat(3,45px)}.game-control{width:45px;height:45px;font-size:1.3rem}#btn-shoot{width:55px;height:55px;font-size:1.4rem;margin-top:5px}}
+
+    </style>
+</head>
+<body>
+
+    <div id="adventure-world">
+
+        <!-- Sections 1-6 -->
+        <section id="section-intro" class="adventure-section active"> <img src="great-creation-studios-logo.png" alt="Great Creation Studios Logo" class="logo"> <h1>Welcome, Adventurer!</h1> <p>Your quest for incredible art & design begins! You hold a vision, a spark. Great Creation Studios is the partner to forge it into reality.</p> <button class="adventure-button" id="intro-start-btn">Begin Your Quest!</button> </section>
+        <section id="section-avatar-creator" class="adventure-section"> <h2>Shape Your Creative Essence</h2> <p>Every creator needs an avatar for their journey. Mold your unique spark below!</p> <div id="avatar-preview"><div class="avatar-eyes"></div><div class="avatar-mouth"></div></div> <div class="avatar-controls"> <div class="control-group"><h3>Shape</h3><button class="control-button selected" data-type="shape" data-value="circle">Circle</button><button class="control-button" data-type="shape" data-value="square">Square</button><button class="control-button" data-type="shape" data-value="blob">Blob</button></div> <div class="control-group"><h3>Color Spark</h3><button class="control-button selected" data-type="color" data-value="primary" style="background-color: var(--color-primary); color: var(--color-background)">Orange</button><button class="control-button" data-type="color" data-value="secondary" style="background-color: var(--color-secondary); color: var(--color-background)">Cyan</button><button class="control-button" data-type="color" data-value="accent" style="background-color: var(--color-accent); color: var(--color-background)">Pink</button></div> <div class="control-group"><h3>Eyes</h3><button class="control-button selected" data-type="eyes" data-value="dots">Dots</button><button class="control-button" data-type="eyes" data-value="lines">Lines</button><button class="control-button" data-type="eyes" data-value="googly">Googly</button></div> <div class="control-group"><h3>Mouth</h3><button class="control-button selected" data-type="mouth" data-value="smile">Smile</button><button class="control-button" data-type="mouth" data-value="neutral">Neutral</button><button class="control-button" data-type="mouth" data-value="o">O-Mouth</button></div> </div> <button class="adventure-button button-secondary" style="margin-top: 1.5rem;" id="confirm-avatar-btn">Confirm Essence</button> </section>
+        <section id="section-crossroads" class="adventure-section"> <h2>The Crossroads of Medium</h2> <p>Your essence is formed! Now, choose where your vision initially leans: the precise realm of Pixels or the tangible world of Pigment?</p> <div class="choice-container"> <button class="adventure-button" id="crossroads-digital-btn">Digital Domain</button> <button class="adventure-button button-tertiary" id="crossroads-traditional-btn">Traditional Territory</button> </div> <p style="margin-top: 1.5rem; font-size: 0.9em; opacity: 0.8;">(The best creations often blend both! You can always explore or proceed directly to the Forge.)</p> <button class="adventure-button button-secondary" id="crossroads-forge-btn">Enter the Idea Forge</button> </section>
+        <section id="section-digital-realm" class="adventure-section"><h2>The Dazzling Digital Domain</h2> <div class="realm-description"> <p>Here, imagination becomes interactive...</p> <ul><li>Websites that Captivate & Convert</li><li>Interfaces Users Love (UI/UX)</li><li>Illustrations that Pop</li><li>Animations that Tell Your Story</li><li>Unforgettable Digital Brands</li><li>And your next big digital idea!</li></ul> <p>Fluent in the languages of light, code, and user experience.</p> </div> <button class="adventure-button" id="digital-forge-btn">My Idea is Digital!</button> <button class="adventure-button button-secondary" id="digital-crossroads-btn">Back to Crossroads</button> </section>
+        <section id="section-traditional-realm" class="adventure-section"> <h2>The Tangible Traditional Territory</h2> <div class="realm-description"> <p>In this realm, artistry takes physical form...</p> <ul><li>Paintings with Soul (Canvas & Murals)</li><li>Sculptures that Command Space</li><li>Printmaking & Fine Art Editions</li><li>Illustrations with Classic Charm</li><li>Unique Mixed Media Creations</li><li>Bringing tangible beauty to life!</li></ul> <p>Masters of pigment, texture, and timeless craft.</p> </div> <button class="adventure-button button-tertiary" id="traditional-forge-btn">My Vision is Physical!</button> <button class="adventure-button button-secondary" id="traditional-crossroads-btn">Back to Crossroads</button> </section>
+        <section id="section-idea-forge" class="adventure-section"> <div class="forge-icon">💡</div> <h2>The Great Idea Forge</h2> <p>Here, your concept meets our craft! We'll refine your spark and prepare it for the final stage: traversing the Creative Conduit to reach the Studio Core.</p> <p>This fun journey helps gather inspiration. Aim for <strong id="forge-goal"></strong> points!</p> <button class="adventure-button" id="start-game-btn">Enter the Creative Conduit!</button> <button class="adventure-button button-secondary" id="forge-crossroads-btn">Wait, More Thought Needed...</button> </section>
+
+        <!-- Section 7: The Game - Creative Conduit -->
+        <section id="section-game" class="adventure-section">
+            <div id="game-container">
+                <div id="game-background"><div class="grid-floor"></div><div id="lane-guide-left" class="lane-guide"></div><div id="lane-guide-right" class="lane-guide"></div><div id="particles-container"></div></div>
+                <div id="elements-container"></div>
+                <div id="feedback-container"></div>
+                <div id="player-avatar"><div id="player-indicator"></div></div>
+                <div id="focus-beam"></div>
+            </div>
+            <div id="game-ui-layer">
+                 <div id="game-top-ui">
+                     <div id="game-info">
+                         <div>Score: <span id="score-display">0</span></div>
+                         <div>Goal: <span id="win-score-display"></span></div>
+                         <div id="inspiration-meter-container"><div id="inspiration-meter-fill"></div></div>
+                         <div id="message-display" style="margin-top: 5px; min-height: 1.2em;">Loading...</div>
+                     </div>
+                     <button id="skip-game-btn" title="Skip to Summit">Skip ▶▶</button>
+                     <div id="milestone-display">Milestone!</div>
+                 </div>
+                 <div id="game-instructions" class="hidden">
+                     <h3>Creative Conduit</h3><p>Guide your <strong style="color:var(--color-primary)">Creative Essence</strong>!</p>
+                     <ul><li>Use <strong>Arrows/WASD</strong> or <strong style="color:var(--color-secondary)">Buttons</strong> to move.</li><li>Collect <strong style="color:var(--color-accent)">Inspiration</strong> (Pink) & <strong style="color:var(--color-info-orb)">Info Orbs</strong> (White).</li><li>Avoid <strong style="color:var(--color-primary)">Creative Blocks</strong>.</li><li>Use <strong style="color:#fff">Spacebar /</strong> 💥 to fire a <strong style="color:var(--color-secondary)">Focus Beam</strong> & disrupt <strong style="color:var(--color-error)">breakable</strong> blocks!</li><li>Grab Powerups! (Shield/Boost)</li><li>Reach <strong id="instruction-goal"></strong> points!</li></ul>
+                     <button class="adventure-button" id="start-conduit-btn">Begin!</button>
+                 </div>
+                 <div id="game-overlay">
+                     <h3></h3> <p></p>
+                     <div class="button-container">
+                        <button class="adventure-button" id="overlay-restart-btn">Retry Conduit</button>
+                        <button class="adventure-button button-secondary" id="overlay-summit-btn">Proceed to Summit</button>
+                        <button class="adventure-button button-tertiary" id="overlay-resume-btn">Resume</button>
+                    </div>
+                 </div>
+                 <div id="game-controls">
+                     <div id="arrow-controls">
+                         <button class="adventure-button control-button game-control" id="btn-up" aria-label="Move Up" disabled>▲</button>
+                         <button class="adventure-button control-button game-control" id="btn-left" aria-label="Move Left" disabled>◀</button>
+                         <button class="adventure-button control-button game-control" id="btn-right" aria-label="Move Right" disabled>▶</button>
+                         <button class="adventure-button control-button game-control" id="btn-down" aria-label="Move Down" disabled>▼</button>
+                     </div>
+                     <button class="adventure-button control-button game-control" id="btn-shoot" aria-label="Focus Energy" disabled>💥</button>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Summit (Contact) -->
+        <section id="section-summit" class="adventure-section">
+             <div id="summit-avatar-container"> <!-- Container for avatar -->
+                 <div id="summit-avatar-preview"><div class="avatar-eyes"></div><div class="avatar-mouth"></div></div>
+             </div>
+             <h1>Studio Core Accessed!</h1> <p>You've masterfully navigated the Conduit! Your creative vision has reached the heart of Great Creation Studios. We felt the ripples of your journey.</p> <p>Now, let's connect and discuss how to bring your fully-formed idea into the tangible (or digital) world. We're excited to collaborate!</p> <div class="contact-info"> <p><strong>Email:</strong> <a href="mailto:hello@greatcreationstudios.com?subject=Creative%20Conduit%20Completed!">hello@greatcreationstudios.com</a></p> <p><strong>Phone:</strong> <a href="tel:+1234567890">(123) 456-7890</a> </p> <p>(Replace with actual contact info!)</p> </div> <div style="margin-top: 1.5rem;"> <button class="adventure-button" id="summit-restart-btn">Embark on a New Quest?</button> <a href="mailto:hello@greatcreationstudios.com?subject=Creative%20Conduit%20Completed!" class="adventure-button button-secondary">Transmit Final Vision (Email)!</a> </div>
+        </section>
+
+    </div> <!-- End #adventure-world -->
+
+    <footer style="background-color: var(--color-background); z-index:5;"> © <span id="current-year"></span> Great Creation Studios. Creation Awaits. </footer>
+
+    <script>
+        // --- Constants ---
+        // (Keep previous constants)
+        const WIN_SCORE=300;const PLAYER_Z=0;const PLAYER_X_SPEED=350;const PLAYER_Y_SPEED=300;const PLAYER_LERP_FACTOR=.16;const START_Z=-2200;const INTERACT_Z_START=PLAYER_Z+70;const INTERACT_Z_END=PLAYER_Z-40;const REMOVE_Z=PLAYER_Z+300;const INITIAL_SPEED=110;const MAX_SPEED=480;const SPEED_INCREASE_SCORE_FACTOR=.6;const INITIAL_SPAWN_INTERVAL=550;const MIN_SPAWN_INTERVAL=120;const POWERUP_CHANCE=.08;const SHIELD_DURATION=8000;const BOOST_DURATION=5000;const BOOST_MULTIPLIER=1.7;const BEAM_DURATION=120;const BEAM_COOLDOWN=150;const MAX_PARTICLES=60;const MAX_TUNNEL_SEGMENTS=8;const MILESTONES={50:"Flowing...",125:"Focusing...",200:"Synergy!",275:"Core!"};const OBSTACLE_HIT_PENALTY=0;const BREAKABLE_OBSTACLE_SCORE=5;const INFO_ORB_CHANCE=.15;const PLAYER_BOUNDS_PADDING=10;const BEAM_HIT_WIDTH=60;
+        const INFO_SNIPPETS=["Digital Art","Web Design","Painting","Sculpture","Branding","UI/UX Design","Animation","Collaboration","Ideas to Reality","All Media Types","Your Vision","GCS Creates"];
+
+        // --- DOM References ---
+        // (Keep previous references)
+        const body=document.body;const sections=document.querySelectorAll('.adventure-section');const avatarPreview=document.getElementById('avatar-preview');const avatarEyesContainer=avatarPreview.querySelector('.avatar-eyes');const avatarMouthContainer=avatarPreview.querySelector('.avatar-mouth');const controlButtons=document.querySelectorAll('.control-button:not(.game-control)');const yearSpan=document.getElementById('current-year');const gameSection=document.getElementById('section-game');const gameUiLayer=document.getElementById('game-ui-layer');const gameContainer=document.getElementById('game-container');const gameBackground=document.getElementById('game-background');const particlesContainer=document.getElementById('particles-container');const elementsContainer=document.getElementById('elements-container');const playerAvatarElement=document.getElementById('player-avatar');const playerIndicator=document.getElementById('player-indicator');const focusBeam=document.getElementById('focus-beam');const gameInfo=document.getElementById('game-info');const scoreDisplay=document.getElementById('score-display');const winScoreDisplay=document.getElementById('win-score-display');const messageDisplay=document.getElementById('message-display');const inspirationMeterFill=document.getElementById('inspiration-meter-fill');const milestoneDisplay=document.getElementById('milestone-display');const skipGameBtn=document.getElementById('skip-game-btn');const gameInstructions=document.getElementById('game-instructions');const startConduitBtn=document.getElementById('start-conduit-btn');const btnLeft=document.getElementById('btn-left');const btnRight=document.getElementById('btn-right');const btnUp=document.getElementById('btn-up');const btnDown=document.getElementById('btn-down');const btnShoot=document.getElementById('btn-shoot');const gameOverlay=document.getElementById('game-overlay');const overlayTitle=gameOverlay.querySelector('h3');const overlayMessage=gameOverlay.querySelector('p');const overlayRestartBtn=document.getElementById('overlay-restart-btn');const overlaySummitBtn=document.getElementById('overlay-summit-btn');const overlayResumeBtn=document.getElementById('overlay-resume-btn');const introStartBtn=document.getElementById('intro-start-btn');const confirmAvatarBtn=document.getElementById('confirm-avatar-btn');const crossroadsDigitalBtn=document.getElementById('crossroads-digital-btn');const crossroadsTraditionalBtn=document.getElementById('crossroads-traditional-btn');const crossroadsForgeBtn=document.getElementById('crossroads-forge-btn');const digitalForgeBtn=document.getElementById('digital-forge-btn');const digitalCrossroadsBtn=document.getElementById('digital-crossroads-btn');const traditionalForgeBtn=document.getElementById('traditional-forge-btn');const traditionalCrossroadsBtn=document.getElementById('traditional-crossroads-btn');const startGameBtn=document.getElementById('start-game-btn');const forgeCrossroadsBtn=document.getElementById('forge-crossroads-btn');const summitRestartBtn=document.getElementById('summit-restart-btn');const instructionGoal=document.getElementById('instruction-goal');const feedbackContainer=document.getElementById('feedback-container');const forgeGoal=document.getElementById('forge-goal');const summitAvatarContainer=document.getElementById('summit-avatar-container');
+
+        // --- Game State ---
+        // (Keep previous state variables)
+        let gameRunning=false;let isPaused=false;let score=0;let currentSpeed=INITIAL_SPEED;let currentSpawnInterval=INITIAL_SPAWN_INTERVAL;let gameElements=[];let backgroundElements={particles:[],tunnelSegments:[]};let gameLoopId=null;let avatarConfig={};let playerTargetX=0;let playerCurrentX=0;let playerTargetY=0;let playerCurrentY=0;let moveDirectionX=0;let moveDirectionY=0;let lastTimestamp=0;let spawnTimer=0;let isShielded=false;let shieldTimeoutId=null;let isBoosting=false;let boostTimeoutId=null;let containerWidth=0;let containerHeight=0;let lastBeamTime=0;let lastMilestoneAchieved=0;let canShoot=true;let activeKeys={};
+        let messageTimeoutId = null; // Added for temporary message timeout tracking
+
+        // --- Initialization ---
+        function initializeAdventure() { console.log("Initializing Adventure...");yearSpan.textContent=new Date().getFullYear();winScoreDisplay.textContent=WIN_SCORE;instructionGoal.textContent=WIN_SCORE;if(forgeGoal)forgeGoal.textContent=WIN_SCORE;sections.forEach((s,i)=>{s.classList.toggle('active',i===0);s.style.visibility=i===0?'visible':'hidden';s.style.position='absolute';s.style.opacity=i===0?1:0;s.style.transform=i===0?'translateY(0)':'translateY(30px)';});const aS=document.querySelector('.adventure-section.active');if(aS)aS.style.position='relative';updateAvatarVisuals(getInitialAvatarConfig());bindControlEvents();bindNavigationEvents();bindGameControls();document.removeEventListener('keydown',handleKeyDown);document.removeEventListener('keyup',handleKeyUp);document.addEventListener('keydown',handleKeyDown);document.addEventListener('keyup',handleKeyUp);if(particlesContainer&&gameBackground){backgroundElements.particles=[];backgroundElements.tunnelSegments=[];for(let i=0;i<MAX_PARTICLES;i++)createPooledElement(backgroundElements.particles,'particle',particlesContainer);for(let i=0;i<MAX_TUNNEL_SEGMENTS;i++)createPooledElement(backgroundElements.tunnelSegments,'tunnel-segment',gameBackground);}else{console.error("Missing background containers!");}gameInstructions.classList.add('hidden');gameOverlay.classList.remove('visible');resetGame();console.log("Adventure Initialized.");}
+        function createPooledElement(poolArray, className, parent) { const e=document.createElement('div');e.classList.add(className);e.style.opacity='0';parent.appendChild(e);poolArray.push({element:e,active:false}); }
+
+        // --- Avatar Config & Visuals ---
+        function getInitialAvatarConfig(){const c={};document.querySelectorAll('#section-avatar-creator .control-button.selected').forEach(b=>c[b.dataset.type]=b.dataset.value);return c;}
+        function storeAvatarConfig(){avatarConfig={};document.querySelectorAll('#section-avatar-creator .control-button').forEach(b=>{if(b.classList.contains('selected'))avatarConfig[b.dataset.type]=b.dataset.value;});console.log("Avatar Stored:",avatarConfig);}
+        function updateAvatarVisuals(config){const p=avatarPreview;if(!p||!config)return;p.classList.remove('shape-circle','shape-square','shape-blob');p.classList.add(`shape-${config.shape||'circle'}`);p.style.animation=config.shape==='blob'?'blobMorph 8s ease-in-out infinite both':'none';const cV=`var(--color-${config.color||'primary'})`;const aV=`var(--color-${config.color==='primary'?'accent':config.color==='secondary'?'primary':'secondary'})`;p.style.backgroundColor=cV;p.style.borderColor=aV;p.style.boxShadow=`0 0 20px ${aV}`;if(avatarEyesContainer){avatarEyesContainer.className=`avatar-eyes eyes-${config.eyes||'dots'}`;if(config.eyes==='googly'&&!avatarEyesContainer.querySelector('.pupil')){avatarEyesContainer.innerHTML=`<div class="eye-left"><div class="pupil"></div></div><div class="eye-right"><div class="pupil"></div></div>`;}else if(config.eyes!=='googly'){avatarEyesContainer.innerHTML=`<div class="eye-left"></div><div class="eye-right"></div>`;}}if(avatarMouthContainer){avatarMouthContainer.className=`avatar-mouth mouth-${config.mouth||'smile'}`;avatarMouthContainer.innerHTML=`<div class="mouth-shape"></div>`;}}
+        function handleControlClick(event){const b=event.target.closest('.control-button');if(!b||!b.dataset.type||b.closest('#game-controls'))return;const t=b.dataset.type;const v=b.dataset.value;document.querySelectorAll(`#section-avatar-creator .control-button[data-type="${t}"]`).forEach(btn=>btn.classList.remove('selected'));b.classList.add('selected');updateAvatarVisuals(getInitialAvatarConfig());}
+        function bindControlEvents(){const cC=document.querySelector('.avatar-controls');if(cC)cC.addEventListener('click',handleControlClick);}
+
+        // --- Summit Avatar Display (UPDATED) ---
+        function displaySummitAvatar(config) {
+            if (!summitAvatarContainer) return;
+            // Clear previous avatar if any, ensures fresh build
+            summitAvatarContainer.innerHTML = `<div id="summit-avatar-preview"><div class="avatar-eyes"></div><div class="avatar-mouth"></div></div>`;
+            const p = summitAvatarContainer.querySelector('#summit-avatar-preview');
+            const e = p.querySelector('.avatar-eyes');
+            const m = p.querySelector('.avatar-mouth');
+
+            // Use initial config if current is empty (fallback)
+            if (!config || Object.keys(config).length === 0) {
+                config = getInitialAvatarConfig();
+            }
+
+            // Remove any previous shape classes before adding the new one
+            p.classList.remove('shape-circle', 'shape-square', 'shape-blob');
+            p.classList.add(`shape-${config.shape || 'circle'}`); // Add the correct shape class
+
+            // Apply color and shadow based on config
+            const cV = `var(--color-${config.color || 'primary'})`;
+            const aV = `var(--color-${config.color === 'primary' ? 'accent' : config.color === 'secondary' ? 'primary' : 'secondary'})`;
+            p.style.backgroundColor = cV;
+            p.style.border = `3px solid ${aV}`; // Use the calculated border color
+            p.style.boxShadow = `0 0 15px ${aV}`; // Use the calculated shadow color
+
+            // Set the bounce animation (it's already set in CSS, but this ensures it if CSS fails)
+            // This base animation will now apply to all shapes
+            p.style.animation = 'bounceJoy 1.5s infinite ease-in-out';
+
+            // Apply eyes based on config
+            if (e) {
+                e.className = `avatar-eyes eyes-${config.eyes || 'dots'}`;
+                if (config.eyes === 'googly') {
+                    e.innerHTML = `<div class="eye-left"><div class="pupil"></div></div><div class="eye-right"><div class="pupil"></div></div>`;
+                } else {
+                    e.innerHTML = `<div class="eye-left"></div><div class="eye-right"></div>`;
+                }
+            }
+
+            // Apply mouth based on config
+            if (m) {
+                m.className = `avatar-mouth mouth-${config.mouth || 'smile'}`;
+                m.innerHTML = `<div class="mouth-shape"></div>`;
+            }
+
+            // REMOVED: The line that disabled animation for blob shape
+            // if (config.shape === 'blob') p.style.animation = 'none';
+        }
+
+        // --- Section Navigation ---
+        function showSection(sectionId) { const iEG=sectionId==='section-game';const iLG=gameSection.classList.contains('active')&&!iEG;let cA=document.querySelector('.adventure-section.active');console.log(`Nav to: ${sectionId}. Cur: ${cA?cA.id:'none'}`);if(iLG&&(gameRunning||isPaused)){console.log("Leaving game, stopping.");stopGame("Exited Conduit",`Score: ${score}`,false);}else if(!iEG&&!isPaused){hideGameOver();}body.classList.toggle('game-mode-active',iEG);sections.forEach(s=>{const iAc=s.id===sectionId;s.style.display='flex';s.style.position=iAc?'relative':'absolute';s.style.zIndex=iAc?10:0;if(iAc){s.style.visibility='visible';s.style.opacity=1;s.style.transform='translateY(0)';s.classList.add('active');if(sectionId==='section-summit'){console.log("Displaying summit avatar:",avatarConfig);displaySummitAvatar(avatarConfig);}}else{s.style.opacity=0;s.style.transform='translateY(30px)';s.classList.remove('active');setTimeout(()=>{if(!s.classList.contains('active'))s.style.visibility='hidden';},600);}if(s.id==='section-game'){s.style.position=iAc?'fixed':'absolute';}else if(body.classList.contains('game-mode-active')){s.style.display='none';}});if(iEG){resetGame();gameInstructions.classList.remove('hidden');console.log("Entered Game Section - Instructions Shown");}}
+        function bindNavigationEvents() { console.log("Binding navigation events..."); introStartBtn.onclick=()=>showSection('section-avatar-creator'); confirmAvatarBtn.onclick=()=>{storeAvatarConfig();showSection('section-crossroads');}; crossroadsDigitalBtn.onclick=()=>showSection('section-digital-realm'); crossroadsTraditionalBtn.onclick=()=>showSection('section-traditional-realm'); crossroadsForgeBtn.onclick=()=>showSection('section-idea-forge'); digitalForgeBtn.onclick=()=>showSection('section-idea-forge'); digitalCrossroadsBtn.onclick=()=>showSection('section-crossroads'); traditionalForgeBtn.onclick=()=>showSection('section-idea-forge'); traditionalCrossroadsBtn.onclick=()=>showSection('section-crossroads'); forgeCrossroadsBtn.onclick=()=>showSection('section-crossroads'); startGameBtn.onclick=()=>showSection('section-game'); summitRestartBtn.onclick=()=>{showSection('section-intro');}; startConduitBtn.onclick=()=>{console.log("Start Conduit Button Clicked!");gameInstructions.classList.add('hidden');startGame();}; skipGameBtn.onclick=()=>{if(gameSection.classList.contains('active')){console.log("Skip button clicked!");forceWinGame();}}; console.log("Navigation events bound."); }
+
+
+        // ================= Game Logic ========================
+
+        function setupPlayerAvatarForGame() { console.log("Setting up player:",avatarConfig);playerAvatarElement.className='';playerAvatarElement.id='player-avatar';playerAvatarElement.classList.add('shape-'+(avatarConfig.shape||'circle'));const cV=`var(--color-${avatarConfig.color||'primary'})`;playerAvatarElement.style.backgroundColor=cV;playerAvatarElement.style.color=cV;playerAvatarElement.classList.remove('hit','shielded','boosting','win-state');playerCurrentX=0;playerTargetX=0;containerHeight=gameContainer.offsetHeight||window.innerHeight;playerTargetY=-(containerHeight*0.35);playerCurrentY=playerTargetY;moveDirectionX=0;moveDirectionY=0;updatePlayerPosition(true);console.log("Player setup done at Y:",playerCurrentY);}
+        function resetGame() { console.log("Full Game Reset...");if(gameLoopId)cancelAnimationFrame(gameLoopId);gameLoopId=null;gameRunning=false;isPaused=false;score=0;currentSpeed=INITIAL_SPEED;currentSpawnInterval=INITIAL_SPAWN_INTERVAL;lastMilestoneAchieved=0;canShoot=true;lastBeamTime=0;clearTimeout(shieldTimeoutId);clearTimeout(boostTimeoutId);isShielded=false;isBoosting=false;playerAvatarElement.classList.remove('shielded','boosting','hit','win-state');gameContainer.classList.remove('win-state');milestoneDisplay.classList.remove('visible');elementsContainer.innerHTML='';feedbackContainer.innerHTML='';focusBeam.classList.remove('active');focusBeam.style.transform='translateX(-50%) translateY(100%) translateZ(0) scaleY(0)';gameElements=[];backgroundElements.particles.forEach(p=>{p.active=false;p.element.style.opacity=0;p.element.style.animation='none';});backgroundElements.tunnelSegments.forEach(t=>{t.active=false;t.element.classList.remove('visible');t.element.style.animation='none';});scoreDisplay.textContent=score;messageDisplay.textContent="Get Ready!";updateInspirationMeter();hideGameOver();const gCs=[btnLeft,btnRight,btnUp,btnDown,btnShoot];gCs.forEach(b=>b.disabled=true);activeKeys={};updateButtonActiveStates();document.documentElement.style.setProperty('--game-speed-factor',1);containerWidth=gameContainer.offsetWidth||window.innerWidth;containerHeight=gameContainer.offsetHeight||window.innerHeight;setupPlayerAvatarForGame();console.log("Game reset finished.");}
+        function startGame() { if(gameRunning)return;if(isPaused){resumeGame();return;}console.log("Starting new game...");if(Object.keys(avatarConfig).length===0)storeAvatarConfig();setupPlayerAvatarForGame();requestAnimationFrame(()=>{messageDisplay.textContent="Navigate!";gameRunning=true;isPaused=false;btnLeft.disabled=false;btnRight.disabled=false;btnUp.disabled=false;btnDown.disabled=false;btnShoot.disabled=false;containerWidth=gameContainer.offsetWidth;containerHeight=gameContainer.offsetHeight;lastTimestamp=performance.now();spawnTimer=0;if(gameLoopId)cancelAnimationFrame(gameLoopId);gameLoopId=requestAnimationFrame(gameLoop);hideGameOver();console.log("Game started, loop requested.");});}
+        function resumeGame() { if(!isPaused||gameRunning)return;console.log("Resuming game...");hideGameOver();isPaused=false;gameRunning=true;btnLeft.disabled=false;btnRight.disabled=false;btnUp.disabled=false;btnDown.disabled=false;btnShoot.disabled=false;lastTimestamp=performance.now();if(gameLoopId)cancelAnimationFrame(gameLoopId);gameLoopId=requestAnimationFrame(gameLoop);displayTemporaryMessage("Resumed!",1000);console.log("Game resumed, loop requested.");}
+
+        function stopGame(title, message, isGameOver = false) {
+             // Stop loop FIRST
+             if (gameRunning && gameLoopId) {
+                 cancelAnimationFrame(gameLoopId);
+                 gameLoopId = null;
+             }
+             gameRunning = false; // Ensure loop doesn't restart
+             isPaused = true; // Treat stopped state as paused for overlay logic
+
+             console.log("Stopping Game:", title, "IsGameOver:", isGameOver);
+
+             // Disable controls
+             const gameCtrls = [btnLeft, btnRight, btnUp, btnDown, btnShoot];
+             gameCtrls.forEach(btn => btn.disabled = true);
+             activeKeys = {}; updateButtonActiveStates();
+
+             // Configure and show overlay
+             overlayTitle.textContent = title;
+             overlayMessage.textContent = message;
+             overlayRestartBtn.style.display = isGameOver ? 'inline-block' : 'none'; // Retry only on Game Over
+             overlaySummitBtn.style.display = 'inline-block'; // Always show Summit
+             overlayResumeBtn.style.display = (title.includes("Paused") && !isGameOver) ? 'inline-block' : 'none'; // Resume only if paused deliberately
+
+             gameOverlay.classList.toggle('win-state', !isGameOver && !title.includes("Paused")); // Add win class only if NOT game over and NOT paused
+             gameOverlay.classList.add('visible');
+         }
+
+        function hideGameOver() { gameOverlay.classList.remove('visible'); gameOverlay.classList.remove('win-state'); }
+        function updatePlayerPosition(immediate = false) { if(!containerWidth||!containerHeight){containerWidth=gameContainer.offsetWidth;containerHeight=gameContainer.offsetHeight;if(!containerWidth||!containerHeight)return;}const hW=containerWidth/2;const hH=containerHeight/2;const pHW=playerAvatarElement.offsetWidth/2;const pHH=playerAvatarElement.offsetHeight/2;const mX=hW-pHW-PLAYER_BOUNDS_PADDING;const mY=hH-pHH-PLAYER_BOUNDS_PADDING;const minY=-(hH-pHH-(containerHeight*.15));playerTargetX=Math.max(-mX,Math.min(mX,playerTargetX));playerTargetY=Math.max(minY,Math.min(mY,playerTargetY));const lF=PLAYER_LERP_FACTOR;if(immediate){playerCurrentX=playerTargetX;playerCurrentY=playerTargetY;}else{playerCurrentX+=(playerTargetX-playerCurrentX)*lF;playerCurrentY+=(playerTargetY-playerCurrentY)*lF;if(Math.abs(playerTargetX-playerCurrentX)<.5)playerCurrentX=playerTargetX;if(Math.abs(playerTargetY-playerCurrentY)<.5)playerCurrentY=playerTargetY;}const transform=`translate(-50%,-50%) translateX(${playerCurrentX}px) translateY(${-playerCurrentY}px) translateZ(${PLAYER_Z}px)`;playerAvatarElement.style.transform=transform;playerIndicator.style.transform=`translateX(-50%) translateY(0) translateZ(${PLAYER_Z}px) rotateX(80deg) scaleY(0.3)`;playerAvatarElement.style.setProperty('--current-transform',transform);}
+
+        // --- Input Handling ---
+        function updateButtonActiveStates(){btnLeft.classList.toggle('active-key',activeKeys['arrowleft']||activeKeys['a']);btnRight.classList.toggle('active-key',activeKeys['arrowright']||activeKeys['d']);btnUp.classList.toggle('active-key',activeKeys['arrowup']||activeKeys['w']);btnDown.classList.toggle('active-key',activeKeys['arrowdown']||activeKeys['s']);btnShoot.classList.toggle('active-key',activeKeys[' ']);}
+        function handleKeyDown(e){const key=e.key.toLowerCase();const oV=gameOverlay.classList.contains('visible');const iV=!gameInstructions.classList.contains('hidden');const gA=gameSection.classList.contains('active');if(!gA)return;if(oV){if(key==='escape'&&overlayResumeBtn.style.display!=='none'){resumeGame();e.preventDefault();}else if((key==='enter'||key===' ')&&document.activeElement===overlayRestartBtn&&overlayRestartBtn.style.display!=='none'){overlayRestartBtn.click();e.preventDefault();}else if((key==='enter'||key===' ')&&document.activeElement===overlaySummitBtn){overlaySummitBtn.click();e.preventDefault();}return;}if(iV){if(key==='enter'||key===' '){startConduitBtn.click();e.preventDefault();}return;}if(gameRunning&&!activeKeys[key]){let handled=true;activeKeys[key]=true;switch(key){case'arrowleft':case'a':moveDirectionX=-1;break;case'arrowright':case'd':moveDirectionX=1;break;case'arrowup':case'w':moveDirectionY=1;break;case'arrowdown':case's':moveDirectionY=-1;break;case' ':activateFocusBeam();break;case'escape':stopGame("Conduit Paused",`Score: ${score}. Press Esc or Resume.`,false);break; /* isGameOver=false for pause */
+        case 'backspace': forceWinGame(); handled = true; break; default:handled=false;activeKeys[key]=false;}if(handled){e.preventDefault();updateButtonActiveStates();}}}
+        function handleKeyUp(e){const key=e.key.toLowerCase();if(!gameSection.classList.contains('active')||!activeKeys[key])return;activeKeys[key]=false;switch(key){case'arrowleft':case'a':if(moveDirectionX===-1)moveDirectionX=0;break;case'arrowright':case'd':if(moveDirectionX===1)moveDirectionX=0;break;case'arrowup':case'w':if(moveDirectionY===1)moveDirectionY=0;break;case'arrowdown':case's':if(moveDirectionY===-1)moveDirectionY=0;break;}updateButtonActiveStates();}
+
+        function bindGameControls() { function hPD(d,a,b){if(gameRunning){if(a==='x')moveDirectionX=d;else moveDirectionY=d;b.classList.add('active-key');}}function hPU(d,a,b){if(a==='x'&&moveDirectionX===d)moveDirectionX=0;else if(a==='y'&&moveDirectionY===d)moveDirectionY=0;b.classList.remove('active-key');}btnLeft.onpointerdown=(e)=>{hPD(-1,'x',btnLeft);e.target.releasePointerCapture(e.pointerId);}; btnLeft.onpointerup=()=>hPU(-1,'x',btnLeft); btnLeft.onpointerleave=()=>hPU(-1,'x',btnLeft);btnRight.onpointerdown=(e)=>{hPD(1,'x',btnRight);e.target.releasePointerCapture(e.pointerId);}; btnRight.onpointerup=()=>hPU(1,'x',btnRight); btnRight.onpointerleave=()=>hPU(1,'x',btnRight);btnUp.onpointerdown=(e)=>{hPD(1,'y',btnUp);e.target.releasePointerCapture(e.pointerId);}; btnUp.onpointerup=()=>hPU(1,'y',btnUp); btnUp.onpointerleave=()=>hPU(1,'y',btnUp);btnDown.onpointerdown=(e)=>{hPD(-1,'y',btnDown);e.target.releasePointerCapture(e.pointerId);}; btnDown.onpointerup=()=>hPU(-1,'y',btnDown); btnDown.onpointerleave=()=>hPU(-1,'y',btnDown);btnShoot.onpointerdown=(e)=>{if(gameRunning){activateFocusBeam();btnShoot.classList.add('active-key');e.target.releasePointerCapture(e.pointerId);}};btnShoot.onpointerup=btnShoot.onpointerleave=()=>{btnShoot.classList.remove('active-key');};
+            overlayRestartBtn.onclick = () => { console.log("Retry clicked - going to Idea Forge"); hideGameOver(); showSection('section-idea-forge'); }; // Corrected Retry Logic
+            overlaySummitBtn.onclick=()=>{hideGameOver();showSection('section-summit');};overlayResumeBtn.onclick=resumeGame;document.querySelectorAll('.game-control').forEach(b=>{b.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});b.addEventListener('pointerdown',(e)=>{b.releasePointerCapture(e.pointerId);});});console.log("Game controls bound.");}
+
+
+        // --- Focus Beam Logic ---
+        let beamTimeoutId=null;function activateFocusBeam(){const now=performance.now();if(!gameRunning||isPaused||now<lastBeamTime+BEAM_COOLDOWN)return;lastBeamTime=now;console.log("Activating Beam");clearTimeout(beamTimeoutId);focusBeam.classList.remove('active');const bYOff=-playerAvatarElement.offsetHeight*.8;const bZ=PLAYER_Z-2;const bX=playerCurrentX;const bY=-playerCurrentY+bYOff;focusBeam.style.transform=`translateX(${bX}px) translateY(${bY}px) translateZ(${bZ}px) scaleY(0)`;focusBeam.style.setProperty('--beam-x',`${bX}px`);focusBeam.style.setProperty('--beam-y',`${bY}px`);focusBeam.style.setProperty('--beam-z',`${bZ}px`);requestAnimationFrame(()=>{focusBeam.style.transform=`translateX(${bX}px) translateY(${bY}px) translateZ(${bZ}px) scaleY(20)`;focusBeam.classList.add('active');});checkBeamHits(bX);beamTimeoutId=setTimeout(()=>{focusBeam.classList.remove('active');focusBeam.style.transform=`translateX(${bX}px) translateY(${bY}px) translateZ(${bZ}px) scaleY(0)`;},BEAM_DURATION);}
+        function checkBeamHits(playerCSSX){console.log("Checking Beam Hits around X:",playerCSSX.toFixed(1));const pR=playerAvatarElement.getBoundingClientRect();for(let i=gameElements.length-1;i>=0;i--){const item=gameElements[i];if(!item.alive||item.type!=='obstacle'||!item.isBreakable)continue;if(item.z<INTERACT_Z_END||item.z>INTERACT_Z_START+150)continue;const eR=item.element.getBoundingClientRect();if(eR.width===0)continue;const eSCX=eR.left+eR.width/2;const pSCX=pR.left+pR.width/2;if(Math.abs(eSCX-pSCX)<(BEAM_HIT_WIDTH/2+eR.width/2)){console.log(`Beam HIT breakable obstacle at Z: ${item.z.toFixed(1)}`);score+=BREAKABLE_OBSTACLE_SCORE;showFeedbackText(`+${BREAKABLE_OBSTACLE_SCORE}`,eR,'feedback-score');item.alive=false;item.element.classList.add('destroyed');item.element.style.setProperty('--current-transform',item.element.style.transform);setTimeout(()=>item.element?.remove(),300);gameElements.splice(i,1);scoreDisplay.textContent=score;updateInspirationMeter();checkMilestones();checkWinCondition();}}} // Added win check here
+
+        // --- Spawning Logic ---
+        function getSpawnXPosition(){const sR=containerWidth*0.8;return(Math.random()-.5)*sR} function getSpawnYPosition(){const sR=containerHeight*0.7;return(Math.random()-.5)*sR} function spawnElement(){const xP=getSpawnXPosition();const yP=getSpawnYPosition();const sc=0.1+Math.random()*0.2;const el=document.createElement('div');el.classList.add('game-element');let ty='';let pts=0;let spM=1.0;let cCl='';let iB=false;let mX=false;let mY=false;let infoText=null;const rT=Math.random();if(rT>0.45){ty='obstacle';el.classList.add('obstacle');cCl=Math.random()>0.5?'color-primary':'color-secondary';el.classList.add(cCl);iB=Math.random()<0.3;if(iB)el.classList.add('breakable');mX=score>60&&Math.random()<0.15;mY=score>120&&Math.random()<0.15;}else{const rC=Math.random();if(rC<INFO_ORB_CHANCE&&score>20){ty='info-orb';el.classList.add('collectible','info-orb');pts=2;infoText=INFO_SNIPPETS[Math.floor(Math.random()*INFO_SNIPPETS.length)];}else if(rC<INFO_ORB_CHANCE+POWERUP_CHANCE&&score>40){ty=Math.random()>0.5?'powerup-shield':'powerup-boost';el.classList.add('collectible',ty);pts=5;}else{ty='collectible';el.classList.add('collectible');pts=10;}}const transform=`translateX(${xP}px) translateY(${yP}px) translateZ(${START_Z}px) scale(${sc})`;el.style.transform=transform;el.style.setProperty('--current-transform',transform);elementsContainer.appendChild(el);requestAnimationFrame(()=>el.classList.add('visible'));gameElements.push({element:el,type:ty,z:START_Z,x:xP,y:yP,scale:sc,points:pts,speedMult:spM,isBreakable:iB,alive:true,isMovingX:mX,isMovingY:mY,info:infoText});}
+
+        // --- Background Elements ---
+        function activatePooledElement(poolArray,activationLogic){const i=poolArray.find(p=>!p.active);if(i)activationLogic(i);} function activateParticle(pData){if(pData.active)return;const e=pData.element;const sX=(Math.random()-.5)*containerWidth*2.5;const sY=(Math.random()-.5)*containerHeight*2;const sZ=START_Z*(1+Math.random()*.5);const eZ=PLAYER_Z+100+Math.random()*200;const dur=(3+Math.random()*4)/(currentSpeed/INITIAL_SPEED);e.className='particle';if(Math.random()<.3)e.classList.add('cyan');if(Math.random()<.2)e.classList.add('orange');e.style.setProperty('--transform-start',`translate3d(${sX}px,${sY}px,${sZ}px)`);e.style.setProperty('--transform-end',`translate3d(${sX*.05}px,${sY*.05}px,${eZ}px)`);e.style.animation=`flyParticle ${dur}s linear .1s forwards`;if(!e.parentNode)particlesContainer.appendChild(e);pData.active=true;e.onanimationend=()=>{e.style.animation='none';e.style.opacity=0;pData.active=false;};} function activateTunnelSegment(tData){if(tData.active)return;tData.z=START_Z-Math.random()*800;const e=tData.element;e.className='tunnel-segment';if(Math.random()<.5)e.classList.add('color-secondary');const scale=3+Math.random()*2;tData.scale=scale;const transform=`translate(-50%,-50%) translateZ(${tData.z}px) scale(${scale})`;e.style.transform=transform;e.style.setProperty('--current-transform',transform);if(!e.parentNode)gameBackground.appendChild(e);e.classList.add('visible');tData.active=true;}
+
+        // --- Powerups ---
+        function activateShield(duration){if(isShielded)clearTimeout(shieldTimeoutId);isShielded=true;playerAvatarElement.classList.add('shielded');showFeedbackText("Shield!",playerAvatarElement.getBoundingClientRect(),'feedback-shield');shieldTimeoutId=setTimeout(()=>{isShielded=false;playerAvatarElement.classList.remove('shielded');console.log("Shield Deactivated");},duration);} function activateBoost(duration){if(isBoosting)clearTimeout(boostTimeoutId);isBoosting=true;playerAvatarElement.classList.add('boosting');showFeedbackText("Boost!",playerAvatarElement.getBoundingClientRect(),'feedback-powerup');boostTimeoutId=setTimeout(()=>{isBoosting=false;playerAvatarElement.classList.remove('boosting');console.log("Boost Deactivated");},duration);}
+
+        // --- Floating Feedback Text ---
+        function showFeedbackText(text,targetRect,typeClass='feedback-score'){if(!feedbackContainer||!targetRect||!text||targetRect.width===0)return;const fE=document.createElement('span');fE.classList.add('feedback-text',typeClass);fE.textContent=text;const cR=gameContainer.getBoundingClientRect();const x=(targetRect.left-cR.left+targetRect.width/2);const y=(targetRect.top-cR.top+targetRect.height/2);fE.style.left=`${x}px`;fE.style.top=`${y}px`;feedbackContainer.appendChild(fE);setTimeout(()=>{fE.remove();},typeClass==='feedback-info'?2500:typeClass==='feedback-milestone'?2000:1200);}
+
+        // --- Collision Detection ---
+        function checkCollision(playerRect, item) { if (!item || !item.element || !item.alive) return false; if (item.z < INTERACT_Z_END || item.z > INTERACT_Z_START) { return false; } const eR = item.element.getBoundingClientRect(); if (eR.width === 0 && eR.height === 0) return false; const tol = 5; const hO = playerRect.left < eR.right - tol && playerRect.right > eR.left + tol; const vO = playerRect.top < eR.bottom - tol && playerRect.bottom > eR.top + tol; return hO && vO; }
+
+        // --- Milestones & Messages ---
+        function checkMilestones() { let aM=0;for(const sT in MILESTONES){if(score>=sT&&sT>lastMilestoneAchieved){aM=sT;}}if(aM>lastMilestoneAchieved){lastMilestoneAchieved=aM;milestoneDisplay.textContent=MILESTONES[aM];milestoneDisplay.classList.add('visible');showFeedbackText(MILESTONES[aM],playerAvatarElement.getBoundingClientRect(),'feedback-milestone');setTimeout(()=>milestoneDisplay.classList.remove('visible'),3000);} } function displayTemporaryMessage(msg, duration = 1500) { clearTimeout(messageTimeoutId);messageDisplay.textContent=msg;messageTimeoutId=setTimeout(()=>{if(gameRunning&&!isPaused)messageDisplay.textContent="";},duration);} function updateInspirationMeter() { const p=Math.min(100,(score/WIN_SCORE)*100);inspirationMeterFill.style.width=`${p}%`; }
+
+        // --- Force Win Function ---
+        function forceWinGame() {
+             if (!gameSection.classList.contains('active')) return; // Only if game section is active
+             console.log("Forcing game win...");
+             // Set score and update UI immediately
+             score = WIN_SCORE;
+             scoreDisplay.textContent = score;
+             updateInspirationMeter();
+             checkMilestones(); // Show any milestones crossed
+
+             // Trigger the win state logic directly from checkWinCondition
+             if (!checkWinCondition()) {
+                 // If checkWinCondition somehow didn't trigger (e.g., already won), manually ensure win state
+                 console.warn("Win condition already met or game not running? Forcing UI.");
+                 gameRunning = false; // Ensure game loop stops
+                 if (gameLoopId) { cancelAnimationFrame(gameLoopId); gameLoopId = null; }
+                 playerAvatarElement.classList.remove('boosting');
+                 playerAvatarElement.classList.add('win-state');
+                 gameContainer.classList.add('win-state');
+                 setTimeout(() => {
+                     stopGame("Conduit Complete!", "Studio Core Reached!", false);
+                 }, 100); // Shorter delay for forced win
+             }
+         }
+
+        // --- Check Win Condition Function ---
+        function checkWinCondition() {
+            if (gameRunning && score >= WIN_SCORE) { // Check gameRunning to prevent multiple triggers
+                console.log("WIN CONDITION MET!");
+                gameRunning = false; // Stop loop logic *immediately*
+                if (gameLoopId) { cancelAnimationFrame(gameLoopId); gameLoopId = null; }
+
+                // Trigger win visual effects
+                playerAvatarElement.classList.remove('boosting');
+                playerAvatarElement.classList.add('win-state');
+                gameContainer.classList.add('win-state');
+                showFeedbackText("Studio Core!", playerAvatarElement.getBoundingClientRect(), 'feedback-milestone');
+
+                // Show WIN overlay after a short delay
+                setTimeout(() => {
+                    // Pass isGameOver = false to hide retry/resume
+                    stopGame("Conduit Complete!", "Studio Core Reached!", false);
+                    // Don't automatically navigate, let user click overlay button
+                }, 750); // Delay for win animation
+                return true; // Indicate win occurred
+            }
+            return false; // Win condition not met
+        }
+
+
+        // ======================== MAIN GAME LOOP ========================
+        function gameLoop(timestamp) {
+            if (!gameRunning) { gameLoopId = null; console.log("Game loop stopped externally."); return; }
+
+            const deltaTime = Math.min(50, timestamp - (lastTimestamp || timestamp));
+            lastTimestamp = timestamp;
+            const deltaSeconds = deltaTime / 1000.0;
+            if (deltaSeconds <= 0) { gameLoopId = requestAnimationFrame(gameLoop); return; }
+
+            // --- Update Player, Speed, Spawning, Background ---
+            playerTargetX += moveDirectionX * PLAYER_X_SPEED * deltaSeconds; playerTargetY += moveDirectionY * PLAYER_Y_SPEED * deltaSeconds; updatePlayerPosition();
+            currentSpeed = Math.min(MAX_SPEED, INITIAL_SPEED + score * SPEED_INCREASE_SCORE_FACTOR); document.documentElement.style.setProperty('--game-speed-factor', currentSpeed / INITIAL_SPEED);
+            spawnTimer += deltaTime; currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, INITIAL_SPAWN_INTERVAL - score * 0.8); if (spawnTimer >= currentSpawnInterval) { spawnElement(); spawnTimer = 0; }
+            if(Math.random() < 0.7) activatePooledElement(backgroundElements.particles, activateParticle); if(Math.random() < 0.2) activatePooledElement(backgroundElements.tunnelSegments, activateTunnelSegment); backgroundElements.tunnelSegments.forEach(t => { if (t.active) { t.z += currentSpeed * deltaSeconds * 0.7; const transform=`translate(-50%,-50%) translateZ(${t.z}px) scale(${t.scale})`;t.element.style.transform=transform;t.element.style.setProperty('--current-transform',transform); if (t.z>REMOVE_Z+500){t.active=false;t.element.classList.remove('visible');} }});
+
+
+            // --- Update Game Elements & Check Player Collision ---
+            const playerRect = playerAvatarElement.getBoundingClientRect();
+            if (playerRect.width === 0 && playerRect.height === 0 && gameRunning) { // Check gameRunning state too
+                 console.warn("PlayerRect has zero dimensions, skipping collision/update this frame.");
+                 gameLoopId = requestAnimationFrame(gameLoop);
+                 return;
+            }
+
+            for (let i = gameElements.length - 1; i >= 0; i--) {
+                const item = gameElements[i]; if (!item.alive || !item.element) continue;
+                const effectiveSpeed = (isBoosting ? currentSpeed * BOOST_MULTIPLIER : currentSpeed) * item.speedMult;
+                item.z += effectiveSpeed * deltaSeconds;
+
+                // JS Drift
+                if (item.isMovingX) item.x += Math.sin(timestamp / 650 + i * 0.7) * 70 * deltaSeconds;
+                if (item.isMovingY) item.y += Math.cos(timestamp / 800 + i * 0.7) * 55 * deltaSeconds;
+
+                const scale = Math.max(0.1, item.scale + (item.z - START_Z) / Math.abs(START_Z) * 1.3);
+                const transform = `translateX(${item.x}px) translateY(${item.y}px) translateZ(${item.z}px) scale(${scale})`;
+                item.element.style.transform = transform; item.element.style.setProperty('--current-transform', transform);
+
+                if (item.z > REMOVE_Z) { item.alive = false; item.element.remove(); gameElements.splice(i, 1); continue; }
+
+                // Player Collision Check
+                 if (item.z > INTERACT_Z_END && item.z < INTERACT_Z_START) {
+                    if (checkCollision(playerRect, item)) {
+                         if (item.type === 'obstacle') {
+                             if (isShielded) { /* Shield Block */
+                                 const shieldRect = playerAvatarElement.getBoundingClientRect(); // Get current rect for feedback
+                                 showFeedbackText("Blocked!", shieldRect, 'feedback-shield');
+                                 isShielded = false; clearTimeout(shieldTimeoutId); playerAvatarElement.classList.remove('shielded');
+                                 item.alive = false;
+                                 item.element.classList.add('destroyed'); // Use destroy animation for blocked obstacle too
+                                 item.element.style.setProperty('--current-transform', item.element.style.transform);
+                                 setTimeout(() => item.element?.remove(), 300);
+                                 gameElements.splice(i, 1);
+                             } else if (!item.isBreakable) { /* GAME OVER only for non-breakable*/
+                                 console.log("GAME OVER - Collision with solid obstacle");
+                                 playerAvatarElement.classList.add('hit');
+                                 setTimeout(() => playerAvatarElement.classList.remove('hit'), 300);
+                                 stopGame("Creative Block!", `Final Score: ${score}`, true); /* Pass true for GameOver */
+                                 return; // Stop loop immediately on game over
+                             } else {
+                                 // Hit a breakable obstacle without shield/beam - treat as solid hit for now
+                                 console.log("GAME OVER - Collision with breakable obstacle (no shield/beam)");
+                                 playerAvatarElement.classList.add('hit');
+                                 setTimeout(() => playerAvatarElement.classList.remove('hit'), 300);
+                                 stopGame("Creative Block!", `Final Score: ${score}`, true); /* Pass true for GameOver */
+                                 return; // Stop loop immediately on game over
+                             }
+                         } else { /* Collectible/Info Orb/Powerup */
+                              const itemRect = item.element.getBoundingClientRect();
+                              if(itemRect.width === 0 && itemRect.height === 0) { // Double check item rect before feedback
+                                   console.warn("Collected item rect has zero dimensions, skipping feedback.");
+                              } else {
+                                   let fbText = `+${item.points}`; let fbType = 'feedback-score';
+                                   if(item.type === 'info-orb' && item.info) { fbText = item.info; fbType = 'feedback-info'; }
+                                   else if (item.type.includes('powerup')) { fbText = item.type.includes('shield') ? 'Shield!' : 'Boost!'; fbType = 'feedback-powerup'; }
+                                   showFeedbackText(fbText, itemRect, fbType);
+                              }
+
+                              score += item.points; scoreDisplay.textContent = score; updateInspirationMeter();
+
+                              item.element.classList.add('collected'); item.alive = false;
+                              setTimeout(() => item.element?.remove(), 200);
+                              gameElements.splice(i, 1);
+
+                              if (item.type === 'powerup-shield') activateShield(SHIELD_DURATION);
+                              if (item.type === 'powerup-boost') activateBoost(BOOST_DURATION);
+
+                              checkMilestones();
+
+                              // Check win condition *after* potential score update
+                              if (checkWinCondition()) return; // Exit loop if win condition met
+
+                         } // End Collectible Handling
+                     } // End Collision Check
+                 } // End Z range check
+            } // End element loop
+
+            // Request next frame ONLY if gameRunning is still true
+            if (gameRunning) {
+                 gameLoopId = requestAnimationFrame(gameLoop);
+             } else {
+                 gameLoopId = null;
+                 console.log("Game loop ended naturally or stopped.");
+            }
+        } // End gameLoop
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', initializeAdventure);
+    </script>
+
+</body>
+</html>
