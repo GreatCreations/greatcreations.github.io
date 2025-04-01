@@ -1,0 +1,125 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design Workshop</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="modal.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "jquery": "https://code.jquery.com/jquery-3.6.0.min.js"
+    }
+  }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <button id="infoBtn" class="tool-btn" title="Info">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+  </button>
+  <!-- Rulers -->
+  <div id="rulerHorizontal"></div>
+  <div id="rulerVertical"></div>
+  
+  <!-- Grid background -->
+  <canvas id="gridCanvas"></canvas>
+  <!-- Main drawing canvas -->
+  <canvas id="drawingCanvas"></canvas>
+  
+  <!-- Floating toolbar – restructured so that color pickers appear above the other tools, and the brush size slider is replaced with a white dial -->
+  <div class="toolbar">
+    <div class="toolbar-top">
+      <!-- The color swatches are now to the right of the info button -->
+      <div class="toolbar-colors">
+        <div class="color-btn" id="colorOrange" style="background: #FFA500;" title="Orange"></div>
+        <div class="color-btn" id="colorCyan" style="background: #00FFFF;" title="Cyan"></div>
+        <div class="color-btn" id="colorPink" style="background: #FFC0CB;" title="Light Pink"></div>
+      </div>
+    </div>
+    <div class="toolbar-controls">
+      <button id="selectBtn" class="tool-btn" title="Select/Move">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <polygon points="2,2 22,12 12,22 2,2"></polygon>
+        </svg>
+      </button>
+      <button id="freehandBtn" class="tool-btn active" title="Freehand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M2 12c2-6 6-6 8 0s4 6 6 0" />
+        </svg>
+      </button>
+      <button id="lineBtn" class="tool-btn" title="Line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <line x1="4" y1="20" x2="20" y2="4"></line>
+        </svg>
+      </button>
+      <button id="rectBtn" class="tool-btn" title="Rectangle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <rect x="4" y="4" width="16" height="16"></rect>
+        </svg>
+      </button>
+      <button id="circleBtn" class="tool-btn" title="Circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="12" cy="12" r="8"></circle>
+        </svg>
+      </button>
+      <button id="snapBtn" class="tool-btn" title="Snap to Grid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M4 4h4v4H4zM16 4h4v4h-4zM4 16h4v4H4zM16 16h4v4h-4z"></path>
+        </svg>
+      </button>
+      <button id="importBtn" class="tool-btn" title="Import Design">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M12 2v10"></path>
+          <path d="M8 8h8"></path>
+          <path d="M5 13h14"></path>
+          <path d="M5 17h14"></path>
+        </svg>
+      </button>
+      <!-- White dial for brush size -->
+      <div id="brushSizeDial"></div>
+      <button id="eraserBtn" class="tool-btn" title="Eraser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M17 3l4 4L7 21H3v-4L17 3z"></path>
+        </svg>
+      </button>
+      <button id="clearBtn" class="tool-btn" title="Clear">
+        <svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2">
+          <line x1="5" y1="5" x2="15" y2="15"></line>
+          <line x1="15" y1="5" x2="5" y2="15"></line>
+        </svg>
+      </button>
+      <button id="undoBtn" class="tool-btn" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <polyline points="9 11 4 6 9 1"></polyline>
+          <path d="M4 6h12a4 4 0 0 1 0 8H9"></path>
+        </svg>
+      </button>
+      <button id="saveBtn" class="tool-btn" title="Save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Hidden file input for importing designs -->
+  <input type="file" id="importFileInput" accept="image/*" style="display: none;" multiple>
+  
+  <!-- Script includes -->
+  <script src="modal.js"></script>
+  <script src="main.js"></script>
+  <script src="tooltip.js"></script>
+  <script src="toolsizeDial.js"></script>
+  <script src="swatchColorPicker.js"></script>
+  <script src="resizeManager.js"></script>
+  <script type="module" src="infoModalHandler.js"></script>
+  <script src="welcomeModal.js"></script>
+</body>
+</html>

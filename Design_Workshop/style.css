@@ -1,0 +1,212 @@
+/* CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #1d0020; /* Very very dark purple */
+  font-family: sans-serif;
+  font-size: 10px; /* Small fonts everywhere */
+  color: #FFF;
+  position: relative;
+}
+
+/* Grid canvas behind the drawing canvas */
+#gridCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* Fullscreen drawing canvas with proper stacking */
+#drawingCanvas {
+  display: block;
+  touch-action: none; /* Prevent touch scrolling while drawing */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Horizontal and Vertical rulers */
+#rulerHorizontal {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  height: 20px;
+  width: calc(100% - 20px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+#rulerVertical {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 20px;
+  height: calc(100% - 20px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Toolbar styling with higher z-index */
+.toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 4;
+}
+
+.toolbar-colors {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Optionally, style the brush size dial container to match the design */
+#brushSizeDial {
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+}
+
+/* Tool button styling */
+.tool-btn {
+  background: transparent;
+  border: 1px solid #FFF;
+  color: #FFF;
+  padding: 3px 5px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: background 0.2s linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Color button styling */
+.color-btn {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #FFF;
+  cursor: pointer;
+  transition: opacity 0.2s linear;
+}
+
+.color-btn:hover {
+  opacity: 0.8;
+}
+
+/* Size slider styling */
+.size-slider {
+  width: 80px;
+}
+
+/* Ensure flat design (no rounded corners) */
+button, input, canvas, div {
+  border-radius: 0;
+}
+
+/* Make SVG icons within buttons responsive */
+.tool-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Visual indication for active tools (e.g., eraser mode) */
+.tool-btn.active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* New styles for interactive imported images */
+#interactiveImages {
+  pointer-events: none; /* Allow events to pass through the container */
+}
+
+.interactive-image {
+  pointer-events: all; /* Enable interactions on this element */
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+  position: absolute;
+}
+
+/* Rotate handle styling */
+.interactive-image .rotate-handle {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: #FFF;
+  border: 1px solid #000;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 10;
+}
+
+/* Resize handle styling */
+.interactive-image .resize-handle {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background: #FFF;
+  border: 1px solid #000;
+  cursor: se-resize;
+  z-index: 10;
+}
+
+/* New CSS: Hide image handles when not in editing mode */
+.interactive-image:not(.editing) .rotate-handle,
+.interactive-image:not(.editing) .resize-handle {
+  display: none;
+}
+
+/* New styles for the themed color picker */
+.color-picker {
+  position: absolute;
+  background: #1d0020;
+  border: 1px solid #FFF;
+  padding: 5px;
+  z-index: 2000;
+}
+.color-picker input[type="color"] {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+/* New style rule for the info button moved to the top right corner */
+#infoBtn {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  margin: 0;
+  z-index: 10001;
+}
