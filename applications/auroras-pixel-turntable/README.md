@@ -10,6 +10,7 @@ The player opens with a default sound-image loaded and paused: **aurora-loud-noi
 
 - `aurora-loud-noise.mp3` - the 58.0-second generated noise performance that is the source audio.
 - `aurora-loud-noise-pixels.png` - the same audio encoded as a 1,600 x 1,599 sound-image (44.1 kHz mono). The app loads it automatically on open, paused at the start.
+- `goose-washing-machine.wav` - a 7.6-second voice recording made from the default sample on the turntable (24 kHz mono). A keepsake, not loaded by the app.
 
 Opening the image picker or converter and loading your own file replaces the default for that visit.
 
