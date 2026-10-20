@@ -4,7 +4,14 @@ A local sound-image player and audio-to-PNG converter.
 
 **Open the app:** https://studios.greatcreations.art/applications/auroras-pixel-turntable/
 
-The public player starts empty. Start with your speakers low.
+The player opens with a default sound-image loaded and paused: **aurora-loud-noise-pixels.png**, encoded from the bundled **aurora-loud-noise.mp3** sample - 58 seconds of loud generated howls, bangs and clangs. Nothing plays until you press a direction button. Start with your speakers low.
+
+## Bundled default sample
+
+- `aurora-loud-noise.mp3` - the 58.0-second generated noise performance that is the source audio.
+- `aurora-loud-noise-pixels.png` - the same audio encoded as a 1,600 x 1,599 sound-image (44.1 kHz mono). The app loads it automatically on open, paused at the start.
+
+Opening the image picker or converter and loading your own file replaces the default for that visit.
 
 ## Quick start
 
@@ -69,7 +76,7 @@ The sample rate is 44,100 Hz, mono. Alpha is not an audio channel. Original dime
 
 PNG is lossless. JPEG is accepted with a warning because compression changes the sound. Images decode as received, with no repair or resampling. Image limits: 12 million pixels and 32 MB.
 
-An ordinary photograph produces pixel-derived sound. This is not photo-to-speech or speech recognition. No sample audio or private test image is bundled with the public app.
+An ordinary photograph produces pixel-derived sound. This is not photo-to-speech or speech recognition. The only bundled media is this generated noise sample. No private media ships with the app.
 
 ## Privacy
 
