@@ -61,7 +61,7 @@ The record rotation follows the same playhead as the time bar and magnifying gla
 - **Record:** turn clockwise to move forward or counterclockwise to move backward. Movement changes speed and pitch. Releasing stops a paused scratch or resumes the previous playback direction.
 - **Magnifying glass:** drag left or right to scratch on its current image row. The row stays locked until release.
 - **Position bar:** drag to scratch anywhere in the track, forward or backward. Releasing restores the previous playback state.
-- **Hold buttons:** tap to nudge 0.1 seconds, or hold for directional playback. Release to return to the previous playback state.
+- **Hold buttons:** tap to nudge 0.1 seconds, or hold for directional playback. Release to return to the previous playback state. Switching between the two hold buttons is instant: overlap the presses, or press the other within a moment of releasing, and the new direction starts immediately with no new tap threshold and no gap.
 - **Keyboard:** focus the record and use arrow keys to seek by 0.05 seconds, or Home and End to jump to an endpoint. The magnifier also supports arrow keys within its row.
 
 ## Sound-image format
