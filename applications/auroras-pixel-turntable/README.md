@@ -10,7 +10,13 @@ The player opens with a default sound-image loaded and paused: **aurora-loud-noi
 
 - `aurora-loud-noise.mp3` - the 58.0-second generated noise performance that is the source audio.
 - `aurora-loud-noise-pixels.png` - the same audio encoded as a 1,600 x 1,599 sound-image (44.1 kHz mono). The app loads it automatically on open, paused at the start.
-- `goose-washing-machine.wav` - a 7.6-second voice recording made from the default sample on the turntable (24 kHz mono). A keepsake, not loaded by the app.
+- `goose-washing-machine.wav` - a 7.6-second spoken keepsake (24 kHz mono), generated separately - not rendered from the default sample or the turntable. Not loaded by the app.
+
+Direct download links:
+
+- https://studios.greatcreations.art/applications/auroras-pixel-turntable/aurora-loud-noise.mp3
+- https://studios.greatcreations.art/applications/auroras-pixel-turntable/aurora-loud-noise-pixels.png
+- https://studios.greatcreations.art/applications/auroras-pixel-turntable/goose-washing-machine.wav
 
 Opening the image picker or converter and loading your own file replaces the default for that visit.
 
@@ -98,5 +104,10 @@ Mobile layout and interactions have been checked in browser emulation. Physical-
 ## Compact phone layout
 
 The audio-format and speaker notes sit on the right side of the header, across from the title, instead of a footer at the bottom of the page. An info button in the bottom-right corner opens this README as a formatted panel without leaving the page. The compact layout puts the converter launcher on the left and the image-loading area on the right in one top row. Converter options open over the player instead of pushing it down. The image display adjusts to the available phone height while touch controls keep their current size.
+
+## Page assets
+
+- `favicon.svg`, `favicon-32.png`, `favicon-512.png` and `apple-touch-icon.png` - the vinyl-record icon in the app's colors.
+- `preview-card.png` - the 1,200 x 630 social-sharing card referenced by the page's Open Graph and Twitter metadata.
 
 Updated October 20, 2026.
