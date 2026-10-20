@@ -75,7 +75,7 @@ if(/^\d+\.\s+/.test(line)){const items=[];while(i<lines.length&&/^\d+\.\s+/.test
 const buf=[];while(i<lines.length&&lines[i].trim()&&!/^(#{1,3}\s|```|\||-\s|\d+\.\s)/.test(lines[i])){buf.push(lines[i]);i++;}out.push('<p>'+inlineMd(buf.join(' '))+'</p>');}
 return out.join('');}
 const readmeDialog=document.getElementById('readme-dialog');let readmeDone=false;
-document.getElementById('open-readme').addEventListener('click',async()=>{readmeDialog.showModal();if(readmeDone)return;const c=document.getElementById('readme-content');try{const r=await fetch('README.md');if(!r.ok)throw Error();c.innerHTML=mdToHtml(await r.text());readmeDone=true;}catch(ex){c.textContent='The README could not be loaded here.';}});
+document.getElementById('open-readme').addEventListener('click',async()=>{readmeDialog.showModal();if(readmeDone)return;const c=document.getElementById('readme-content');try{const r=await fetch('README.md',{cache:'no-cache'});if(!r.ok)throw Error();c.innerHTML=mdToHtml(await r.text());readmeDone=true;}catch(ex){c.textContent='The README could not be loaded here.';}});
 document.getElementById('close-readme').onclick=()=>readmeDialog.close();
 readmeDialog.addEventListener('click',ev=>{if(ev.target===readmeDialog){const r=readmeDialog.getBoundingClientRect();if(ev.clientX<r.left||ev.clientX>r.right||ev.clientY<r.top||ev.clientY>r.bottom)readmeDialog.close();}});
 
