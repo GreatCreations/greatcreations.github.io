@@ -96,6 +96,6 @@ Mobile layout and interactions have been checked in browser emulation. Physical-
 
 ## Compact phone layout
 
-The compact layout puts the converter launcher on the left and the image-loading area on the right in one top row. Converter options open over the player instead of pushing it down. The image display adjusts to the available phone height while touch controls keep their current size.
+The audio-format and speaker notes sit on the right side of the header, across from the title, instead of a footer at the bottom of the page. The compact layout puts the converter launcher on the left and the image-loading area on the right in one top row. Converter options open over the player instead of pushing it down. The image display adjusts to the available phone height while touch controls keep their current size.
 
 Updated October 20, 2026.
