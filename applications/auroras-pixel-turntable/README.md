@@ -45,7 +45,9 @@ There are 17 speeds: eight slower, Normal and eight faster.
 
 Displayed slower rates are rounded. Rates below 0.5× use successive two-thirds ratios. All speeds are positive; direction is a separate control.
 
-Hold a finger down and slide across the speed buttons to change speed immediately. On narrow screens, hold near an edge to reach more speeds without lifting. Normal starts in the center of the strip.
+Tap a speed, or hold a finger down and slide across the speed buttons, to change speed immediately without stopping or restarting playback. The current position and forward/backward direction are preserved. Releasing or canceling a speed gesture does not pause a playing track. On narrow screens, hold near an edge to reach more speeds without lifting. Normal starts in the center of the strip.
+
+The record rotation follows the same playhead as the time bar and magnifying glass, including while scratching a paused track.
 
 ## Scratch and hold controls
 
@@ -77,7 +79,7 @@ Selected images and audio are processed locally in the browser. The app does not
 
 The page suppresses context menus, text selection, image dragging and supported touch callouts to keep them from interrupting the instrument. Browser and operating-system controls outside the page cannot be disabled.
 
-Scratch controls, hold buttons and the speed strip capture their gestures. Normal page scrolling remains available outside those controls. Canceled touches release active gestures; switching away pauses sound. Extra simultaneous fingers do not start competing gestures.
+Scratch controls, hold buttons and the speed strip capture their gestures. Normal page scrolling remains available outside those controls. Canceled touches release active gestures without pausing latched playback. A focus-only blur also releases gestures without pausing; actually hiding or leaving the page pauses sound. Extra simultaneous fingers do not start competing gestures.
 
 ## Browser support
 
