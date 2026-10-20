@@ -1,567 +1,125 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Great Creation Studios</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-left: 1px solid #000;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #888;
-      border: 1px solid #000;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-
-    /* For Firefox */
-    html {
-      scrollbar-width: thin;
-      scrollbar-color: #888 #f1f1f1;
-    }
-
-    /* Header animations */
-    .header-hidden {
-      transform: translateY(-100%);
-    }
-
-    .header-visible {
-      transform: translateY(0);
-    }
-
-    /* Toggle switch styling */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 30px;
-      height: 16px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 12px;
-      width: 12px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .4s;
-    }
-
-    input:checked + .toggle-slider {
-      background-color: #2196F3;
-    }
-
-    input:focus + .toggle-slider {
-      box-shadow: 0 0 1px #2196F3;
-    }
-
-    input:checked + .toggle-slider:before {
-      transform: translateX(14px);
-    }
-
-   /* Tooltip styling */
-    .tooltip {
-      position: relative;
-      display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 120px;
-      background-color: #fff;
-      color: #555;
-      text-align: center;
-      border: 1px solid #000;
-      border-radius: 0;
-      padding: 5px;
-      position: absolute;
-      z-index: 1;
-      top: 125%;
-      left: 50%;
-      margin-left: -60px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      font-size: 10px;
-    }
-
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    /* Footer modal styling */
-    .footer-modal {
-      position: fixed;
-      bottom: 0;
-      left: -90%;
-      width: 90%;
-      height: auto;
-      background-color: #fff;
-      border-top: 1px solid #000;
-      border-right: 1px solid #000;
-      transition: left 0.3s ease-in-out;
-      z-index: 50;
-    }
-
-    .footer-modal.open {
-      left: 0;
-    }
-
-    .footer-tab {
-      position: absolute;
-      right: -40px;
-      bottom: 0;
-      width: 40px;
-      height: 100%;
-      background-color: transparent;
-      border: 0px solid #000;
-      border-left: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    /* Menu dropdown */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 30px;
-      right: -90px;
-      transform: translateX(0) rotate(-1deg);
-      background-color: #fff;
-      min-width: 360px;
-      border: 1px solid #000;
-      border-top: none;
-      z-index: 1;
-    }
-
-    .dropdown-content a {
-      color: black;
-      padding: 8px 12px;
-      text-decoration: none;
-      display: block;
-      font-size: 12px;
-    }
-
-    .dropdown-content .column {
-      display: inline-block;
-      vertical-align: top;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #ddd;
-    }
-
-    /* Make header very thin */
-    .header {
-      height: 40px;
-      transition: transform 0.5s ease-in-out;
-    }
-
-    /* iframe container */
-    .iframe-container {
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      background-color: transparent;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* Center icon when header is hidden */
-    .header-icon {
-      position: fixed;
-      top: 8px;
-      left: 49.5%;
-      transform: translateX(-50%);
-      cursor: pointer;
-      z-index: 40;
-      opacity: 0;
-      transition: opacity 0.7s ease;
-      background-color: rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      padding: 5px;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .header-icon.visible {
-      opacity: 1;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-      0% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.2); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
-
-    /* Animated background gradient */
-    .animated-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background: linear-gradient(to bottom, #ffb6c1, #ffd8b1, #a0e6ff);
-      background-size: 100% 400%;
-      animation: gradient 15s ease infinite;
-    }
-
-    @keyframes gradient {
-      0% {
-        background-position: 0% 0%;
-      }
-      50% {
-        background-position: 0% 100%;
-      }
-      100% {
-        background-position: 0% 0%;
-      }
-    }
-
-    /* Spiral animation for logo */
-    .spiral-logo {
-      position: fixed;
-      z-index: 100;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 0.5s ease;
-    }
-
-    @keyframes spiralPath {
-      0% { transform: translate(0, 0) rotate(360deg) scale(1); }
-      12.5% { transform: translate(-20vw, 15vh) rotate(315deg) scale(1.4); }
-      25% { transform: translate(-30vw, 30vh) rotate(270deg) scale(2); }
-      37.5% { transform: translate(-20vw, 45vh) rotate(225deg) scale(2.6); }
-      50% { transform: translate(0, 50vh) rotate(180deg) scale(3.2); }
-      62.5% { transform: translate(20vw, 45vh) rotate(135deg) scale(2.6); }
-      75% { transform: translate(30vw, 30vh) rotate(90deg) scale(2); }
-      87.5% { transform: translate(20vw, 15vh) rotate(45deg) scale(1.4); }
-      100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Great Creation Studios</title>
+<style>
+:root{
+--ground:#010207;
+--panel:#111111;
+--ink:#f0eef5;
+--copper:#b87333;
+--copper-hover:#d4944a;
+--copper-pressed:#a06228;
+--orange:#ffbf00;
+--cyan:#00b4d8;
+--pink:#ffb0c0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--ground)}
+body{
+font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+-webkit-user-select:none;user-select:none;
+-webkit-tap-highlight-color:transparent;
+overscroll-behavior:none;
+touch-action:manipulation;
+}
+.stage{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+.halo{
+position:absolute;width:66vmin;height:66vmin;border-radius:50%;
+background:conic-gradient(from 0deg,var(--orange),var(--copper),var(--pink),var(--cyan),var(--orange));
+filter:blur(9vmin);opacity:.16;pointer-events:none;
+animation:spin 26s linear infinite;
+}
+.disc{
+position:absolute;width:98vmin;height:98vmin;border-radius:50%;pointer-events:none;
+background:radial-gradient(circle at 50% 42%,rgba(23,25,31,.86) 0%,rgba(17,17,17,.84) 58%,rgba(11,13,20,.87) 100%);
+border:1px solid rgba(184,115,51,.55);
+box-shadow:0 0 12vmin rgba(184,115,51,.22),inset 0 0 8vmin rgba(0,0,0,.55);
+transform:scale(0);opacity:0;
+transition:transform .72s cubic-bezier(.22,1.45,.36,1),opacity .4s ease;
+}
+.stage.open .disc{transform:scale(1);opacity:1}
+.shock{
+position:absolute;width:98vmin;height:98vmin;border-radius:50%;pointer-events:none;
+border:2px solid rgba(212,148,74,.8);opacity:0;transform:scale(.2);
+}
+.stage.open .shock{animation:shock .9s cubic-bezier(.16,.84,.44,1) .06s}
+.orb{
+position:absolute;width:19vmin;height:19vmin;border-radius:50%;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vmin;
+background:#16181d;
+border:1px solid rgba(240,238,245,.14);
+color:var(--ink);text-decoration:none;
+font-size:clamp(8px,2vmin,13px);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+transform:scale(0);opacity:0;pointer-events:none;
+transition:transform .58s cubic-bezier(.34,1.56,.64,1) 0s,opacity .3s ease 0s,background .2s,border-color .2s,box-shadow .2s;
+}
+.orb i{display:block;width:34%;height:2px;border-radius:2px;background:var(--accent)}
+.stage.open .orb{pointer-events:auto}
+.stage.open .o-top{--tx:0vmin;--ty:-32vmin;transition-delay:.18s,.18s,0s,0s,0s}
+.stage.open .o-right{--tx:32vmin;--ty:0vmin;transition-delay:.26s,.26s,0s,0s,0s}
+.stage.open .o-bottom{--tx:0vmin;--ty:32vmin;transition-delay:.34s,.34s,0s,0s,0s}
+.stage.open .o-left{--tx:-32vmin;--ty:0vmin;transition-delay:.42s,.42s,0s,0s,0s}
+.stage.open .orb{transform:translate(var(--tx),var(--ty)) scale(1);opacity:1}
+.stage.open .orb:hover{
+transform:translate(var(--tx),var(--ty)) scale(1.07);
+background:#1c1f26;border-color:var(--copper-hover);
+box-shadow:0 0 4.5vmin rgba(212,148,74,.35);
+}
+.stage.open .orb:active{
+transform:translate(var(--tx),var(--ty)) scale(.96);
+border-color:var(--copper-pressed);
+}
+.orb:focus-visible{outline:2px solid var(--copper);outline-offset:4px}
+.o-top{--accent:var(--copper)}
+.o-right{--accent:var(--cyan)}
+.o-bottom{--accent:var(--pink)}
+.o-left{--accent:var(--orange)}
+.mark{
+position:relative;z-index:2;width:30vmin;height:30vmin;border-radius:50%;
+background:transparent;border:none;cursor:pointer;padding:0;display:grid;place-items:center;
+animation:breathe 4.5s ease-in-out infinite;
+}
+.mark img{
+width:100%;height:100%;object-fit:contain;pointer-events:none;
+filter:drop-shadow(0 0 3vmin rgba(0,0,0,.6));
+transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+-webkit-user-drag:none;
+}
+.mark:active img{transform:scale(.94)}
+.mark:focus-visible{outline:2px solid var(--copper);outline-offset:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes shock{0%{transform:scale(.18);opacity:.9}100%{transform:scale(1.12);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+.halo,.mark,.stage.open .shock{animation:none}
+.disc,.orb,.mark img{transition:none}
+}
+</style>
 </head>
-<body class="bg-transparent">
-  <!-- Animated background -->
-  <div class="animated-background"></div>
-  
-  <!-- Header Bar -->
-  <header id="header" class="header header-visible fixed top-0 left-0 w-full border-b border-none z-50" style="background-image: url('https://greatcreations.github.io/pageimages/headerbar.png'); background-repeat: no-repeat; background-size: 100% 100%; background-position: center; background-color: transparent;">
-    <div class="container mx-auto flex items-center justify-between h-full px-4">
-      <!-- Left Container -->
-      <div class="w-2/5 md:w-2/5 flex items-center justify-start">
-        <span class="text-xs md:text-sm font-bold">Great Creation Studios</span>
-      </div>
-      
-      <!-- Center Container -->
-      <div class="w-1/3 md:w-1/5 flex items-center justify-start">
-        <video id="centerLogo" src="https://greatcreations.github.io/pageimages/headerlogoanimation.webm" autoplay loop muted playsinline class="h-6 w-16 mr-2 cursor-pointer"></video>
-      </div>
-
-      <!-- Right Container -->
-      <div class="w-1/6 md:w-1/4 flex items-center justify-end space-x-2">
-        <!-- Back to Top Button -->
-        <button id="topBtn" class="text-xs border border-black px-2 py-1">Top</button>
-        
-        <!-- Menu Dropdown -->
-        <div class="dropdown">
-          <button class="text-xs border border-black px-2 py-1">Menu</button>
-          <div class="dropdown-content">
-            <div class="flex">
-              <div class="column w-1/3">
-                <a href="#frame1" data-url="https://greatcreations.github.io/Homepanel.html">Home Space</a>
-                <a href="#frame2" data-url="https://greatcreations.github.io/Gamification/Gamification.html">Studio Core</a>
-                <a href="#frame3" data-url="https://greatcreations.github.io/recognition.html">Recognition</a>
-              </div>
-              <div class="column w-1/3">
-                <a href="#frame1" data-url="https://https://greatcreations.github.io/cardgallery.htm">Gallery</a>
-                <a href="#frame2" data-url="https://greatcreations.github.io/Media_Player/index.html">Media Book</a>
-                <a href="#frame3" data-url="https://greatcreations.github.io/ChromaScape_OS/ChromaScape_OS.html">ChromaScape OS</a>
-              </div>
-              <div class="column w-1/3">
-                <a href="#frame1" data-url="https://greatcreations.github.io/Design_Workshop/Design_Workshop.html">Panel 3-1</a>
-                <a href="#frame2" data-url="https://greatcreations.github.io/terminology.html">Design Terminology</a>
-                <a href="#frame3" data-url="https://greatcreations.github.io/Design_Workshop/Design_Workshop.html">Design Workshop</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Header Toggle Switch -->
-        <div class="tooltip">
-          <label class="toggle-switch">
-            <input type="checkbox" id="headerToggle">
-            <span class="toggle-slider"></span>
-          </label>
-          <span class="tooltiptext">Toggle header visibility</span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Header icon (shows when header is hidden) -->
-  <div id="headerIcon" class="header-icon">
-    <img src="https://greatcreations.github.io/pageimages/tinyicon.png" alt="Info" width="12" height="12" style="width: 12px; height: 12px;">
-  </div>
-
-  <!-- Main Content - iFrames -->
-  <main class="mt-0">
-    <div id="frame1" class="iframe-container">
-      <iframe src="https://greatcreations.github.io/Homepanel.html" title="Panel 1"></iframe>
-    </div>
-    
-    <div id="frame2" class="iframe-container">
-      <iframe src="https://greatcreations.github.io/Gamification/Gamification.html" title="Panel 2"></iframe>
-    </div>
-    
-    <div id="frame3" class="iframe-container">
-      <iframe src="https://example.com/contact" title="Panel 3"></iframe>
-    </div>
-  </main>
-
- <!-- Footer Modal -->
-  <div id="footerModal" class="footer-modal">
-    <iframe id="footerIframe" class="w-full h-full border-0" src="https://greatcreations.github.io/footerpages/comicstrip.html" title="Footer Content"></iframe>
-    <div id="footerTab" class="footer-tab">
-      <video id="footerTabVideo" src="https://greatcreations.github.io/pageimages/tabanimation.webm" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Elements
-      const header = document.getElementById('header');
-      const headerToggle = document.getElementById('headerToggle');
-      const headerIcon = document.getElementById('headerIcon');
-      const topBtn = document.getElementById('topBtn');
-      const footerModal = document.getElementById('footerModal');
-      const footerTab = document.getElementById('footerTab');
-      const footerIframe = document.getElementById('footerIframe');
-      const dropdown = document.querySelector('.dropdown');
-      const dropdownContent = document.querySelector('.dropdown-content');
-      const centerLogo = document.getElementById('centerLogo');
-      
-      let lastScrollTop = 0;
-      let isHeaderHidden = false;
-      let headerTimeout;
-      let dropdownTimeout;
-      let animationInProgress = false;
-
-      // Initially hide the top button when page loads
-      topBtn.style.display = 'none';
-
-      // Toggle header visibility
-      headerToggle.addEventListener('change', function() {
-        isHeaderHidden = this.checked;
-        
-        if (isHeaderHidden) {
-          header.classList.remove('header-visible');
-          header.classList.add('header-hidden');
-          // Let the header hide first, then show the icon with fade-in
-          setTimeout(function() {
-            headerIcon.classList.add('visible');
-          }, 500);
-        } else {
-          header.classList.remove('header-hidden');
-          header.classList.add('header-visible');
-          headerIcon.classList.remove('visible');
-        }
-      });
-
-      // Header icon events
-      headerIcon.addEventListener('mouseenter', showHeaderTemporarily);
-      headerIcon.addEventListener('click', showHeaderTemporarily);
-
-      // Show header temporarily when scrolling and control top button visibility
-      window.addEventListener('scroll', function() {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // Control top button visibility based on scroll position
-        if (scrollTop > 100) {
-          topBtn.style.display = 'block';
-        } else {
-          topBtn.style.display = 'none';
-        }
-        
-        // If hide is enabled
-        if (isHeaderHidden) {
-          // Show header temporarily when scrolling up
-          if (scrollTop < lastScrollTop) {
-            showHeaderTemporarily();
-          }
-        }
-        
-        lastScrollTop = scrollTop;
-      });
-
-      function showHeaderTemporarily() {
-        header.classList.remove('header-hidden');
-        header.classList.add('header-visible');
-        headerIcon.classList.remove('visible');
-        
-        // Clear any existing timeout
-        clearTimeout(headerTimeout);
-        
-        // Hide header again after 2.5 seconds
-        headerTimeout = setTimeout(function() {
-          if (isHeaderHidden) {
-            header.classList.remove('header-visible');
-            header.classList.add('header-hidden');
-            headerIcon.classList.add('visible');
-          }
-        }, 2500);
-      }
-
-      // Scroll to top button
-      topBtn.addEventListener('click', function() {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      });
-
-      // Footer modal toggle
-      footerTab.addEventListener('click', function() {
-        footerModal.classList.toggle('open');
-      });
-      
-      // Dropdown menu delay implementation
-      dropdown.addEventListener('mouseenter', function() {
-        clearTimeout(dropdownTimeout);
-        dropdownContent.style.display = 'block';
-      });
-      
-      dropdown.addEventListener('mouseleave', function() {
-        clearTimeout(dropdownTimeout);
-        dropdownTimeout = setTimeout(function() {
-          dropdownContent.style.display = 'none';
-        }, 500); // 500ms delay before closing
-      });
-      
-      dropdownContent.addEventListener('mouseenter', function() {
-        clearTimeout(dropdownTimeout);
-      });
-      
-      dropdownContent.addEventListener('mouseleave', function() {
-        clearTimeout(dropdownTimeout);
-        dropdownTimeout = setTimeout(function() {
-          dropdownContent.style.display = 'none';
-        }, 500);
-      });
-
-      // Smooth scroll for menu links
-      document.querySelectorAll('.dropdown-content a').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          const targetId = this.getAttribute('href');
-          const targetElement = document.querySelector(targetId);
-          const newUrl = this.getAttribute('data-url');
-          
-          // Change the iframe source if a data-url is provided
-          if (newUrl && targetElement) {
-            const iframe = targetElement.querySelector('iframe');
-            if (iframe) {
-              iframe.src = newUrl;
-            }
-          }
-          
-          if (targetElement) {
-            targetElement.scrollIntoView({
-              behavior: 'smooth'
-            });
-          }
-        });
-      });
-
-      // Logo spiral animation
-      centerLogo.addEventListener('click', function() {
-        if (animationInProgress) return;
-        
-        animationInProgress = true;
-        
-        // Create clone of the logo
-        const logoRect = centerLogo.getBoundingClientRect();
-        const spiralLogo = document.createElement('video');
-        spiralLogo.src = centerLogo.src;
-        spiralLogo.alt = centerLogo.alt;
-        spiralLogo.className = 'spiral-logo h-6 w-16';
-        spiralLogo.style.left = `${logoRect.left}px`;
-        spiralLogo.style.top = `${logoRect.top}px`;
-        
-        // Add to body
-        document.body.appendChild(spiralLogo);
-        
-        // Start animation
-        setTimeout(() => {
-          spiralLogo.style.animation = 'spiralPath 3s ease-in-out 1';
-          
-          // Listen for animation end
-          spiralLogo.addEventListener('animationend', function() {
-            // Fade out
-            spiralLogo.style.opacity = '0';
-            
-            // Remove element after fade out
-            setTimeout(() => {
-              spiralLogo.remove();
-              animationInProgress = false;
-            }, 500);
-          });
-        }, 10);
-      });
-    });
-  </script>
+<body>
+<main class="stage">
+<div class="halo"></div>
+<div class="disc"></div>
+<div class="shock"></div>
+<a class="orb o-top" href="https://greatcreationstudios.greatcreations.art/" tabindex="-1"><span>Studios</span><i></i></a>
+<a class="orb o-right" href="applications.html" tabindex="-1"><span>Apps</span><i></i></a>
+<a class="orb o-bottom" href="https://greatcreations.ca/" tabindex="-1"><span>GC.ca</span><i></i></a>
+<a class="orb o-left" href="https://greatcreations.art/portfolio/" tabindex="-1"><span>Portfolio</span><i></i></a>
+<button class="mark" aria-expanded="false" aria-label="Open menu"><img src="gcs-mark.png" alt="Great Creation Studios" draggable="false"></button>
+</main>
+<script>
+const stage=document.querySelector('.stage'),mark=document.querySelector('.mark'),orbs=document.querySelectorAll('.orb');
+mark.addEventListener('click',()=>{
+const open=stage.classList.toggle('open');
+mark.setAttribute('aria-expanded',open);
+mark.setAttribute('aria-label',open?'Close menu':'Open menu');
+orbs.forEach(o=>o.tabIndex=open?0:-1);
+});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&stage.classList.contains('open'))mark.click()});
+addEventListener('contextmenu',e=>e.preventDefault());
+</script>
 </body>
 </html>
