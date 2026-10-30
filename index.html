@@ -144,7 +144,8 @@ voice('sine',0,.45,(f,g)=>{f.value=80;g.setValueAtTime(.1,now);g.exponentialRamp
 // Orbs play the sun sound, then follow the link once it has finished (leaving earlier cuts it off).
 // 1.5s at most, so a phone that never wakes its audio still goes. Modified clicks (new tab/window) are untouched.
 orbs.forEach(o=>o.addEventListener('click',e=>{
-if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+// (button>0 rather than !==0: some mobile browsers report a tap's button as -1 or leave it out)
+if(e.button>0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
 e.preventDefault();
 let gone=false;const go=()=>{if(!gone){gone=true;location.href=o.href}};
 sunSound().then(go);
