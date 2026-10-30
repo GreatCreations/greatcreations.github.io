@@ -111,6 +111,17 @@ transition:transform .18s cubic-bezier(.34,1.56,.64,1);
 <button class="mark" aria-expanded="false" aria-label="Open menu"><img src="gcs-mark.png" alt="Great Creation Studios" draggable="false"></button>
 </main>
 <script>
+// Signed in to the admin panel and on the tailnet: go to the tailnet version of this page
+// (https://me-think.tail4579cf.ts.net/, built from this one by C:\StudiosTailnet\build.ps1 on me-think).
+// Only at the public address, so that copy never redirects to itself. ok.js only loads on the tailnet,
+// and only while me-think's 443 serves that page, so nobody is sent to a dead address.
+if(location.hostname==='studios.greatcreations.art')fetch('https://adminpanel.greatcreations.art/admin/settings',{credentials:'include',cache:'no-store'}).then(r=>{
+if(!r.ok)return;
+const s=document.createElement('script');
+s.src='https://me-think.tail4579cf.ts.net/ok.js?'+Date.now();
+s.onload=()=>{if(window.__studiosTailnet)location.replace('https://me-think.tail4579cf.ts.net/')};
+document.head.appendChild(s);
+}).catch(()=>{});
 const stage=document.querySelector('.stage'),mark=document.querySelector('.mark'),orbs=document.querySelectorAll('.orb');
 // Sounds are the Observatory's (greatcreationstudios.greatcreations.art/observatory.html), on one AudioContext.
 let audio;
