@@ -112,7 +112,21 @@ transition:transform .18s cubic-bezier(.34,1.56,.64,1);
 </main>
 <script>
 const stage=document.querySelector('.stage'),mark=document.querySelector('.mark'),orbs=document.querySelectorAll('.orb');
+// Tap sound: the Observatory's planet (service node) click sound, playNodeSound in
+// greatcreationstudios.greatcreations.art/observatory.html. One AudioContext, made on the first tap.
+let audio;
+const tapSound=()=>{try{
+audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+if(audio.state==='suspended')audio.resume();
+const now=audio.currentTime;
+const voice=(type,start,stop,shape)=>{const o=audio.createOscillator(),g=audio.createGain();o.type=type;shape(o.frequency,g.gain);o.connect(g);g.connect(audio.destination);o.start(now+start);o.stop(now+stop)};
+// Quick descending blip
+voice('sine',0,.1,(f,g)=>{f.setValueAtTime(1600,now);f.exponentialRampToValueAtTime(800,now+.06);g.setValueAtTime(.15,now);g.exponentialRampToValueAtTime(.001,now+.08)});
+// Confirming tone, steady pitch
+voice('sine',.08,.32,(f,g)=>{f.value=1046;g.setValueAtTime(0,now+.08);g.linearRampToValueAtTime(.1,now+.1);g.setValueAtTime(.1,now+.22);g.exponentialRampToValueAtTime(.001,now+.3)});
+}catch(e){}};
 mark.addEventListener('click',()=>{
+tapSound();
 const open=stage.classList.toggle('open');
 mark.setAttribute('aria-expanded',open);
 mark.setAttribute('aria-label',open?'Close menu':'Open menu');
