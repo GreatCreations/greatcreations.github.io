@@ -1077,6 +1077,9 @@ function slab(w,h,a,n,lm){
 
 /* ---------- inputs bookkeeping ---------- */
 function markInput(){S.lastInput=now();if(S.auto&&!S.auto.user)S.auto=null;}
+/* Chrome can drop the tab icon when the address changes (the #/ above) before the icon has loaded,
+   e.g. arriving from a link. Re-adding the icon tags after each change makes it look again. */
+function reIcon(){D.querySelectorAll('link[rel~="icon"],link[rel="apple-touch-icon"]').forEach(l=>l.replaceWith(l.cloneNode()));}
 function announce(t){const l=D.getElementById('live');if(l)l.textContent=t;}
 function go(d){
   markInput();if(S.over.open)return;
@@ -1092,7 +1095,7 @@ function setSeed(v){S.seed=v;LS.set('seed',v);S.cache.clear();S.forceJump=true;j
 /* ---------- arrivals ---------- */
 function onArrive(){
   const c=S.bindComp;announce(c.label);
-  try{history.replaceState(null,'','#/'+c.key);}catch(e){}
+  try{history.replaceState(null,'','#/'+c.key);reIcon();}catch(e){}
   for(const p of S.bind)if(p&&p.K.arrive)p.K.arrive(p);
   if(c.creation){S.seen[c.creation.id]=c.creation.version||'1';LS.set('seen',S.seen);}
   if(S.sound)SOUND.play('arrive');
