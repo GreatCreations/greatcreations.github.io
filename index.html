@@ -112,36 +112,43 @@ transition:transform .18s cubic-bezier(.34,1.56,.64,1);
 </main>
 <script>
 const stage=document.querySelector('.stage'),mark=document.querySelector('.mark'),orbs=document.querySelectorAll('.orb');
-// Sounds are the Observatory's (greatcreationstudios.greatcreations.art/observatory.html), on one
-// AudioContext made on the first tap. play() hands build a voice(type,start,stop,shape) maker and now.
+// Sounds are the Observatory's (greatcreationstudios.greatcreations.art/observatory.html), on one AudioContext.
 let audio;
-const play=build=>{try{
-audio=audio||new (window.AudioContext||window.webkitAudioContext)();
-if(audio.state==='suspended')audio.resume();
-const now=audio.currentTime;
-build((type,start,stop,shape)=>{const o=audio.createOscillator(),g=audio.createGain();o.type=type;shape(o.frequency,g.gain);o.connect(g);g.connect(audio.destination);o.start(now+start);o.stop(now+stop)},now);
-}catch(e){}};
+const ctx=()=>audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+// Phones keep audio suspended until a touch: wake it on the first touch anywhere, with one silent sample.
+addEventListener('pointerdown',()=>{try{const a=ctx();if(a.state!=='running')a.resume();const b=a.createBufferSource();b.buffer=a.createBuffer(1,1,22050);b.connect(a.destination);b.start(0)}catch(e){}},{once:true,capture:true});
+// play(build,len): schedules the sound once the context is really running (so a still-waking phone
+// does not swallow it) and resolves len seconds later, when it has finished; resolves at once without audio.
+// build gets a voice(type,start,stop,shape) maker and now.
+const play=(build,len)=>new Promise(done=>{try{
+const a=ctx();
+const go=()=>{const now=a.currentTime;
+build((type,start,stop,shape)=>{const o=a.createOscillator(),g=a.createGain();o.type=type;shape(o.frequency,g.gain);o.connect(g);g.connect(a.destination);o.start(now+start);o.stop(now+stop)},now);
+setTimeout(done,len*1000)};
+a.state==='running'?go():a.resume().then(go,done);
+}catch(e){done()}});
 // Logo: the planet (service node) sound, playNodeSound
 const tapSound=()=>play((voice,now)=>{
 // Quick descending blip
 voice('sine',0,.1,(f,g)=>{f.setValueAtTime(1600,now);f.exponentialRampToValueAtTime(800,now+.06);g.setValueAtTime(.15,now);g.exponentialRampToValueAtTime(.001,now+.08)});
 // Confirming tone, steady pitch
 voice('sine',.08,.32,(f,g)=>{f.value=1046;g.setValueAtTime(0,now+.08);g.linearRampToValueAtTime(.1,now+.1);g.setValueAtTime(.1,now+.22);g.exponentialRampToValueAtTime(.001,now+.3)});
-});
+},.32);
 // Orbs: the sun sound, playSunSound
 const sunSound=()=>play((voice,now)=>{
 // Warm chord, three tones resolving
 [330,415,523].forEach((hz,i)=>voice('sine',i*.04,.55,(f,g)=>{f.value=hz;g.setValueAtTime(0,now+i*.04);g.linearRampToValueAtTime(.08,now+i*.04+.03);g.exponentialRampToValueAtTime(.001,now+.5)}));
 // Sub bass pulse
 voice('sine',0,.45,(f,g)=>{f.value=80;g.setValueAtTime(.1,now);g.exponentialRampToValueAtTime(.001,now+.4)});
-});
-// Leaving the page cuts the sound off, so a plain click waits 400ms before following the link.
-// Modified clicks (new tab/window) keep their normal behaviour.
+},.55);
+// Orbs play the sun sound, then follow the link once it has finished (leaving earlier cuts it off).
+// 1.5s at most, so a phone that never wakes its audio still goes. Modified clicks (new tab/window) are untouched.
 orbs.forEach(o=>o.addEventListener('click',e=>{
 if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
 e.preventDefault();
-sunSound();
-setTimeout(()=>{location.href=o.href},400);
+let gone=false;const go=()=>{if(!gone){gone=true;location.href=o.href}};
+sunSound().then(go);
+setTimeout(go,1500);
 }));
 mark.addEventListener('click',()=>{
 tapSound();
