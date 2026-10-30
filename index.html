@@ -112,19 +112,37 @@ transition:transform .18s cubic-bezier(.34,1.56,.64,1);
 </main>
 <script>
 const stage=document.querySelector('.stage'),mark=document.querySelector('.mark'),orbs=document.querySelectorAll('.orb');
-// Tap sound: the Observatory's planet (service node) click sound, playNodeSound in
-// greatcreationstudios.greatcreations.art/observatory.html. One AudioContext, made on the first tap.
+// Sounds are the Observatory's (greatcreationstudios.greatcreations.art/observatory.html), on one
+// AudioContext made on the first tap. play() hands build a voice(type,start,stop,shape) maker and now.
 let audio;
-const tapSound=()=>{try{
+const play=build=>{try{
 audio=audio||new (window.AudioContext||window.webkitAudioContext)();
 if(audio.state==='suspended')audio.resume();
 const now=audio.currentTime;
-const voice=(type,start,stop,shape)=>{const o=audio.createOscillator(),g=audio.createGain();o.type=type;shape(o.frequency,g.gain);o.connect(g);g.connect(audio.destination);o.start(now+start);o.stop(now+stop)};
+build((type,start,stop,shape)=>{const o=audio.createOscillator(),g=audio.createGain();o.type=type;shape(o.frequency,g.gain);o.connect(g);g.connect(audio.destination);o.start(now+start);o.stop(now+stop)},now);
+}catch(e){}};
+// Logo: the planet (service node) sound, playNodeSound
+const tapSound=()=>play((voice,now)=>{
 // Quick descending blip
 voice('sine',0,.1,(f,g)=>{f.setValueAtTime(1600,now);f.exponentialRampToValueAtTime(800,now+.06);g.setValueAtTime(.15,now);g.exponentialRampToValueAtTime(.001,now+.08)});
 // Confirming tone, steady pitch
 voice('sine',.08,.32,(f,g)=>{f.value=1046;g.setValueAtTime(0,now+.08);g.linearRampToValueAtTime(.1,now+.1);g.setValueAtTime(.1,now+.22);g.exponentialRampToValueAtTime(.001,now+.3)});
-}catch(e){}};
+});
+// Orbs: the sun sound, playSunSound
+const sunSound=()=>play((voice,now)=>{
+// Warm chord, three tones resolving
+[330,415,523].forEach((hz,i)=>voice('sine',i*.04,.55,(f,g)=>{f.value=hz;g.setValueAtTime(0,now+i*.04);g.linearRampToValueAtTime(.08,now+i*.04+.03);g.exponentialRampToValueAtTime(.001,now+.5)}));
+// Sub bass pulse
+voice('sine',0,.45,(f,g)=>{f.value=80;g.setValueAtTime(.1,now);g.exponentialRampToValueAtTime(.001,now+.4)});
+});
+// Leaving the page cuts the sound off, so a plain click waits 400ms before following the link.
+// Modified clicks (new tab/window) keep their normal behaviour.
+orbs.forEach(o=>o.addEventListener('click',e=>{
+if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+e.preventDefault();
+sunSound();
+setTimeout(()=>{location.href=o.href},400);
+}));
 mark.addEventListener('click',()=>{
 tapSound();
 const open=stage.classList.toggle('open');
